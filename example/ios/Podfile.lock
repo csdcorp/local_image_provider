@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - local_image_provider (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `.symlinks/flutter/ios`)
+  - local_image_provider (from `.symlinks/plugins/local_image_provider/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: ".symlinks/flutter/ios"
+  local_image_provider:
+    :path: ".symlinks/plugins/local_image_provider/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
+  local_image_provider: cf979b81bc1cacc81867d3511a1b6b7216411e93
+
+PODFILE CHECKSUM: b6a0a141693093b304368d08511b46cf3d1d0ac5
+
+COCOAPODS: 1.7.5
