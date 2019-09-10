@@ -9,6 +9,11 @@ class LocalImageProvider {
   static const MethodChannel _channel =
       const MethodChannel('local_image_provider');
 
+  static Future<bool> requestPermission( ) async {
+    final bool permission = await _channel.invokeMethod('request_permission');
+    return permission;
+  }
+
   static Future<List<LocalImage>> getLatest( int maxPhotos ) async {
     final List<dynamic> photoIds = await _channel.invokeMethod('latest_images', maxPhotos );
     return photoIds.map((photoJson)  { 
