@@ -2,9 +2,17 @@ import Flutter
 import UIKit
 import Photos
 
+public enum LocalImageProviderMethods: String {
+    case request_permission
+    case latest_images
+    case photo_image
+    case unknown // just for testing
+}
+
 @available(iOS 10.0, *)
 public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
   let imageManager = PHImageManager.default()
+  public let LatestImagesMethod = "latest_images"
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "local_image_provider", binaryMessenger: registrar.messenger())
@@ -14,18 +22,35 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
-    case "latest_images":
-        let maxPhotos = call.arguments! as! Int
+    case LocalImageProviderMethods.request_permission.rawValue:
+        getPermissions( result )
+    case LocalImageProviderMethods.latest_images.rawValue:
+        guard let maxPhotos = call.arguments as? Int else { result("Missing max photos argument."); return}
         getLatestImages( maxPhotos, result);
-    case "photo_image":
-        let arguments = call.arguments! as! Dictionary<String,AnyObject>
-        getPhotoImage(arguments["id"] as! String, arguments["pixelWidth"] as! Int, arguments["pixelHeight"] as! Int, result);
+    case LocalImageProviderMethods.photo_image.rawValue:
+        guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
+            let localId = argsArr["id"] as? String,
+            let width = argsArr["pixelWidth"] as? Int,
+            let height = argsArr["pixelHeight"] as? Int
+            else { result("Missing or invalid arguments: \(call.method)"); return }
+        getPhotoImage( localId, width, height, result);
     default:
         print("Unrecognized method: \(call.method)");
         result("Unrecognized method: \(call.method)");
     }
   // result("iOS Photos min" )
   }
+    
+    private func getPermissions(_ result: @escaping FlutterResult) {
+        PHPhotoLibrary.requestAuthorization({(status) -> Void in
+            if ( status == PHAuthorizationStatus.authorized ) {
+                result(true)
+            }
+            else {
+                result(false)
+            }
+        })
+    }
     
     private func getLatestImages( _ maxPhotos: Int, _ result: @escaping FlutterResult) {
         let allPhotosOptions = PHFetchOptions()
@@ -68,6 +93,9 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                 let typedData = FlutterStandardTypedData( bytes: data! );
                 flutterResult( typedData);
             });
+        }
+        else {
+            flutterResult("Image not found: \(id)")
         }
     }
 }

@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import local_image_provider
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
