@@ -23,8 +23,8 @@ class LocalImageProvider {
       ).toList();
   }
 
-  static Future<Uint8List> photoImage( String id, int height, int width ) async {
-    final Uint8List photoBytes = await _channel.invokeMethod('photo_image', {'id':id,'pixelHeight':height,'pixelWidth':width });
+  static Future<Uint8List> imageBytes( String id, int height, int width ) async {
+    final Uint8List photoBytes = await _channel.invokeMethod('image_bytes', {'id':id,'pixelHeight':height,'pixelWidth':width });
     return photoBytes;
   }
 }

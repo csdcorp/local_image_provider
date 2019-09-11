@@ -19,8 +19,8 @@ class LocalImage {
 
   LocalImage( this.id, this.creationDate, this.pixelWidth, this.pixelHeight);
 
-  Future<Uint8List> getImage( int desiredHeight, int desiredWidth ) async {
-    return await LocalImageProvider.photoImage(id, desiredHeight, desiredWidth);
+  Future<Uint8List> getImageBytes( int desiredHeight, int desiredWidth ) async {
+    return await LocalImageProvider.imageBytes(id, desiredHeight, desiredWidth);
   }
 
   factory LocalImage.fromJson(Map<String, dynamic> json) =>

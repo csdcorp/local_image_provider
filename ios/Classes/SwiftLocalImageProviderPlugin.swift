@@ -5,7 +5,7 @@ import Photos
 public enum LocalImageProviderMethods: String {
     case request_permission
     case latest_images
-    case photo_image
+    case image_bytes
     case unknown // just for testing
 }
 
@@ -27,7 +27,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
     case LocalImageProviderMethods.latest_images.rawValue:
         guard let maxPhotos = call.arguments as? Int else { result("Missing max photos argument."); return}
         getLatestImages( maxPhotos, result);
-    case LocalImageProviderMethods.photo_image.rawValue:
+    case LocalImageProviderMethods.image_bytes.rawValue:
         guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
             let localId = argsArr["id"] as? String,
             let width = argsArr["pixelWidth"] as? Int,

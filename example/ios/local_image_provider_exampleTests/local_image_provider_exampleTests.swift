@@ -62,16 +62,16 @@ class local_image_provider_exampleTests: XCTestCase {
     // Get photo tests
     
     func testPhotoImageWithMissingArgsHandled() {
-        testExpectedResult( methodName: LocalImageProviderMethods.photo_image, arguments: nil, resultType: String.self, assertExpect: {(result)->Void in
+        testExpectedResult( methodName: LocalImageProviderMethods.image_bytes, arguments: nil, resultType: String.self, assertExpect: {(result)->Void in
             let strResult = result! as! String
-            XCTAssertEqual( "Missing or invalid arguments: \(LocalImageProviderMethods.photo_image.rawValue)", strResult )
+            XCTAssertEqual( "Missing or invalid arguments: \(LocalImageProviderMethods.image_bytes.rawValue)", strResult )
         })
     }
 
     func testPhotoImageLoadsKnownImage() {
         guard let firstPhotoId = getFirstPhotoId() else { XCTFail(); return }
         let photoArgs = [ "id": firstPhotoId,"pixelWidth":100,"pixelHeight":100] as [String : Any]
-        self.testExpectedResult( methodName: LocalImageProviderMethods.photo_image, arguments: photoArgs, resultType: FlutterStandardTypedData.self, assertExpect: {(result)->Void in
+        self.testExpectedResult( methodName: LocalImageProviderMethods.image_bytes, arguments: photoArgs, resultType: FlutterStandardTypedData.self, assertExpect: {(result)->Void in
             let byteResult = result! as! FlutterStandardTypedData
             XCTAssertTrue( !byteResult.data.isEmpty )
         })
@@ -80,7 +80,7 @@ class local_image_provider_exampleTests: XCTestCase {
     func testPhotoImageHandlesUnlikelySizes() {
         guard let firstPhotoId = getFirstPhotoId() else { XCTFail(); return }
         let photoArgs = [ "id": firstPhotoId,"pixelWidth":0,"pixelHeight":0] as [String : Any]
-        self.testExpectedResult( methodName: LocalImageProviderMethods.photo_image, arguments: photoArgs, resultType: FlutterStandardTypedData.self, assertExpect: {(result)->Void in
+        self.testExpectedResult( methodName: LocalImageProviderMethods.image_bytes, arguments: photoArgs, resultType: FlutterStandardTypedData.self, assertExpect: {(result)->Void in
             let byteResult = result! as! FlutterStandardTypedData
             XCTAssertTrue( !byteResult.data.isEmpty )
         })
@@ -88,7 +88,7 @@ class local_image_provider_exampleTests: XCTestCase {
     
     func testPhotoImageHandlesUnknownImage() {
         let photoArgs = [ "id": "notARealImage","pixelWidth":100,"pixelHeight":100] as [String : Any]
-        self.testExpectedResult( methodName: LocalImageProviderMethods.photo_image, arguments: photoArgs, resultType: String.self, assertExpect: {(result)->Void in
+        self.testExpectedResult( methodName: LocalImageProviderMethods.image_bytes, arguments: photoArgs, resultType: String.self, assertExpect: {(result)->Void in
             let strResult = result! as! String
             XCTAssertEqual( "Image not found: notARealImage", strResult )
         })
