@@ -1,3 +1,7 @@
-## 0.0.1
+## 1.0.1
 
-* TODO: Describe initial release.
+* Initial release with limited functionality, supports only:
+  * requesting access
+  * getting latest images
+  * getting bytes for image. 
+* Android and iOS 10+ support

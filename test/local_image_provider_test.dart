@@ -1,3 +1,4 @@
+import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:local_image_provider/local_image.dart';
@@ -47,5 +48,13 @@ void main() {
     List<LocalImage> photos = await LocalImageProvider.getLatest(10);
     expect(photos.length, 2);
     expect(photos[0].id, firstImageId);
+  });
+
+  test('Returned list matches expectations', () async {
+    photoJsonList = [firstPhotoJson, secondPhotoJson];
+    List<LocalImage> photos = await LocalImageProvider.getLatest(10);
+    photos.forEach((image) => print( image.id));
+    LocalImage image = photos.first;
+    MemoryImage mImg = MemoryImage( await image.getImageBytes( 300, 300 ));
   });
 }
