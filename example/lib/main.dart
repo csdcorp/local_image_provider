@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 import 'package:local_image_provider/local_image.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,6 +14,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int _localImageCount = 0;
+  bool _hasPermission = false;
 
   @override
   void initState() {
@@ -23,9 +24,21 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
+    bool hasPermission = false;
     List<LocalImage> localImages = [];
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
+    PermissionStatus permission = await PermissionHandler().checkPermissionStatus(PermissionGroup.storage);
+    if ( permission != PermissionStatus.granted ){
+      Map<PermissionGroup, PermissionStatus> permissions = await PermissionHandler().requestPermissions([PermissionGroup.photos, PermissionGroup.storage]);
+      PermissionStatus status = permissions[PermissionGroup.photos];
+      if ( null != status && status == PermissionStatus.granted ) {
+        hasPermission = true;
+      }
+    }
+    else {
+      hasPermission = true;
+    }
       localImages = await LocalImageProvider.getLatest(10);
     } on PlatformException {
       print( 'Failed to get platform version.' );
@@ -38,6 +51,7 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _localImageCount = localImages.length;
+      _hasPermission = hasPermission;
     });
   }
 
@@ -49,7 +63,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_localImageCount\n'),
+          child: _hasPermission ? Text('Found: $_localImageCount images.') : Text( 'No permission'),
         ),
       ),
     );
