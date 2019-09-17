@@ -40,7 +40,7 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
                 MediaStore.Images.ImageColumns.TITLE,
                 MediaStore.Images.ImageColumns.HEIGHT,
                 MediaStore.Images.ImageColumns.WIDTH,
-                MediaStore.Images.ImageColumns.BUCKET_ID)
+                MediaStore.MediaColumns._ID)
         val mediaResolver = pluginActivity.contentResolver
         val imageCursor = mediaResolver.query( imgUri, mediaColumns, null, null, null )
         if ( null != imageCursor ) {
@@ -48,7 +48,7 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
             val heightColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.HEIGHT)
             val dateColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_TAKEN)
             val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.TITLE)
-            val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_ID)
+            val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
             while ( imageCursor.moveToNext()) {
                 val imgJson = JSONObject()
                 imgJson.put( "title", imageCursor.getString(titleColumn))

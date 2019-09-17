@@ -15,6 +15,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int _localImageCount = 0;
   bool _hasPermission = false;
+  List<LocalImage> _localImages = [];
 
   @override
   void initState() {
@@ -28,20 +29,22 @@ class _MyAppState extends State<MyApp> {
     List<LocalImage> localImages = [];
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-    PermissionStatus permission = await PermissionHandler().checkPermissionStatus(PermissionGroup.storage);
-    if ( permission != PermissionStatus.granted ){
-      Map<PermissionGroup, PermissionStatus> permissions = await PermissionHandler().requestPermissions([PermissionGroup.photos, PermissionGroup.storage]);
-      PermissionStatus status = permissions[PermissionGroup.photos];
-      if ( null != status && status == PermissionStatus.granted ) {
+      PermissionStatus permission = await PermissionHandler()
+          .checkPermissionStatus(PermissionGroup.storage);
+      if (permission != PermissionStatus.granted) {
+        Map<PermissionGroup, PermissionStatus> permissions =
+            await PermissionHandler().requestPermissions(
+                [PermissionGroup.photos, PermissionGroup.storage]);
+        PermissionStatus status = permissions[PermissionGroup.photos];
+        if (null != status && status == PermissionStatus.granted) {
+          hasPermission = true;
+        }
+      } else {
         hasPermission = true;
       }
-    }
-    else {
-      hasPermission = true;
-    }
       localImages = await LocalImageProvider.getLatest(10);
     } on PlatformException {
-      print( 'Failed to get platform version.' );
+      print('Failed to get platform version.');
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -50,7 +53,9 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _localImageCount = localImages.length;
+      _localImages.addAll(localImages);
+      _localImageCount = _localImages.length;
+      print( 'Count is $_localImageCount, length is ${_localImages.length}');
       _hasPermission = hasPermission;
     });
   }
@@ -62,9 +67,18 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Center(
-          child: _hasPermission ? Text('Found: $_localImageCount images.') : Text( 'No permission'),
-        ),
+        body: _hasPermission
+            ? Column(children: [
+                Text('Found: ${_localImages.length} images was $_localImageCount.'),
+                Expanded(
+                  child: ListView(
+                    children: _localImages
+                        .map((img) => Text('Found: ${img.id}'))
+                        .toList(),
+                  ),
+                )
+              ])
+            : Center(child: Text('No permission')),
       ),
     );
   }
