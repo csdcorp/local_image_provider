@@ -26,14 +26,6 @@ class local_image_provider_exampleTests: XCTestCase {
         })
     }
     
-    // Permission tests
-    func testHasPermissionsAsExpected() {
-        testExpectedResult( methodName: LocalImageProviderMethods.request_permission, arguments: nil, resultType: Bool.self, assertExpect: {(result)->Void in
-            let bResult = result! as! Bool
-            XCTAssertEqual( true, bResult )
-        })
-    }
-    
     // Latest images tests
     
     func testLatestImagesWithMissingCountHandled() {

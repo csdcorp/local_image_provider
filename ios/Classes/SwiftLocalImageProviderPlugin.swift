@@ -3,7 +3,6 @@ import UIKit
 import Photos
 
 public enum LocalImageProviderMethods: String {
-    case request_permission
     case latest_images
     case image_bytes
     case unknown // just for testing
@@ -22,8 +21,6 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
-    case LocalImageProviderMethods.request_permission.rawValue:
-        getPermissions( result )
     case LocalImageProviderMethods.latest_images.rawValue:
         guard let maxPhotos = call.arguments as? Int else { result("Missing max photos argument."); return}
         getLatestImages( maxPhotos, result);
@@ -40,17 +37,6 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
     }
   // result("iOS Photos min" )
   }
-    
-    private func getPermissions(_ result: @escaping FlutterResult) {
-        PHPhotoLibrary.requestAuthorization({(status) -> Void in
-            if ( status == PHAuthorizationStatus.authorized ) {
-                result(true)
-            }
-            else {
-                result(false)
-            }
-        })
-    }
     
     private func getLatestImages( _ maxPhotos: Int, _ result: @escaping FlutterResult) {
         let allPhotosOptions = PHFetchOptions()

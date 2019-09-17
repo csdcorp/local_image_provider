@@ -27,11 +27,6 @@ void main() {
     channel.setMockMethodCallHandler(null);
   });
 
-  test('permission returns expected', () async {
-    bool permission = await LocalImageProvider.requestPermission();
-    expect(permission, true);
-  });
-
   test('empty list returns no photos', () async {
     List<LocalImage> photos = await LocalImageProvider.getLatest(10);
     expect(photos.length, 0);

@@ -10,13 +10,6 @@ class LocalImageProvider {
   static const MethodChannel _channel =
       const MethodChannel('local_image_provider');
 
-  /// Returns true if the user grants you permission to use their local photos.
-  /// 
-  /// Asks the user if they have not already chosen. 
-  static Future<bool> requestPermission( ) async {
-    final bool permission = await _channel.invokeMethod('request_permission');
-    return permission;
-  }
 
   /// The newest images on the local device up to [maxPhotos] in length.
   /// 
