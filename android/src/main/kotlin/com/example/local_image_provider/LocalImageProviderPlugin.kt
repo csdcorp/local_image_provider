@@ -29,7 +29,7 @@ import kotlin.collections.ArrayList
 
 class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
     val pluginActivity: Activity
-    val isoFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SXXX")
+    val isoFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SZZZZZ")
 
   companion object {
     @JvmStatic
