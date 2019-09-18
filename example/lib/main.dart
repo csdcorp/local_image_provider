@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
@@ -16,6 +18,7 @@ class _MyAppState extends State<MyApp> {
   int _localImageCount = 0;
   bool _hasPermission = false;
   List<LocalImage> _localImages = [];
+  Uint8List _imgBytes;
 
   @override
   void initState() {
@@ -27,6 +30,8 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     bool hasPermission = false;
     List<LocalImage> localImages = [];
+    Uint8List imgBytes;
+
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       PermissionStatus permission = await PermissionHandler()
@@ -43,6 +48,7 @@ class _MyAppState extends State<MyApp> {
         hasPermission = true;
       }
       localImages = await LocalImageProvider.getLatest(10);
+      imgBytes = await LocalImageProvider.imageBytes( localImages[0].id, 500, 500 );
     } on PlatformException {
       print('Failed to get platform version.');
     }
@@ -56,6 +62,8 @@ class _MyAppState extends State<MyApp> {
       _localImages.addAll(localImages);
       _localImageCount = _localImages.length;
       print( 'Count is $_localImageCount, length is ${_localImages.length}');
+      print('Total image bytes: ${imgBytes.length}');
+      _imgBytes = imgBytes;
       _hasPermission = hasPermission;
     });
   }
@@ -70,6 +78,7 @@ class _MyAppState extends State<MyApp> {
         body: _hasPermission
             ? Column(children: [
                 Text('Found: ${_localImages.length} images was $_localImageCount.'),
+                Image.memory(_imgBytes),
                 Expanded(
                   child: ListView(
                     children: _localImages
