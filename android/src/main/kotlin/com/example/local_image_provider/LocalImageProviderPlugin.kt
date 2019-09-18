@@ -4,6 +4,7 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -84,24 +85,29 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
         Thread(Runnable {
             val imgUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id )
             val mediaResolver = pluginActivity.contentResolver
-            val imgSrc = ImageDecoder.createSource(mediaResolver, imgUri )
-            val bitmap = ImageDecoder.decodeBitmap( imgSrc )
-            val originalHeight = bitmap.height
-            val originalWidth = bitmap.width
-            var scaleFactor = 1.0
-            if ( width < originalWidth ) {
-                scaleFactor = width / originalWidth.toDouble()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val imgSrc = ImageDecoder.createSource(mediaResolver, imgUri )
+                val bitmap = ImageDecoder.decodeBitmap( imgSrc )
+                val originalHeight = bitmap.height
+                val originalWidth = bitmap.width
+                var scaleFactor = 1.0
+                if ( width < originalWidth ) {
+                    scaleFactor = width / originalWidth.toDouble()
+                }
+                else if ( height < originalHeight ) {
+                    scaleFactor = height / originalHeight.toDouble()
+                }
+                val desiredWidth = Math.round(originalWidth * scaleFactor).toInt()
+                val desiredHeight = Math.round( originalHeight * scaleFactor).toInt()
+                val resizedBitmap = Bitmap.createScaledBitmap(bitmap, desiredWidth, desiredHeight, true )
+                val imgBytes = ByteArrayOutputStream()
+                imgBytes.use {
+                    resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, imgBytes );
+                    pluginActivity.runOnUiThread( Runnable {result.success(imgBytes.toByteArray())})
+                }
             }
-            else if ( height < originalHeight ) {
-                scaleFactor = height / originalHeight.toDouble()
-            }
-            val desiredWidth = Math.round(originalWidth * scaleFactor).toInt()
-            val desiredHeight = Math.round( originalHeight * scaleFactor).toInt()
-            val resizedBitmap = Bitmap.createScaledBitmap(bitmap, desiredWidth, desiredHeight, true )
-            val imgBytes = ByteArrayOutputStream()
-            imgBytes.use {
-                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 70, imgBytes );
-                pluginActivity.runOnUiThread( Runnable {result.success(imgBytes.toByteArray())})
+            else {
+                pluginActivity.runOnUiThread( Runnable {result.error("Unsupported Android version.", null, null )})
             }
         }).start()
     }
