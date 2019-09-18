@@ -47,7 +47,7 @@ class _MyAppState extends State<MyApp> {
       } else {
         hasPermission = true;
       }
-      localImages = await LocalImageProvider.getLatest(10);
+      localImages = await LocalImageProvider.getLatest(2);
       imgBytes = await LocalImageProvider.imageBytes( localImages[0].id, 500, 500 );
     } on PlatformException {
       print('Failed to get platform version.');
@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> {
                 Expanded(
                   child: ListView(
                     children: _localImages
-                        .map((img) => Text('Found: ${img.id}'))
+                        .map((img) => Text('Found: ${img.id}, date: ${img.creationDate}'))
                         .toList(),
                   ),
                 )

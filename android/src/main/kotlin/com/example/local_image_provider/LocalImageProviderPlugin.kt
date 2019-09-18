@@ -21,10 +21,15 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.concurrent.Future
+import kotlin.collections.ArrayList
 
 class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
     val pluginActivity: Activity
+    val isoFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SXXX")
 
   companion object {
     @JvmStatic
@@ -40,7 +45,13 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
 
   override fun onMethodCall(call: MethodCall, result: Result) {
     if (call.method == "latest_images") {
-      getLatestImages( result )
+        val maxResults = call.arguments as Integer
+        if ( null != maxResults ) {
+            getLatestImages( maxResults, result )
+        }
+        else {
+            result.error( "Missing parameters, requires maxPhotos", null, null )
+        }
     }
     else if ( call.method == "image_bytes") {
         val id = call.argument<String>( "id")
@@ -58,7 +69,7 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
     }
   }
 
-    fun getLatestImages( result: Result ) {
+    fun getLatestImages( maxResults: Integer, result: Result ) {
         Thread(Runnable {
             val images = ArrayList<String>()
             val imgUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -68,8 +79,10 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
                     MediaStore.Images.ImageColumns.HEIGHT,
                     MediaStore.Images.ImageColumns.WIDTH,
                     MediaStore.MediaColumns._ID)
+            val sortOrder = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC LIMIT $maxResults"
             val mediaResolver = pluginActivity.contentResolver
-            val imageCursor = mediaResolver.query( imgUri, mediaColumns, null, null, null )
+            val imageCursor = mediaResolver.query( imgUri, mediaColumns, null,
+                    null, sortOrder )
             imageCursor?.use {
                 val widthColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.WIDTH)
                 val heightColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.HEIGHT)
@@ -82,7 +95,9 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
                     imgJson.put( "pixelWidth", imageCursor.getInt(widthColumn))
                     imgJson.put( "pixelHeight", imageCursor.getInt(heightColumn))
                     imgJson.put( "id", imageCursor.getString(idColumn))
-                    imgJson.put( "creationDate", imageCursor.getString(dateColumn))
+                    val takenOn = Date( imageCursor.getLong(dateColumn))
+                    val isoDate = isoFormatter.format( takenOn )
+                    imgJson.put( "creationDate", isoDate )
                     images.add( imgJson.toString())
                 }
             }
