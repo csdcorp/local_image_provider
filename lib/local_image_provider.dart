@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
+import 'package:local_image_provider/local_album.dart';
 import 'package:local_image_provider/local_image.dart';
 
 /// An interface to get information from the local image storage on the device.
@@ -11,13 +12,22 @@ class LocalImageProvider {
       const MethodChannel('local_image_provider');
 
 
+  static Future<List<LocalAlbum>> getAlbums( LocalAlbumType localAlbumType ) async {
+    final List<dynamic> albums = await _channel.invokeMethod('albums', localAlbumType.value );
+    return albums.map((albumJson)  { 
+      print( albumJson );
+      Map<String,dynamic> photoMap = jsonDecode(albumJson );
+      return LocalAlbum.fromJson(photoMap);}
+      ).toList();
+  }
+
   /// The newest images on the local device up to [maxPhotos] in length.
   /// 
   /// This list may be empty if there are no photos on the device or the 
   /// user has denied permission to see their local photos. 
   static Future<List<LocalImage>> getLatest( int maxPhotos ) async {
-    final List<dynamic> photoIds = await _channel.invokeMethod('latest_images', maxPhotos );
-    return photoIds.map((photoJson)  { 
+    final List<dynamic> photos = await _channel.invokeMethod('latest_images', maxPhotos );
+    return photos.map((photoJson)  { 
       print( photoJson );
       Map<String,dynamic> photoMap = jsonDecode(photoJson );
       return LocalImage.fromJson(photoMap);}

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 import 'package:local_image_provider/local_image.dart';
+import 'package:local_image_provider/local_album.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() => runApp(MyApp());
@@ -18,7 +20,9 @@ class _MyAppState extends State<MyApp> {
   int _localImageCount = 0;
   bool _hasPermission = false;
   List<LocalImage> _localImages = [];
+  List<LocalAlbum> _localAlbums = [];
   Uint8List _imgBytes;
+  bool _hasImage = false;
 
   @override
   void initState() {
@@ -30,12 +34,18 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     bool hasPermission = false;
     List<LocalImage> localImages = [];
-    Uint8List imgBytes;
+    List<LocalAlbum> localAlbums = [];
 
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      PermissionStatus permission = await PermissionHandler()
-          .checkPermissionStatus(PermissionGroup.storage);
+      PermissionStatus permission = PermissionStatus.granted;
+      if (Platform.isAndroid) {
+        permission = await PermissionHandler()
+            .checkPermissionStatus(PermissionGroup.storage);
+      } else if (Platform.isIOS) {
+        permission = await PermissionHandler()
+            .checkPermissionStatus(PermissionGroup.photos);
+      }
       if (permission != PermissionStatus.granted) {
         Map<PermissionGroup, PermissionStatus> permissions =
             await PermissionHandler().requestPermissions(
@@ -48,7 +58,7 @@ class _MyAppState extends State<MyApp> {
         hasPermission = true;
       }
       localImages = await LocalImageProvider.getLatest(2);
-      imgBytes = await LocalImageProvider.imageBytes( localImages[0].id, 500, 500 );
+      localAlbums = await LocalImageProvider.getAlbums(LocalAlbumType.all);
     } on PlatformException {
       print('Failed to get platform version.');
     }
@@ -60,11 +70,19 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _localImages.addAll(localImages);
+      _localAlbums.addAll(localAlbums);
       _localImageCount = _localImages.length;
-      print( 'Count is $_localImageCount, length is ${_localImages.length}');
-      print('Total image bytes: ${imgBytes.length}');
-      _imgBytes = imgBytes;
+      print('Count is $_localImageCount, length is ${_localImages.length}');
       _hasPermission = hasPermission;
+    });
+  }
+
+  void switchImage( String imageId ) {
+    LocalImageProvider.imageBytes(imageId, 500, 500 ).then((img){
+    setState(() {
+      _imgBytes = img;
+      _hasImage = true;
+    });
     });
   }
 
@@ -77,15 +95,34 @@ class _MyAppState extends State<MyApp> {
         ),
         body: _hasPermission
             ? Column(children: [
-                Text('Found: ${_localImages.length} images was $_localImageCount.'),
-                Image.memory(_imgBytes),
+                Text(
+                  'Images: ${_localImages.length}, Albums: ${_localAlbums.length}.',
+                  style: TextStyle(fontSize: 24),
+                ),
                 Expanded(
                   child: ListView(
                     children: _localImages
-                        .map((img) => Text('Found: ${img.id}, date: ${img.creationDate}'))
+                        .map((img) =>
+                            GestureDetector( onTap: () => switchImage( img.id), child: Text('Found: ${img.id}, date: ${img.creationDate}')))
                         .toList(),
                   ),
-                )
+                ),
+                Expanded(
+                  child: ListView(
+                    children: _localAlbums
+                        .map(
+                          (album) =>
+                              GestureDetector( onTap: () => switchImage( album.coverImgId),child: Text('Found: ${album.title}, id: ${album.id}, coverImgId: ${album.coverImgId}')),
+                        )
+                        .toList(),
+                  ),
+                ),
+                Expanded( child: Column(
+                  children: <Widget>[
+                    Text('Selected image:'),
+                    Expanded(child: _hasImage ? Image.memory(_imgBytes ) : Placeholder()),
+                  ],
+                ))
               ])
             : Center(child: Text('No permission')),
       ),

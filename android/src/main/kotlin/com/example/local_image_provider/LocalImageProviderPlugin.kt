@@ -1,6 +1,7 @@
 package com.example.local_image_provider
 
 import android.app.Activity
+import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
@@ -41,6 +42,15 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
             result.error( "Missing parameters, requires maxPhotos", null, null )
         }
     }
+    else if ( call.method == "albums") {
+        val localAlbumType = call.arguments as Integer
+        if ( null != localAlbumType ) {
+            getAlbums( localAlbumType, result )
+        }
+        else {
+            result.error( "Missing parameters, requires maxPhotos", null, null )
+        }
+    }
     else if ( call.method == "image_bytes") {
         val id = call.argument<String>( "id")
         val width = call.argument<Int>("pixelWidth")
@@ -56,6 +66,64 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
       result.notImplemented()
     }
   }
+
+    fun getAlbums( localAlbumType: Integer, result: Result ) {
+        val albums = ArrayList<String>()
+        Thread(Runnable {
+            albums.addAll( getAlbumsFromLocation(MediaStore.Images.Media.INTERNAL_CONTENT_URI ))
+            albums.addAll( getAlbumsFromLocation(MediaStore.Images.Media.EXTERNAL_CONTENT_URI ))
+            pluginActivity.runOnUiThread( Runnable {result.success( albums )})
+        }).start()
+
+    }
+
+    private fun getAlbumsFromLocation(imgUri: Uri): ArrayList<String> {
+        val mediaColumns = arrayOf(
+                "DISTINCT " + MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.ImageColumns.BUCKET_ID
+        )
+        val sortOrder = "${MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME} ASC"
+        val mediaResolver = pluginActivity.contentResolver
+        val albums = ArrayList<String>()
+        val imageCursor = mediaResolver.query(imgUri, mediaColumns, null,
+                null, sortOrder)
+        imageCursor?.use {
+            val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME)
+            val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_ID)
+            while (imageCursor.moveToNext()) {
+                val bucketId = imageCursor.getString(idColumn)
+                val coverImgId = getAlbumsCoverImage(mediaResolver, bucketId, imgUri )
+                val imgJson = JSONObject()
+                imgJson.put("title", imageCursor.getString(titleColumn))
+                imgJson.put("id", bucketId)
+                imgJson.put( "coverImgId", coverImgId )
+                albums.add(imgJson.toString())
+            }
+        }
+        return albums
+    }
+
+    private fun getAlbumsCoverImage(mediaResolver: ContentResolver, bucketId: String, imgUri: Uri ): String {
+        var coverImgId = String()
+        val mediaColumns = arrayOf(
+                MediaStore.Images.ImageColumns._ID,
+                MediaStore.Images.ImageColumns.BUCKET_ID,
+                MediaStore.Images.ImageColumns.DATE_TAKEN
+        )
+        val sortOrder = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC LIMIT 1"
+        val selection = "${MediaStore.Images.ImageColumns.BUCKET_ID} = ?"
+        val selectionArgs = arrayOf( bucketId );
+        val mediaResolver = pluginActivity.contentResolver
+        val imageCursor = mediaResolver.query(imgUri, mediaColumns, selection,
+                selectionArgs, sortOrder)
+        imageCursor?.use {
+            val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
+            while (imageCursor.moveToNext()) {
+                coverImgId = imageCursor.getString(idColumn);
+            }
+        }
+        return coverImgId
+    }
 
     fun getLatestImages( maxResults: Integer, result: Result ) {
         Thread(Runnable {
