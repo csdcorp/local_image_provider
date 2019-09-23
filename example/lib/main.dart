@@ -23,6 +23,7 @@ class _MyAppState extends State<MyApp> {
   List<LocalAlbum> _localAlbums = [];
   Uint8List _imgBytes;
   bool _hasImage = false;
+  String _imgSource;
 
   @override
   void initState() {
@@ -77,11 +78,12 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void switchImage( String imageId ) {
+  void switchImage( String imageId, String src ) {
     LocalImageProvider.imageBytes(imageId, 500, 500 ).then((img){
     setState(() {
       _imgBytes = img;
       _hasImage = true;
+      _imgSource = src;
     });
     });
   }
@@ -103,7 +105,7 @@ class _MyAppState extends State<MyApp> {
                   child: ListView(
                     children: _localImages
                         .map((img) =>
-                            GestureDetector( onTap: () => switchImage( img.id), child: Text('Found: ${img.id}, date: ${img.creationDate}')))
+                            GestureDetector( onTap: () => switchImage( img.id, "Image"), child: Text('Found: ${img.id}, date: ${img.creationDate}')))
                         .toList(),
                   ),
                 ),
@@ -112,14 +114,14 @@ class _MyAppState extends State<MyApp> {
                     children: _localAlbums
                         .map(
                           (album) =>
-                              GestureDetector( onTap: () => switchImage( album.coverImgId),child: Text('Found: ${album.title}, id: ${album.id}, coverImgId: ${album.coverImgId}')),
+                              GestureDetector( onTap: () => switchImage( album.coverImgId, "Album"),child: Text('Found: ${album.title}, id: ${album.id}, coverImgId: ${album.coverImgId}')),
                         )
                         .toList(),
                   ),
                 ),
                 Expanded( child: Column(
                   children: <Widget>[
-                    Text('Selected image:'),
+                    Text('Selected image: $_imgSource'),
                     Expanded(child: _hasImage ? Image.memory(_imgBytes ) : Placeholder()),
                   ],
                 ))
