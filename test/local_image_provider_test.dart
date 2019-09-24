@@ -10,6 +10,7 @@ void main() {
   List<String> photoJsonList = [];
   List<String> albumJsonList = [];
   const MethodChannel channel = MethodChannel('local_image_provider');
+  const String noSuchImageId = "noSuchImage";
   const String firstImageId = "image1";
   const String firstPhotoJson =
       '{"id":"$firstImageId","creationDate":"2019-01-01 12:12Z","pixelWidth":1920,"pixelHeight":1024}';
@@ -30,9 +31,17 @@ void main() {
         return photoJsonList;
       } else if (methodCall.method == "request_permission") {
         return true;
-      } else if ( methodCall.method == "image_bytes" ) {
+      } else if (methodCall.method == "image_bytes") {
+        if ( null == methodCall.arguments ) {
+
+        }
+        String imgId = methodCall.arguments["id"];
+        if (noSuchImageId == imgId) {
+          throw PlatformException(
+              code: "imgNotFound", message: "$noSuchImageId not found");
+        }
         return imageBytes;
-      } else if ( methodCall.method == "albums") {
+      } else if (methodCall.method == "albums") {
         return albumJsonList;
       }
     });
@@ -44,7 +53,8 @@ void main() {
 
   group('albums', () {
     test('empty list returns none', () async {
-      List<LocalAlbum> albums = await LocalImageProvider.getAlbums(LocalAlbumType.all);
+      List<LocalAlbum> albums =
+          await LocalImageProvider.getAlbums(LocalAlbumType.all);
       expect(albums.length, 0);
     });
 
@@ -52,15 +62,15 @@ void main() {
       albumJsonList = [
         firstAlbumJson,
       ];
-      List<LocalAlbum> albums = await LocalImageProvider.getAlbums(LocalAlbumType.all);
+      List<LocalAlbum> albums =
+          await LocalImageProvider.getAlbums(LocalAlbumType.all);
       expect(albums.length, 1);
       LocalAlbum album = albums.first;
-      expect( album.id, firstAlbumId );
-      expect( album.title, firstAlbumTitle );
-      expect( album.coverImgId, firstImageId );
+      expect(album.id, firstAlbumId);
+      expect(album.title, firstAlbumTitle);
+      expect(album.coverImgId, firstImageId);
     });
   });
-  
 
   group('latest', () {
     test('empty list returns no photos', () async {
@@ -88,7 +98,16 @@ void main() {
       List<LocalImage> photos = await LocalImageProvider.getLatest(10);
       LocalImage image = photos.first;
       Uint8List bytes = await image.getImageBytes(300, 300);
-      expect( bytes, imageBytes );
+      expect(bytes, imageBytes);
+    });
+
+    test('handles image not found', () async {
+      try {
+        await LocalImageProvider.imageBytes(noSuchImageId, 300, 300);
+        fail("Expected PlatformException");
+      } on PlatformException catch(e) {
+        expect( e.code, "imgNotFound"  );
+      }
     });
   });
 }

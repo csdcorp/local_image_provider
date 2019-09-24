@@ -5,6 +5,7 @@
 import XCTest
 import local_image_provider
 
+/// These tests have a dependency on the test device having at least one image and exactly one album
 class local_image_provider_exampleTests: XCTestCase {
     var plugin: SwiftLocalImageProviderPlugin?;
     var imageProviderExp: XCTestExpectation?
@@ -20,19 +21,13 @@ class local_image_provider_exampleTests: XCTestCase {
     }
 
     func testUnknownMethodCallHandled() {
-        testExpectedResult( methodName: LocalImageProviderMethods.unknown, arguments: nil, resultType: String.self, assertExpect: {(result)->Void in
-            let strResult = result! as! String
-            XCTAssertTrue( strResult.contains( "Unrecognized method: \(LocalImageProviderMethods.unknown.rawValue)") )
-        })
+        testExpectedErr( methodName: LocalImageProviderMethods.unknown, arguments: nil, errCode: LocalImageProviderErrors.unimplemented.rawValue )
     }
-    
+
     // Latest images tests
     
     func testLatestImagesWithMissingCountHandled() {
-        testExpectedResult( methodName: LocalImageProviderMethods.latest_images, arguments: nil, resultType: String.self, assertExpect: {(result)->Void in
-            let strResult = result! as! String
-            XCTAssertEqual( "Missing max photos argument.", strResult )
-        })
+        testExpectedErr( methodName: LocalImageProviderMethods.latest_images, arguments: nil, errCode: LocalImageProviderErrors.missingOrInvalidArg.rawValue )
     }
 
     /// Note that this requires that there be a photo on the simulator, by default there are as of this writing.
@@ -54,10 +49,7 @@ class local_image_provider_exampleTests: XCTestCase {
     // Get photo tests
     
     func testPhotoImageWithMissingArgsHandled() {
-        testExpectedResult( methodName: LocalImageProviderMethods.image_bytes, arguments: nil, resultType: String.self, assertExpect: {(result)->Void in
-            let strResult = result! as! String
-            XCTAssertEqual( "Missing or invalid arguments: \(LocalImageProviderMethods.image_bytes.rawValue)", strResult )
-        })
+        testExpectedErr( methodName: LocalImageProviderMethods.image_bytes, arguments: nil, errCode: LocalImageProviderErrors.missingOrInvalidArg.rawValue )
     }
 
     func testPhotoImageLoadsKnownImage() {
@@ -80,12 +72,20 @@ class local_image_provider_exampleTests: XCTestCase {
     
     func testPhotoImageHandlesUnknownImage() {
         let photoArgs = [ "id": "notARealImage","pixelWidth":100,"pixelHeight":100] as [String : Any]
-        self.testExpectedResult( methodName: LocalImageProviderMethods.image_bytes, arguments: photoArgs, resultType: String.self, assertExpect: {(result)->Void in
-            let strResult = result! as! String
-            XCTAssertEqual( "Image not found: notARealImage", strResult )
-        })
+        testExpectedErr( methodName: LocalImageProviderMethods.image_bytes, arguments: photoArgs, errCode: LocalImageProviderErrors.imgNotFound.rawValue )
     }
 
+    func testAlbumsHandlesMissingArg() {
+        testExpectedErr( methodName: LocalImageProviderMethods.albums, arguments: nil, errCode: LocalImageProviderErrors.missingOrInvalidArg.rawValue )
+    }
+
+    func testLoadsKnownAlbums() {
+        self.testExpectedResult( methodName: LocalImageProviderMethods.albums, arguments: 1, resultType: [String].self, assertExpect: {(result)->Void in
+            let arrResult = result! as! [String]
+            XCTAssertEqual( arrResult.count, 1 )
+        })
+    }
+    
     private func getFirstPhotoId() -> String? {
         var firstId: String?
         let call = FlutterMethodCall( methodName: LocalImageProviderMethods.latest_images.rawValue, arguments: 1 )
@@ -123,8 +123,16 @@ class local_image_provider_exampleTests: XCTestCase {
             }
             else
             {
-                XCTFail("Unexpected type expected: \(T.self)")
+                XCTFail("Unexpected type expected: \(T.self) was \(type(of: result))")
             }
         })
     }
+    
+    private func testExpectedErr( methodName: LocalImageProviderMethods, arguments: Any?, errCode: String ) {
+        testExpectedResult( methodName: methodName, arguments: arguments, resultType: FlutterError.self, assertExpect: {(result)->Void in
+            let errResult = result! as! FlutterError
+            XCTAssertEqual( errResult.code, errCode )
+        })
+    }
+    
 }

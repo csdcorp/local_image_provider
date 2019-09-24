@@ -16,11 +16,20 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
+
+enum class LocalImageProviderErrors {
+    imgLoadFailed,
+    imgNotFound,
+    missingOrInvalidArg,
+    unimplemented
+}
+
 class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
     val pluginActivity: Activity
     val isoFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SZZZZZ")
 
-  companion object {
+
+    companion object {
     @JvmStatic
     fun registerWith(registrar: Registrar) {
       val channel = MethodChannel(registrar.messenger(), "local_image_provider")
@@ -34,12 +43,13 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
 
   override fun onMethodCall(call: MethodCall, result: Result) {
     if (call.method == "latest_images") {
-        val maxResults = call.arguments as Integer
-        if ( null != maxResults ) {
+        if ( null != call.arguments && call.arguments is Integer )
+        {
+            val maxResults = call.arguments as Integer
             getLatestImages( maxResults, result )
         }
         else {
-            result.error( "Missing parameters, requires maxPhotos", null, null )
+            result.error( LocalImageProviderErrors.missingOrInvalidArg.name, "Missing arg maxPhotos", null )
         }
     }
     else if ( call.method == "albums") {
@@ -48,7 +58,7 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
             getAlbums( localAlbumType, result )
         }
         else {
-            result.error( "Missing parameters, requires maxPhotos", null, null )
+            result.error( LocalImageProviderErrors.missingOrInvalidArg.name, "Missing arg albumType", null )
         }
     }
     else if ( call.method == "image_bytes") {
@@ -60,6 +70,7 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler {
         }
         else {
             result.error( "Missing parameters, requires id, width, height", null, null )
+            result.error( LocalImageProviderErrors.missingOrInvalidArg.name, "Missing arg ", null )
         }
     }
     else {

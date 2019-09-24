@@ -9,6 +9,13 @@ public enum LocalImageProviderMethods: String {
     case unknown // just for testing
 }
 
+public enum LocalImageProviderErrors: String {
+    case imgLoadFailed
+    case imgNotFound
+    case missingOrInvalidArg
+    case unimplemented
+}
+
 @available(iOS 10.0, *)
 public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
   let imageManager = PHImageManager.default()
@@ -23,21 +30,36 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case LocalImageProviderMethods.albums.rawValue:
-//        guard let albumType = call.arguments as? Int else { result("Missing album type argument."); return}
-        getAlbums( 1, result);
+        guard let albumType = call.arguments as? Int else {
+            result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
+                message:"Missing arg albumType",
+                details: nil ))
+            return
+        }
+        getAlbums( albumType, result)
     case LocalImageProviderMethods.latest_images.rawValue:
-        guard let maxPhotos = call.arguments as? Int else { result("Missing max photos argument."); return}
+        guard let maxPhotos = call.arguments as? Int else {
+            result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
+                message:"Missing arg maxPhotos",
+                details: nil ))
+            return
+        }
         getLatestImages( maxPhotos, result);
     case LocalImageProviderMethods.image_bytes.rawValue:
         guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
             let localId = argsArr["id"] as? String,
             let width = argsArr["pixelWidth"] as? Int,
             let height = argsArr["pixelHeight"] as? Int
-            else { result("Missing or invalid arguments: \(call.method)"); return }
-        getPhotoImage( localId, width, height, result);
+            else {
+                result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
+                    message:"Missing args requires id, pixelWidth, pixelHeight",
+                    details: nil ))
+                return
+        }
+        getPhotoImage( localId, width, height, result)
     default:
-        print("Unrecognized method: \(call.method)");
-        result("Unrecognized method: \(call.method)");
+        print("Unrecognized method: \(call.method)")
+        result( FlutterMethodNotImplemented)
     }
   // result("iOS Photos min" )
   }
@@ -71,7 +93,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                     coverImgId = lastImg.localIdentifier
                     var title = "n/a"
                     if let localizedTitle = collection.localizedTitle {
-                        title = localizedTitle;
+                        title = localizedTitle
                     }
                     let albumJson = """
                     {"id":"\(collection.localIdentifier)",
@@ -90,8 +112,8 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         allPhotosOptions.fetchLimit = maxPhotos
         allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         let allPhotos = PHAsset.fetchAssets(with: allPhotosOptions)
-        var photoIds = [String]();
-        let df = ISO8601DateFormatter();
+        var photoIds = [String]()
+        let df = ISO8601DateFormatter()
         allPhotos.enumerateObjects{(object: AnyObject!,
             count: Int,
             stop: UnsafeMutablePointer<ObjCBool>) in
@@ -116,19 +138,38 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: fetchOptions )
         if ( 1 == fetchResult.count ) {
             let asset = fetchResult.firstObject!
-            let targetSize = CGSize( width: pixelWidth, height: pixelHeight );
-            let contentMode = PHImageContentMode.aspectFit;
-            let requestOptions = PHImageRequestOptions();
-            requestOptions.isSynchronous = true;
+            let targetSize = CGSize( width: pixelWidth, height: pixelHeight )
+            let contentMode = PHImageContentMode.aspectFit
+            let requestOptions = PHImageRequestOptions()
+            requestOptions.isSynchronous = false
+            requestOptions.isNetworkAccessAllowed = true
             imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: contentMode, options: requestOptions, resultHandler: {(result, info)->Void in
-                let image = result!
-                let data = UIImageJPEGRepresentation(image, 0.7 );
-                let typedData = FlutterStandardTypedData( bytes: data! );
-                flutterResult( typedData);
+                if let resultInfo = info
+                {
+                    let degraded = resultInfo[PHImageResultIsDegradedKey] as? Bool
+                    if ( degraded ?? false ) {
+                        return
+                    }
+                }
+                if let image = result {
+                    let data = UIImageJPEGRepresentation(image, 0.7 );
+                    let typedData = FlutterStandardTypedData( bytes: data! );
+                    DispatchQueue.main.async {
+                        flutterResult( typedData)
+                    }
+                }
+                else {
+                    print("Could not load")
+                    DispatchQueue.main.async {
+                        flutterResult(FlutterError( code: LocalImageProviderErrors.imgLoadFailed.rawValue, message: "Could not load image: \(id)", details: nil ))
+                    }
+                }
             });
         }
         else {
-            flutterResult("Image not found: \(id)")
+            DispatchQueue.main.async {
+                flutterResult(FlutterError( code: LocalImageProviderErrors.imgNotFound.rawValue, message:"Image not found: \(id)", details: nil ))
+            }
         }
     }
 }
