@@ -7,8 +7,12 @@ part of 'local_image.dart';
 // **************************************************************************
 
 LocalImage _$LocalImageFromJson(Map<String, dynamic> json) {
-  return LocalImage(json['id'] as String, json['creationDate'] as String,
-      json['pixelWidth'] as int, json['pixelHeight'] as int);
+  return LocalImage(
+    json['id'] as String,
+    json['creationDate'] as String,
+    json['pixelWidth'] as int,
+    json['pixelHeight'] as int,
+  );
 }
 
 Map<String, dynamic> _$LocalImageToJson(LocalImage instance) =>
@@ -16,5 +20,5 @@ Map<String, dynamic> _$LocalImageToJson(LocalImage instance) =>
       'id': instance.id,
       'pixelWidth': instance.pixelWidth,
       'pixelHeight': instance.pixelHeight,
-      'creationDate': instance.creationDate
+      'creationDate': instance.creationDate,
     };

@@ -7,13 +7,16 @@ part of 'local_album.dart';
 // **************************************************************************
 
 LocalAlbum _$LocalAlbumFromJson(Map<String, dynamic> json) {
-  return LocalAlbum(json['id'] as String, json['coverImgId'] as String,
-      json['title'] as String);
+  return LocalAlbum(
+    json['id'] as String,
+    json['coverImgId'] as String,
+    json['title'] as String,
+  );
 }
 
 Map<String, dynamic> _$LocalAlbumToJson(LocalAlbum instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title': instance.title,
-      'coverImgId': instance.coverImgId
+      'coverImgId': instance.coverImgId,
     };
