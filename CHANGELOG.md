@@ -1,7 +1,7 @@
-## 1.0.1
+## 0.5.0
 
 * Initial release with limited functionality, supports only:
-  * requesting access
-  * getting latest images
+  * getting album descriptions
+  * getting latest image descriptions
   * getting bytes for image. 
 * Android and iOS 10+ support

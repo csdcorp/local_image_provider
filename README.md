@@ -7,6 +7,8 @@ and galleries on the mobile device. It supports both Android and iOS. Photos can
 bytes in a format compatible with the ImageProvider. Note that this plugin has no UI components, 
 it provides information about local photos that can be used to develop other applications.
 
+*Note*: This plugin is under development and will be extended over the coming weeks. 
+
 ## Using
 
 To retrieve the list of latest local images just import the package and call the plugin, like so: 
@@ -40,3 +42,17 @@ else {
     print("No images found on the device.");
 }
 ```
+## Permissions
+
+Applications using this plugin require user permissions. 
+### iOS
+
+Add the following keys to your _Info.plist_ file, located in `<project root>/ios/Runner/Info.plist`:
+
+* `NSPhotoLibraryUsageDescription` - describe why your app needs permission for the photo library. This is called _Privacy - Photo Library Usage Description_ in the visual editor.
+
+### Android
+
+Add the storage permission to your _AndroidManifest.xml_ file, located in `<project root>/android/app//src/main/AndroidManifest.xml`:
+
+* `android.permission.READ_EXTERNAL_STORAGE` - this allows the app to query and read the image and gallery information.

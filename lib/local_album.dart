@@ -27,18 +27,23 @@ class LocalAlbumType {
 
 }
 
-/// A single album on the device.
+/// A single album of images on the device.
 ///
-/// Each album has an id which uniquely identifies it on the
-/// local device. Using that id other information about the
-/// album can be retrieved.
+/// Each album has an [id] which uniquely identifies it on the
+/// local device. 
 @JsonSerializable()
 class LocalAlbum {
-  String id;
-  String title;
-  String coverImgId;
+  final String id;
+  final String title;
+  final String coverImgId;
 
   LocalAlbum(this.id, this.coverImgId, this.title);
+
+  /// Returns a jpeg of the cover image for the album 
+  /// that can be loaded into a [MemoryImage].
+  /// 
+  /// The resulting image will maintain its aspect ratio and fit
+  /// within a [pixelHeight]x[pixelWidth] area.
   Future<Uint8List> getCoverImage( int pixelHeight, int pixelWidth ) async {
     return LocalImageProvider.imageBytes(coverImgId, pixelHeight, pixelWidth );
   }
