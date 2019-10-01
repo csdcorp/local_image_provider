@@ -1,6 +1,7 @@
 # local_image_provider
 
-A library for searching and retrieving the metadata and contents of the photos on a mobile device. 
+A library for searching and retrieving the metadata and contents of the images and 
+albums on a mobile device. 
 
 This plugin contains a set of classes that make it easy to discover the metadata of the photos 
 and galleries on the mobile device. It supports both Android and iOS. Photos can retrieve their 

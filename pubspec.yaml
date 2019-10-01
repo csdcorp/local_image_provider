@@ -1,6 +1,6 @@
 name: local_image_provider
-description: A new flutter plugin project.
-version: 0.5.0
+description: A library for retrieving the metadata and contents of the images and albums on a mobile device.
+version: 0.5.1
 author: Corner Software Development Corp. <info@csdcorp.com>
 homepage: https://github.com/csdcorp/local_image_provider
 
@@ -10,13 +10,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  json_annotation: ^2.0.0
+  json_annotation: ^3.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^1.0.0
-  json_serializable: ^2.0.0
+  json_serializable: ^3.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
