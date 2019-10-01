@@ -2,7 +2,7 @@ name: local_image_provider
 description: A new flutter plugin project.
 version: 0.5.0
 author: Corner Software Development Corp. <info@csdcorp.com>
-homepage: 
+homepage: https://github.com/csdcorp/local_image_provider
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
