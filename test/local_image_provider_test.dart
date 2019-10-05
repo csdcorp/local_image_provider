@@ -8,6 +8,7 @@ import 'package:local_image_provider/local_image_provider.dart';
 
 void main() {
   LocalImageProvider localImageProvider;
+  bool initResponse;
   List<String> photoJsonList = [];
   List<String> albumJsonList = [];
   const String noSuchImageId = "noSuchImage";
@@ -24,18 +25,21 @@ void main() {
       '{"id":"$firstAlbumId","coverImgId":"$firstImageId","title":"$firstAlbumTitle"}';
 
   setUp(() {
+    initResponse = true;
     List<int> imgInt = imageBytesStr.codeUnits;
     imageBytes = Uint8List.fromList(imgInt);
-    localImageProvider = LocalImageProvider.withMethodChannel(LocalImageProvider.lipChannel);
-    localImageProvider.channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      if (methodCall.method == "latest_images") {
+    localImageProvider =
+        LocalImageProvider.withMethodChannel(LocalImageProvider.lipChannel);
+    localImageProvider.channel
+        .setMockMethodCallHandler((MethodCall methodCall) async {
+      if (methodCall.method == "initialize") {
+        return initResponse;
+      } else if (methodCall.method == "latest_images") {
         return photoJsonList;
       } else if (methodCall.method == "request_permission") {
         return true;
       } else if (methodCall.method == "image_bytes") {
-        if ( null == methodCall.arguments ) {
-
-        }
+        if (null == methodCall.arguments) {}
         String imgId = methodCall.arguments["id"];
         if (noSuchImageId == imgId) {
           throw PlatformException(
@@ -53,14 +57,37 @@ void main() {
     localImageProvider.channel.setMockMethodCallHandler(null);
   });
 
+  group('initialize', () {
+    test('succeeds on success return', () async {
+      bool init = await localImageProvider.initialize();
+      expect(init, true);
+    });
+    test('fails on fail return', () async {
+      initResponse = false;
+      bool init = await localImageProvider.initialize();
+      expect(init, false);
+    });
+    test('fail return leaves other methods uninitialized', () async {
+      initResponse = false;
+      await localImageProvider.initialize();
+      try {
+        await localImageProvider.getAlbums(LocalAlbumType.all);
+        fail("Should have thrown");
+      } catch (e) {
+        // expected
+      }
+    });
+  });
   group('albums', () {
     test('empty list returns none', () async {
+      await localImageProvider.initialize();
       List<LocalAlbum> albums =
           await localImageProvider.getAlbums(LocalAlbumType.all);
       expect(albums.length, 0);
     });
 
     test('single album returned', () async {
+      await localImageProvider.initialize();
       albumJsonList = [
         firstAlbumJson,
       ];
@@ -72,14 +99,24 @@ void main() {
       expect(album.title, firstAlbumTitle);
       expect(album.coverImgId, firstImageId);
     });
+    test('failed or missing initialize throws', () async {
+      try {
+        await localImageProvider.getAlbums(LocalAlbumType.all);
+        fail("Should have thrown");
+      } catch (e) {
+        // expected
+      }
+    });
   });
 
   group('latest', () {
     test('empty list returns no photos', () async {
+      await localImageProvider.initialize();
       List<LocalImage> photos = await localImageProvider.getLatest(10);
       expect(photos.length, 0);
     });
     test('single photo returned', () async {
+      await localImageProvider.initialize();
       photoJsonList = [
         firstPhotoJson,
       ];
@@ -87,28 +124,46 @@ void main() {
       expect(photos.length, 1);
     });
     test('two photos returned', () async {
+      await localImageProvider.initialize();
       photoJsonList = [firstPhotoJson, secondPhotoJson];
       List<LocalImage> photos = await localImageProvider.getLatest(10);
       expect(photos.length, 2);
       expect(photos[0].id, firstImageId);
     });
+    test('failed or missing initialize throws', () async {
+      try {
+        await localImageProvider.getLatest(10);
+        fail("Should have thrown");
+      } catch (e) {
+        // expected
+      }
+    });
   });
 
   group('image bytes', () {
     test('returned unchanged', () async {
+      await localImageProvider.initialize();
       photoJsonList = [firstPhotoJson, secondPhotoJson];
-      List<LocalImage> photos = await localImageProvider.getLatest(10);
-      LocalImage image = photos.first;
-      Uint8List bytes = await image.getImageBytes(300, 300);
+      Uint8List bytes =
+          await localImageProvider.imageBytes(firstImageId, 300, 300);
       expect(bytes, imageBytes);
     });
 
     test('handles image not found', () async {
+      await localImageProvider.initialize();
       try {
         await localImageProvider.imageBytes(noSuchImageId, 300, 300);
         fail("Expected PlatformException");
-      } on PlatformException catch(e) {
-        expect( e.code, "imgNotFound"  );
+      } on PlatformException catch (e) {
+        expect(e.code, "imgNotFound");
+      }
+    });
+    test('failed or missing initialize throws', () async {
+      try {
+        await localImageProvider.imageBytes(noSuchImageId, 300, 300);
+        fail("Should have thrown");
+      } catch (e) {
+        // expected
       }
     });
   });

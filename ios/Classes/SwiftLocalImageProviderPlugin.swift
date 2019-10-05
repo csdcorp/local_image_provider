@@ -3,6 +3,7 @@ import UIKit
 import Photos
 
 public enum LocalImageProviderMethods: String {
+    case initialize
     case latest_images
     case image_bytes
     case albums
@@ -19,16 +20,17 @@ public enum LocalImageProviderErrors: String {
 @available(iOS 10.0, *)
 public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
   let imageManager = PHImageManager.default()
-  public let LatestImagesMethod = "latest_images"
 
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "local_image_provider", binaryMessenger: registrar.messenger())
+    let channel = FlutterMethodChannel(name: "plugin.csdcorp.com/local_image_provider", binaryMessenger: registrar.messenger())
     let instance = SwiftLocalImageProviderPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
+    case LocalImageProviderMethods.initialize.rawValue:
+        initialize( result )
     case LocalImageProviderMethods.albums.rawValue:
         guard let albumType = call.arguments as? Int else {
             result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
@@ -63,6 +65,17 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
     }
   // result("iOS Photos min" )
   }
+    
+    private func initialize(_ result: @escaping FlutterResult) {
+        if ( PHPhotoLibrary.authorizationStatus() == PHAuthorizationStatus.notDetermined ) {
+            PHPhotoLibrary.requestAuthorization({(status)->Void in
+                result( status == PHAuthorizationStatus.authorized )
+            });
+        }
+        else {
+            result( true )
+        }
+    }
     
     private func getAlbums( _ albumType: Int, _ result: @escaping FlutterResult) {
         var albumEncodings = [String]();

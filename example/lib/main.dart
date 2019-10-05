@@ -1,13 +1,11 @@
-import 'dart:io';
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:flutter/services.dart';
-import 'package:local_image_provider/local_image_provider.dart';
-import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/local_album.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:local_image_provider/local_image.dart';
+import 'package:local_image_provider/local_image_provider.dart';
 
 void main() => runApp(MyApp());
 
@@ -35,14 +33,13 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-
     bool hasPermission = false;
     List<LocalImage> localImages = [];
     List<LocalAlbum> localAlbums = [];
 
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      hasPermission = await _checkForPermission(hasPermission);
+      hasPermission = await localImageProvider.initialize();
       if (hasPermission) {
         localImages = await localImageProvider.getLatest(2);
         localAlbums = await localImageProvider.getAlbums(LocalAlbumType.all);
@@ -63,29 +60,6 @@ class _MyAppState extends State<MyApp> {
       print('Count is $_localImageCount, length is ${_localImages.length}');
       _hasPermission = hasPermission;
     });
-  }
-
-  Future<bool> _checkForPermission(bool hasPermission) async {
-    PermissionStatus permission = PermissionStatus.granted;
-    if (Platform.isAndroid) {
-      permission = await PermissionHandler()
-          .checkPermissionStatus(PermissionGroup.storage);
-    } else if (Platform.isIOS) {
-      permission = await PermissionHandler()
-          .checkPermissionStatus(PermissionGroup.photos);
-    }
-    if (permission != PermissionStatus.granted) {
-      Map<PermissionGroup, PermissionStatus> permissions =
-          await PermissionHandler().requestPermissions(
-              [PermissionGroup.photos, PermissionGroup.storage]);
-      PermissionStatus status = permissions[PermissionGroup.photos];
-      if (null != status && status == PermissionStatus.granted) {
-        hasPermission = true;
-      }
-    } else {
-      hasPermission = true;
-    }
-    return hasPermission;
   }
 
   void switchImage(String imageId, String src) {

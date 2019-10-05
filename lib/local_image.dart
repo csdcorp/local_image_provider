@@ -24,7 +24,8 @@ class LocalImage {
   /// The resulting image will maintain its aspect ratio and fit
   /// within a [pixelHeight]x[pixelWidth] area.
   Future<Uint8List> getImageBytes(int desiredHeight, int desiredWidth) async {
-    return await LocalImageProvider().imageBytes(id, desiredHeight, desiredWidth);
+    return await LocalImageProvider()
+        .imageBytes(id, desiredHeight, desiredWidth);
   }
 
   factory LocalImage.fromJson(Map<String, dynamic> json) =>
