@@ -54,6 +54,6 @@ Add the following keys to your _Info.plist_ file, located in `<project root>/ios
 
 ### Android
 
-Add the storage permission to your _AndroidManifest.xml_ file, located in `<project root>/android/app//src/main/AndroidManifest.xml`:
+Add the storage permission to your _AndroidManifest.xml_ file, located in `<project root>/android/app/src/main/AndroidManifest.xml`:
 
 * `android.permission.READ_EXTERNAL_STORAGE` - this allows the app to query and read the image and gallery information.

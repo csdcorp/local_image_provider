@@ -44,7 +44,7 @@ class LocalAlbum {
   /// The resulting image will maintain its aspect ratio and fit
   /// within a [pixelHeight]x[pixelWidth] area.
   Future<Uint8List> getCoverImage(int pixelHeight, int pixelWidth) async {
-    return LocalImageProvider.imageBytes(coverImgId, pixelHeight, pixelWidth);
+    return LocalImageProvider().imageBytes(coverImgId, pixelHeight, pixelWidth);
   }
 
   factory LocalAlbum.fromJson(Map<String, dynamic> json) =>

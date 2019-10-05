@@ -17,6 +17,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  LocalImageProvider localImageProvider = LocalImageProvider();
   int _localImageCount = 0;
   bool _hasPermission = false;
   List<LocalImage> _localImages = [];
@@ -43,8 +44,8 @@ class _MyAppState extends State<MyApp> {
     try {
       hasPermission = await _checkForPermission(hasPermission);
       if (hasPermission) {
-        localImages = await LocalImageProvider.getLatest(2);
-        localAlbums = await LocalImageProvider.getAlbums(LocalAlbumType.all);
+        localImages = await localImageProvider.getLatest(2);
+        localAlbums = await localImageProvider.getAlbums(LocalAlbumType.all);
       }
     } on PlatformException catch (e) {
       print('Local image provider failed: $e');
@@ -88,7 +89,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void switchImage(String imageId, String src) {
-    LocalImageProvider.imageBytes(imageId, 500, 500).then((img) {
+    localImageProvider.imageBytes(imageId, 500, 500).then((img) {
       setState(() {
         _imgBytes = img;
         _hasImage = true;

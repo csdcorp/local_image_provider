@@ -7,9 +7,9 @@ import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 
 void main() {
+  LocalImageProvider localImageProvider;
   List<String> photoJsonList = [];
   List<String> albumJsonList = [];
-  const MethodChannel channel = MethodChannel('local_image_provider');
   const String noSuchImageId = "noSuchImage";
   const String firstImageId = "image1";
   const String firstPhotoJson =
@@ -26,7 +26,8 @@ void main() {
   setUp(() {
     List<int> imgInt = imageBytesStr.codeUnits;
     imageBytes = Uint8List.fromList(imgInt);
-    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+    localImageProvider = LocalImageProvider.withMethodChannel(LocalImageProvider.lipChannel);
+    localImageProvider.channel.setMockMethodCallHandler((MethodCall methodCall) async {
       if (methodCall.method == "latest_images") {
         return photoJsonList;
       } else if (methodCall.method == "request_permission") {
@@ -44,17 +45,18 @@ void main() {
       } else if (methodCall.method == "albums") {
         return albumJsonList;
       }
+      return Future.value(true);
     });
   });
 
   tearDown(() {
-    channel.setMockMethodCallHandler(null);
+    localImageProvider.channel.setMockMethodCallHandler(null);
   });
 
   group('albums', () {
     test('empty list returns none', () async {
       List<LocalAlbum> albums =
-          await LocalImageProvider.getAlbums(LocalAlbumType.all);
+          await localImageProvider.getAlbums(LocalAlbumType.all);
       expect(albums.length, 0);
     });
 
@@ -63,7 +65,7 @@ void main() {
         firstAlbumJson,
       ];
       List<LocalAlbum> albums =
-          await LocalImageProvider.getAlbums(LocalAlbumType.all);
+          await localImageProvider.getAlbums(LocalAlbumType.all);
       expect(albums.length, 1);
       LocalAlbum album = albums.first;
       expect(album.id, firstAlbumId);
@@ -74,19 +76,19 @@ void main() {
 
   group('latest', () {
     test('empty list returns no photos', () async {
-      List<LocalImage> photos = await LocalImageProvider.getLatest(10);
+      List<LocalImage> photos = await localImageProvider.getLatest(10);
       expect(photos.length, 0);
     });
     test('single photo returned', () async {
       photoJsonList = [
         firstPhotoJson,
       ];
-      List<LocalImage> photos = await LocalImageProvider.getLatest(10);
+      List<LocalImage> photos = await localImageProvider.getLatest(10);
       expect(photos.length, 1);
     });
     test('two photos returned', () async {
       photoJsonList = [firstPhotoJson, secondPhotoJson];
-      List<LocalImage> photos = await LocalImageProvider.getLatest(10);
+      List<LocalImage> photos = await localImageProvider.getLatest(10);
       expect(photos.length, 2);
       expect(photos[0].id, firstImageId);
     });
@@ -95,7 +97,7 @@ void main() {
   group('image bytes', () {
     test('returned unchanged', () async {
       photoJsonList = [firstPhotoJson, secondPhotoJson];
-      List<LocalImage> photos = await LocalImageProvider.getLatest(10);
+      List<LocalImage> photos = await localImageProvider.getLatest(10);
       LocalImage image = photos.first;
       Uint8List bytes = await image.getImageBytes(300, 300);
       expect(bytes, imageBytes);
@@ -103,7 +105,7 @@ void main() {
 
     test('handles image not found', () async {
       try {
-        await LocalImageProvider.imageBytes(noSuchImageId, 300, 300);
+        await localImageProvider.imageBytes(noSuchImageId, 300, 300);
         fail("Expected PlatformException");
       } on PlatformException catch(e) {
         expect( e.code, "imgNotFound"  );
