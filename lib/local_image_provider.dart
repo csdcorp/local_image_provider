@@ -50,8 +50,8 @@ class LocalImageProvider {
 
   /// Returns the newest images on the local device up to [maxImages] in length.
   ///
-  /// This list may be empty if there are no photos on the device or the
-  /// user has denied permission to see their local photos.
+  /// This list may be empty if there are no images on the device or the
+  /// user has denied permission to see their local images.
   Future<List<LocalImage>> getLatest(int maxImages) async {
     if (!_initWorked) {
       throw LocalImageProviderNotInitializedException();
@@ -62,6 +62,25 @@ class LocalImageProvider {
       // print(photoJson);
       Map<String, dynamic> photoMap = jsonDecode(photoJson);
       return LocalImage.fromJson(photoMap);
+    }).toList();
+  }
+
+  /// Returns the images contained in the given album on the local device
+  /// up to [maxImages] in length.
+  ///
+  /// This list may be empty if there are no images in the album or the
+  /// user has denied permission to see their local images.
+  Future<List<LocalImage>> getImagesInAlbum(
+      String albumId, int maxImages) async {
+    if (!_initWorked) {
+      throw LocalImageProviderNotInitializedException();
+    }
+    final List<dynamic> images = await channel.invokeMethod(
+        'images_in_album', {'albumId': albumId, 'maxImages': maxImages});
+    return images.map((imageJson) {
+      // print(photoJson);
+      Map<String, dynamic> imageMap = jsonDecode(imageJson);
+      return LocalImage.fromJson(imageMap);
     }).toList();
   }
 

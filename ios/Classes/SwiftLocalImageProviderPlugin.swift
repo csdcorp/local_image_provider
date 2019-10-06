@@ -6,6 +6,7 @@ public enum LocalImageProviderMethods: String {
     case initialize
     case latest_images
     case image_bytes
+    case images_in_album
     case albums
     case unknown // just for testing
 }
@@ -40,13 +41,24 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         }
         getAlbums( albumType, result)
     case LocalImageProviderMethods.latest_images.rawValue:
-        guard let maxPhotos = call.arguments as? Int else {
+        guard let maxImages = call.arguments as? Int else {
             result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
                 message:"Missing arg maxPhotos",
                 details: nil ))
             return
         }
-        getLatestImages( maxPhotos, result);
+        getLatestImages( maxImages, result);
+    case LocalImageProviderMethods.images_in_album.rawValue:
+        guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
+            let albumId = argsArr["albumId"] as? String,
+            let maxImages = argsArr["maxImages"] as? Int
+            else {
+            result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
+                message:"Missing arg maxPhotos",
+                details: nil ))
+            return
+        }
+        getImagesInAlbum( albumId: albumId, maxImages: maxImages, result);
     case LocalImageProviderMethods.image_bytes.rawValue:
         guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
             let localId = argsArr["id"] as? String,
@@ -144,6 +156,39 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             }
         }
        result( photoIds )
+    }
+
+    private func getImagesInAlbum( albumId: String, maxImages: Int, _ result: @escaping FlutterResult) {
+        let albumOptions = PHFetchOptions()
+        let albumResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumId], options: albumOptions )
+        guard albumResult.count > 0 else {
+            return
+        }
+        var photos = [String]()
+        if let album = albumResult.firstObject {
+            let allPhotosOptions = PHFetchOptions()
+            allPhotosOptions.fetchLimit = maxImages
+            allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+            let albumPhotos = PHAsset.fetchAssets(in: album, options: allPhotosOptions)
+            let df = ISO8601DateFormatter()
+            albumPhotos.enumerateObjects{(object: AnyObject!,
+                count: Int,
+                stop: UnsafeMutablePointer<ObjCBool>) in
+                
+                if object is PHAsset{
+                    let asset = object as! PHAsset
+                    let creationDate = df.string(from: asset.creationDate!);
+                    let assetJson = """
+                    {"id":"\(asset.localIdentifier)",
+                    "creationDate":"\(creationDate)",
+                    "pixelWidth":\(asset.pixelWidth),
+                    "pixelHeight":\(asset.pixelHeight)}
+                    """;
+                    photos.append( assetJson )
+                }
+            }
+        }
+       result( photos )
     }
 
     private func getPhotoImage(_ id: String, _ pixelHeight: Int, _ pixelWidth: Int, _ flutterResult: @escaping FlutterResult) {

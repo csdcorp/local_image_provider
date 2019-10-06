@@ -62,6 +62,15 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void switchAlbum( LocalAlbum album ) async {
+    List<LocalImage> albumImages = await localImageProvider.getImagesInAlbum(album.id, 100 );
+    setState(() {
+      _localImages.clear();
+      _localImages.addAll(albumImages);
+    });
+    switchImage(album.coverImgId, 'Album');
+  }
+
   void switchImage(String imageId, String src) {
     localImageProvider.imageBytes(imageId, 500, 500).then((img) {
       setState(() {
@@ -114,7 +123,7 @@ class _MyAppState extends State<MyApp> {
                           .map(
                             (album) => GestureDetector(
                                 onTap: () =>
-                                    switchImage(album.coverImgId, "Album"),
+                                    switchAlbum(album),
                                 child: Container(
                                   padding: EdgeInsets.symmetric(vertical: 5),
                                   child: Text(

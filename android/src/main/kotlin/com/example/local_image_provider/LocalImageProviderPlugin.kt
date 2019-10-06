@@ -31,7 +31,8 @@ enum class LocalImageProviderErrors {
     unimplemented
 }
 
-class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler, PluginRegistry.RequestPermissionsResultListener {
+class LocalImageProviderPlugin(activity: Activity) : MethodCallHandler,
+        PluginRegistry.RequestPermissionsResultListener {
     val pluginActivity: Activity = activity
     private val application: Application = activity.application
     private val isoFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SZZZZZ")
@@ -43,68 +44,76 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler, PluginR
 
 
     companion object {
-    @JvmStatic
-    fun registerWith(registrar: Registrar) {
-      val channel = MethodChannel(registrar.messenger(), "plugin.csdcorp.com/local_image_provider")
-        val imagePlugin = LocalImageProviderPlugin( registrar.activity())
-        registrar.addRequestPermissionsResultListener(imagePlugin)
-      channel.setMethodCallHandler(imagePlugin)
+        @JvmStatic
+        fun registerWith(registrar: Registrar) {
+            val channel = MethodChannel(registrar.messenger(), "plugin.csdcorp.com/local_image_provider")
+            val imagePlugin = LocalImageProviderPlugin(registrar.activity())
+            registrar.addRequestPermissionsResultListener(imagePlugin)
+            channel.setMethodCallHandler(imagePlugin)
+        }
     }
-  }
 
-  override fun onMethodCall(call: MethodCall, result: Result) {
-      when (call.method) {
-          "initialize" -> initialize( result )
-          "latest_images" -> {
-              if ( null != call.arguments && call.arguments is Int )
-              {
-                  val maxResults = call.arguments as Int
-                  getLatestImages( maxResults, result )
-              }
-              else {
-                  result.error( LocalImageProviderErrors.missingOrInvalidArg.name, "Missing arg maxPhotos", null )
-              }
-          }
-          "albums" -> {
-              if ( null != call.arguments && call.arguments is Int ) {
-                val localAlbumType = call.arguments as Int
-                  getAlbums( localAlbumType, result )
-              }
-              else {
-                  result.error( LocalImageProviderErrors.missingOrInvalidArg.name, "Missing arg albumType", null )
-              }
-          }
-          "image_bytes" -> {
-              val id = call.argument<String>( "id")
-              val width = call.argument<Int>("pixelWidth")
-              val height = call.argument<Int>("pixelHeight")
-              if (id != null && width != null && height != null ) {
-                  getImageBytes( id, width, height, result )
-              }
-              else {
-                  result.error( "Missing parameters, requires id, width, height", null, null )
-                  result.error( LocalImageProviderErrors.missingOrInvalidArg.name, "Missing arg ", null )
-              }
-          }
-          else -> result.notImplemented()
-      }
+    override fun onMethodCall(call: MethodCall, result: Result) {
+        when (call.method) {
+            "initialize" -> initialize(result)
+            "latest_images" -> {
+                if (null != call.arguments && call.arguments is Int) {
+                    val maxResults = call.arguments as Int
+                    getLatestImages(maxResults, result)
+                } else {
+                    result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
+                            "Missing arg maxPhotos", null)
+                }
+            }
+            "albums" -> {
+                if (null != call.arguments && call.arguments is Int) {
+                    val localAlbumType = call.arguments as Int
+                    getAlbums(localAlbumType, result)
+                } else {
+                    result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
+                            "Missing arg albumType", null)
+                }
+            }
+            "image_bytes" -> {
+                val id = call.argument<String>("id")
+                val width = call.argument<Int>("pixelWidth")
+                val height = call.argument<Int>("pixelHeight")
+                if (id != null && width != null && height != null) {
+                    getImageBytes(id, width, height, result)
+                } else {
+                    result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
+                            "Missing arg requires id, width, height", null)
+                }
+            }
+            "images_in_album" -> {
+                val albumId = call.argument<String>("albumId")
+                val maxImages = call.argument<Int>("maxImages")
+                if (albumId != null && maxImages != null) {
+                    findImagesInAlbum(albumId, maxImages, result)
+                } else {
+                    result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
+                            "Missing arg requires albumId, maxImages", null)
+                }
+            }
+            else -> result.notImplemented()
+        }
     }
 
     private fun initialize(result: Result) {
-        if ( sdkVersionTooLow( result )) {
+        if (sdkVersionTooLow(result)) {
             return
         }
-        if ( null != activeResult ) {
+        if (null != activeResult) {
             result.error(LocalImageProviderErrors.multipleRequests.name,
-                    "Only one initialize at a time", null )
+                    "Only one initialize at a time", null)
             return
         }
         activeResult = result
-        initializeIfPermitted( application )
+        initializeIfPermitted(application)
     }
 
     private fun sdkVersionTooLow(result: Result): Boolean {
-        if ( Build.VERSION.SDK_INT < minSdkForImageSupport ) {
+        if (Build.VERSION.SDK_INT < minSdkForImageSupport) {
             result.success(false)
             return true
         }
@@ -112,22 +121,22 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler, PluginR
     }
 
     private fun isNotInitialized(result: Result): Boolean {
-        if ( !initializedSuccessfully ) {
+        if (!initializedSuccessfully) {
             result.success(false)
         }
         return !initializedSuccessfully
     }
 
 
-    private fun getAlbums( localAlbumType: Int, result: Result ) {
-        if ( isNotInitialized( result)) {
+    private fun getAlbums(localAlbumType: Int, result: Result) {
+        if (isNotInitialized(result)) {
             return
         }
         val albums = ArrayList<String>()
         Thread(Runnable {
-            albums.addAll( getAlbumsFromLocation(MediaStore.Images.Media.INTERNAL_CONTENT_URI ))
-            albums.addAll( getAlbumsFromLocation(MediaStore.Images.Media.EXTERNAL_CONTENT_URI ))
-            pluginActivity.runOnUiThread( Runnable {result.success( albums )})
+            albums.addAll(getAlbumsFromLocation(MediaStore.Images.Media.INTERNAL_CONTENT_URI))
+            albums.addAll(getAlbumsFromLocation(MediaStore.Images.Media.EXTERNAL_CONTENT_URI))
+            pluginActivity.runOnUiThread { result.success(albums) }
         }).start()
 
     }
@@ -143,22 +152,24 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler, PluginR
         val imageCursor = mediaResolver.query(imgUri, mediaColumns, null,
                 null, sortOrder)
         imageCursor?.use {
-            val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME)
-            val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_ID)
+            val titleColumn = imageCursor.getColumnIndexOrThrow(
+                    MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME)
+            val idColumn = imageCursor.getColumnIndexOrThrow(
+                    MediaStore.Images.ImageColumns.BUCKET_ID)
             while (imageCursor.moveToNext()) {
                 val bucketId = imageCursor.getString(idColumn)
-                val coverImgId = getAlbumsCoverImage( bucketId, imgUri )
+                val coverImgId = getAlbumsCoverImage(bucketId, imgUri)
                 val imgJson = JSONObject()
                 imgJson.put("title", imageCursor.getString(titleColumn))
                 imgJson.put("id", bucketId)
-                imgJson.put( "coverImgId", coverImgId )
+                imgJson.put("coverImgId", coverImgId)
                 albums.add(imgJson.toString())
             }
         }
         return albums
     }
 
-    private fun getAlbumsCoverImage( bucketId: String, imgUri: Uri ): String {
+    private fun getAlbumsCoverImage(bucketId: String, imgUri: Uri): String {
         var coverImgId = String()
         val mediaColumns = arrayOf(
                 MediaStore.Images.ImageColumns._ID,
@@ -167,7 +178,7 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler, PluginR
         )
         val sortOrder = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC LIMIT 1"
         val selection = "${MediaStore.Images.ImageColumns.BUCKET_ID} = ?"
-        val selectionArgs = arrayOf( bucketId )
+        val selectionArgs = arrayOf(bucketId)
         val mediaResolver = pluginActivity.contentResolver
         val imageCursor = mediaResolver.query(imgUri, mediaColumns, selection,
                 selectionArgs, sortOrder)
@@ -180,14 +191,14 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler, PluginR
         return coverImgId
     }
 
-    private fun getLatestImages( maxResults: Int, result: Result ) {
-        if ( isNotInitialized( result)) {
+    private fun getLatestImages(maxResults: Int, result: Result) {
+        if (isNotInitialized(result)) {
             return
         }
         Thread(Runnable {
             val images = ArrayList<String>()
             val imgUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            val mediaColumns = arrayOf( MediaStore.Images.ImageColumns.DISPLAY_NAME,
+            val mediaColumns = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME,
                     MediaStore.Images.ImageColumns.DATE_TAKEN,
                     MediaStore.Images.ImageColumns.TITLE,
                     MediaStore.Images.ImageColumns.HEIGHT,
@@ -195,32 +206,73 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler, PluginR
                     MediaStore.MediaColumns._ID)
             val sortOrder = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC LIMIT $maxResults"
             val mediaResolver = pluginActivity.contentResolver
-            val imageCursor = mediaResolver.query( imgUri, mediaColumns, null,
-                    null, sortOrder )
+            val imageCursor = mediaResolver.query(imgUri, mediaColumns, null,
+                    null, sortOrder)
             imageCursor?.use {
                 val widthColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.WIDTH)
                 val heightColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.HEIGHT)
                 val dateColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_TAKEN)
                 val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.TITLE)
                 val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
-                while ( imageCursor.moveToNext()) {
+                while (imageCursor.moveToNext()) {
                     val imgJson = JSONObject()
-                    imgJson.put( "title", imageCursor.getString(titleColumn))
-                    imgJson.put( "pixelWidth", imageCursor.getInt(widthColumn))
-                    imgJson.put( "pixelHeight", imageCursor.getInt(heightColumn))
-                    imgJson.put( "id", imageCursor.getString(idColumn))
-                    val takenOn = Date( imageCursor.getLong(dateColumn))
-                    val isoDate = isoFormatter.format( takenOn )
-                    imgJson.put( "creationDate", isoDate )
-                    images.add( imgJson.toString())
+                    imgJson.put("title", imageCursor.getString(titleColumn))
+                    imgJson.put("pixelWidth", imageCursor.getInt(widthColumn))
+                    imgJson.put("pixelHeight", imageCursor.getInt(heightColumn))
+                    imgJson.put("id", imageCursor.getString(idColumn))
+                    val takenOn = Date(imageCursor.getLong(dateColumn))
+                    val isoDate = isoFormatter.format(takenOn)
+                    imgJson.put("creationDate", isoDate)
+                    images.add(imgJson.toString())
                 }
             }
-            pluginActivity.runOnUiThread( Runnable {result.success( images )})
+            pluginActivity.runOnUiThread { result.success(images) }
         }).start()
     }
 
-    private fun getImageBytes( id: String, width: Int, height: Int, result: Result ) {
-        if ( isNotInitialized( result)) {
+    private fun findImagesInAlbum(albumId: String, maxImages: Int, result: Result) {
+        if (isNotInitialized(result)) {
+            return
+        }
+        Thread(Runnable {
+            val images = ArrayList<String>()
+            val imgUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            val mediaColumns = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME,
+                    MediaStore.Images.ImageColumns.DATE_TAKEN,
+                    MediaStore.Images.ImageColumns.TITLE,
+                    MediaStore.Images.ImageColumns.HEIGHT,
+                    MediaStore.Images.ImageColumns.WIDTH,
+                    MediaStore.MediaColumns._ID)
+            val sortOrder = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC LIMIT $maxImages"
+            val selection = "${MediaStore.Images.ImageColumns.BUCKET_ID} = ?"
+            val selectionArgs = arrayOf(albumId)
+            val mediaResolver = pluginActivity.contentResolver
+            val imageCursor = mediaResolver.query(imgUri, mediaColumns, selection,
+                    selectionArgs, sortOrder)
+            imageCursor?.use {
+                val widthColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.WIDTH)
+                val heightColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.HEIGHT)
+                val dateColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_TAKEN)
+                val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.TITLE)
+                val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
+                while (imageCursor.moveToNext()) {
+                    val imgJson = JSONObject()
+                    imgJson.put("title", imageCursor.getString(titleColumn))
+                    imgJson.put("pixelWidth", imageCursor.getInt(widthColumn))
+                    imgJson.put("pixelHeight", imageCursor.getInt(heightColumn))
+                    imgJson.put("id", imageCursor.getString(idColumn))
+                    val takenOn = Date(imageCursor.getLong(dateColumn))
+                    val isoDate = isoFormatter.format(takenOn)
+                    imgJson.put("creationDate", isoDate)
+                    images.add(imgJson.toString())
+                }
+            }
+            pluginActivity.runOnUiThread { result.success(images) }
+        }).start()
+    }
+
+    private fun getImageBytes(id: String, width: Int, height: Int, result: Result) {
+        if (isNotInitialized(result)) {
             return
         }
         Thread(Runnable {
@@ -235,7 +287,7 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler, PluginR
             val jpegBytes = ByteArrayOutputStream()
             jpegBytes.use {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 70, jpegBytes)
-                pluginActivity.runOnUiThread(Runnable { result.success(jpegBytes.toByteArray()) })
+                pluginActivity.runOnUiThread { result.success(jpegBytes.toByteArray()) }
             }
         }).start()
     }
@@ -243,11 +295,10 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler, PluginR
     private fun initializeIfPermitted(context: Application) {
         permissionGranted = ContextCompat.checkSelfPermission(context,
                 Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        if ( !permissionGranted ) {
+        if (!permissionGranted) {
             ActivityCompat.requestPermissions(pluginActivity,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), imagePermissionCode )
-        }
-        else {
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), imagePermissionCode)
+        } else {
             completeInitialize()
         }
     }
@@ -262,11 +313,11 @@ class LocalImageProviderPlugin ( activity: Activity): MethodCallHandler, PluginR
         activeResult = null
     }
 
-    override fun onRequestPermissionsResult( requestCode: Int, permissions: Array<out String>?,
-                                             grantResults: IntArray?): Boolean {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>?,
+                                            grantResults: IntArray?): Boolean {
         when (requestCode) {
             imagePermissionCode -> {
-                if ( null != grantResults ) {
+                if (null != grantResults) {
                     permissionGranted = grantResults.isNotEmpty() &&
                             grantResults.get(0) == PackageManager.PERMISSION_GRANTED
                 }
