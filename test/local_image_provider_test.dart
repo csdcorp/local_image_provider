@@ -19,6 +19,7 @@ void main() {
       '{"id":"image2","creationDate":"2019-01-02 21:07Z","pixelWidth":3324,"pixelHeight":2048}';
   const String imageBytesStr = "087imgbytes234";
   Uint8List imageBytes;
+  const String emptyAlbumId = "emptyAlbum1";
   const String firstAlbumId = "album1";
   const String firstAlbumTitle = "My first album";
   const String firstAlbumJson =
@@ -48,6 +49,12 @@ void main() {
         return imageBytes;
       } else if (methodCall.method == "albums") {
         return albumJsonList;
+      } else if (methodCall.method == "images_in_album") {
+        if (methodCall.arguments["albumId"] == emptyAlbumId) {
+          return [];
+        } else {
+          return photoJsonList;
+        }
       }
       return Future.value(true);
     });
@@ -133,6 +140,31 @@ void main() {
     test('failed or missing initialize throws', () async {
       try {
         await localImageProvider.findLatest(10);
+        fail("Should have thrown");
+      } catch (e) {
+        // expected
+      }
+    });
+  });
+
+  group('imagesInAlbums', () {
+    test('empty list returns no photos', () async {
+      await localImageProvider.initialize();
+      List<LocalImage> photos =
+          await localImageProvider.findImagesInAlbum(emptyAlbumId, 10);
+      expect(photos.length, 0);
+    });
+    test('expected photos returned', () async {
+      await localImageProvider.initialize();
+      photoJsonList = [firstPhotoJson, secondPhotoJson];
+      List<LocalImage> photos =
+          await localImageProvider.findImagesInAlbum(firstAlbumId, 10);
+      expect(photos.length, 2);
+      expect(photos[0].id, firstImageId);
+    });
+    test('failed or missing initialize throws', () async {
+      try {
+        await localImageProvider.findImagesInAlbum(firstAlbumId, 10);
         fail("Should have thrown");
       } catch (e) {
         // expected
