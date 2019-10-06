@@ -47,7 +47,7 @@ class LocalImageProvider {
     final List<dynamic> albums =
         await channel.invokeMethod('albums', localAlbumType.value);
     return albums.map((albumJson) {
-      print(albumJson);
+      // print(albumJson);
       Map<String, dynamic> photoMap = jsonDecode(albumJson);
       return LocalAlbum.fromJson(photoMap);
     }).toList();
@@ -61,13 +61,9 @@ class LocalImageProvider {
     if (!_initWorked) {
       throw LocalImageProviderNotInitializedException();
     }
-    final List<dynamic> photos =
+    final List<dynamic> images =
         await channel.invokeMethod('latest_images', maxImages);
-    return photos.map((photoJson) {
-      // print(photoJson);
-      Map<String, dynamic> photoMap = jsonDecode(photoJson);
-      return LocalImage.fromJson(photoMap);
-    }).toList();
+    return _jsonToLocalImages(images);
   }
 
   /// Returns the images contained in the given album on the local device
@@ -82,11 +78,7 @@ class LocalImageProvider {
     }
     final List<dynamic> images = await channel.invokeMethod(
         'images_in_album', {'albumId': albumId, 'maxImages': maxImages});
-    return images.map((imageJson) {
-      // print(photoJson);
-      Map<String, dynamic> imageMap = jsonDecode(imageJson);
-      return LocalImage.fromJson(imageMap);
-    }).toList();
+    return _jsonToLocalImages(images);
   }
 
   /// Returns a version of the image at the given size in a jpeg format suitable for loading with
@@ -101,6 +93,14 @@ class LocalImageProvider {
     final Uint8List photoBytes = await channel.invokeMethod(
         'image_bytes', {'id': id, 'pixelHeight': height, 'pixelWidth': width});
     return photoBytes;
+  }
+
+  List<LocalImage> _jsonToLocalImages( List<dynamic> jsonImages ) {
+    return jsonImages.map((imageJson) {
+      // print(photoJson);
+      Map<String, dynamic> imageMap = jsonDecode(imageJson);
+      return LocalImage.fromJson(imageMap);
+    }).toList();
   }
 }
 
