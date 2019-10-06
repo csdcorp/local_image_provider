@@ -4,18 +4,22 @@ A library for searching and retrieving the metadata and contents of the images a
 albums on a mobile device. 
 
 This plugin contains a set of classes that make it easy to discover the metadata of the images 
-and albums on the mobile device. It supports both Android and iOS. Images content can be 
+and albums on the mobile device. It supports both Android and iOS. The content of images can be 
 retrieved in a format compatible with the ImageProvider. Note that this plugin has no UI 
 components, it provides information about local photos that can be used to develop other 
 applications.
 
 ## Recent Updates
-The 0.5.2 version of this plugin added permission handling. Previous versions used external 
-permission plugins to handle the required platform permissions but those dependencies were 
-causing problems so they've been removed. The initialize method now handles permission 
-checking. 
+The 0.6.0 version changed some methods from 'get' to 'find' to better match the functionality. 
 
-*Note*: This plugin is under development and will be extended over the coming weeks. 
+The 0.5.2 version of this plugin added permission handling. Previous versions used an external 
+permission plugin to handle the required platform permissions but those dependencies were 
+causing problems so they've been removed. The initialize method now handles permission 
+checking and is required as the first call to the plugin. 
+
+*Note*: This plugin is under development and will be extended over the coming weeks. It is not 
+yet fully tested on multiple platforms. If you have any compatibility results you'd like to share please 
+post them as [issues](https://github.com/csdcorp/local_image_provider/issues). 
 
 ## Using
 
