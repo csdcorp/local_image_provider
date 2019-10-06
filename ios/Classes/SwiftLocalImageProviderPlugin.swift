@@ -137,9 +137,14 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         allPhotosOptions.fetchLimit = maxPhotos
         allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         let allPhotos = PHAsset.fetchAssets(with: allPhotosOptions)
-        var photoIds = [String]()
+        let photos = imagesToJson( allPhotos )
+        result( photos )
+    }
+
+    private func imagesToJson( _ images: PHFetchResult<PHAsset> ) -> [String] {
+        var photosJson = [String]()
         let df = ISO8601DateFormatter()
-        allPhotos.enumerateObjects{(object: AnyObject!,
+        images.enumerateObjects{(object: AnyObject!,
             count: Int,
             stop: UnsafeMutablePointer<ObjCBool>) in
             
@@ -152,41 +157,26 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                 "pixelWidth":\(asset.pixelWidth),
                 "pixelHeight":\(asset.pixelHeight)}
                 """;
-                photoIds.append( assetJson )
+                photosJson.append( assetJson )
             }
         }
-       result( photoIds )
+        return photosJson
     }
-
+    
     private func getImagesInAlbum( albumId: String, maxImages: Int, _ result: @escaping FlutterResult) {
+        var photos = [String]()
         let albumOptions = PHFetchOptions()
         let albumResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumId], options: albumOptions )
         guard albumResult.count > 0 else {
+            result( photos )
             return
         }
-        var photos = [String]()
         if let album = albumResult.firstObject {
             let allPhotosOptions = PHFetchOptions()
             allPhotosOptions.fetchLimit = maxImages
             allPhotosOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
             let albumPhotos = PHAsset.fetchAssets(in: album, options: allPhotosOptions)
-            let df = ISO8601DateFormatter()
-            albumPhotos.enumerateObjects{(object: AnyObject!,
-                count: Int,
-                stop: UnsafeMutablePointer<ObjCBool>) in
-                
-                if object is PHAsset{
-                    let asset = object as! PHAsset
-                    let creationDate = df.string(from: asset.creationDate!);
-                    let assetJson = """
-                    {"id":"\(asset.localIdentifier)",
-                    "creationDate":"\(creationDate)",
-                    "pixelWidth":\(asset.pixelWidth),
-                    "pixelHeight":\(asset.pixelHeight)}
-                    """;
-                    photos.append( assetJson )
-                }
-            }
+            photos = imagesToJson( albumPhotos )
         }
        result( photos )
     }

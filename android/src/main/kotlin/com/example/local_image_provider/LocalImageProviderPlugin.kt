@@ -3,6 +3,7 @@ package com.example.local_image_provider
 import android.Manifest
 import android.app.Activity
 import android.app.Application
+import android.content.ContentResolver
 import android.content.pm.PackageManager
 import android.os.Build
 import android.graphics.Bitmap
@@ -41,7 +42,12 @@ class LocalImageProviderPlugin(activity: Activity) : MethodCallHandler,
     private var activeResult: Result? = null
     private var initializedSuccessfully: Boolean = false
     private var permissionGranted: Boolean = false
-
+    private val imageColums = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME,
+        MediaStore.Images.ImageColumns.DATE_TAKEN,
+        MediaStore.Images.ImageColumns.TITLE,
+        MediaStore.Images.ImageColumns.HEIGHT,
+        MediaStore.Images.ImageColumns.WIDTH,
+        MediaStore.MediaColumns._ID)
 
     companion object {
         @JvmStatic
@@ -196,36 +202,10 @@ class LocalImageProviderPlugin(activity: Activity) : MethodCallHandler,
             return
         }
         Thread(Runnable {
-            val images = ArrayList<String>()
             val imgUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            val mediaColumns = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME,
-                    MediaStore.Images.ImageColumns.DATE_TAKEN,
-                    MediaStore.Images.ImageColumns.TITLE,
-                    MediaStore.Images.ImageColumns.HEIGHT,
-                    MediaStore.Images.ImageColumns.WIDTH,
-                    MediaStore.MediaColumns._ID)
             val sortOrder = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC LIMIT $maxResults"
             val mediaResolver = pluginActivity.contentResolver
-            val imageCursor = mediaResolver.query(imgUri, mediaColumns, null,
-                    null, sortOrder)
-            imageCursor?.use {
-                val widthColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.WIDTH)
-                val heightColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.HEIGHT)
-                val dateColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_TAKEN)
-                val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.TITLE)
-                val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
-                while (imageCursor.moveToNext()) {
-                    val imgJson = JSONObject()
-                    imgJson.put("title", imageCursor.getString(titleColumn))
-                    imgJson.put("pixelWidth", imageCursor.getInt(widthColumn))
-                    imgJson.put("pixelHeight", imageCursor.getInt(heightColumn))
-                    imgJson.put("id", imageCursor.getString(idColumn))
-                    val takenOn = Date(imageCursor.getLong(dateColumn))
-                    val isoDate = isoFormatter.format(takenOn)
-                    imgJson.put("creationDate", isoDate)
-                    images.add(imgJson.toString())
-                }
-            }
+            val images = findImagesToJson(mediaResolver, imgUri, null, null, sortOrder )
             pluginActivity.runOnUiThread { result.success(images) }
         }).start()
     }
@@ -235,40 +215,41 @@ class LocalImageProviderPlugin(activity: Activity) : MethodCallHandler,
             return
         }
         Thread(Runnable {
-            val images = ArrayList<String>()
             val imgUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            val mediaColumns = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME,
-                    MediaStore.Images.ImageColumns.DATE_TAKEN,
-                    MediaStore.Images.ImageColumns.TITLE,
-                    MediaStore.Images.ImageColumns.HEIGHT,
-                    MediaStore.Images.ImageColumns.WIDTH,
-                    MediaStore.MediaColumns._ID)
             val sortOrder = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC LIMIT $maxImages"
             val selection = "${MediaStore.Images.ImageColumns.BUCKET_ID} = ?"
             val selectionArgs = arrayOf(albumId)
             val mediaResolver = pluginActivity.contentResolver
-            val imageCursor = mediaResolver.query(imgUri, mediaColumns, selection,
-                    selectionArgs, sortOrder)
-            imageCursor?.use {
-                val widthColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.WIDTH)
-                val heightColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.HEIGHT)
-                val dateColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_TAKEN)
-                val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.TITLE)
-                val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
-                while (imageCursor.moveToNext()) {
-                    val imgJson = JSONObject()
-                    imgJson.put("title", imageCursor.getString(titleColumn))
-                    imgJson.put("pixelWidth", imageCursor.getInt(widthColumn))
-                    imgJson.put("pixelHeight", imageCursor.getInt(heightColumn))
-                    imgJson.put("id", imageCursor.getString(idColumn))
-                    val takenOn = Date(imageCursor.getLong(dateColumn))
-                    val isoDate = isoFormatter.format(takenOn)
-                    imgJson.put("creationDate", isoDate)
-                    images.add(imgJson.toString())
-                }
-            }
+            val images = findImagesToJson(mediaResolver, imgUri, selection, selectionArgs, sortOrder )
             pluginActivity.runOnUiThread { result.success(images) }
         }).start()
+    }
+
+    private fun findImagesToJson(mediaResolver: ContentResolver, imgUri: Uri, selection: String?,
+                                 selectionArgs: Array<String>?, sortOrder: String? ):
+            ArrayList<String> {
+        val images = ArrayList<String>()
+        val imageCursor = mediaResolver.query(imgUri, imageColums, selection,
+                selectionArgs, sortOrder)
+        imageCursor?.use {
+            val widthColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.WIDTH)
+            val heightColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.HEIGHT)
+            val dateColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_TAKEN)
+            val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.TITLE)
+            val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
+            while (imageCursor.moveToNext()) {
+                val imgJson = JSONObject()
+                imgJson.put("title", imageCursor.getString(titleColumn))
+                imgJson.put("pixelWidth", imageCursor.getInt(widthColumn))
+                imgJson.put("pixelHeight", imageCursor.getInt(heightColumn))
+                imgJson.put("id", imageCursor.getString(idColumn))
+                val takenOn = Date(imageCursor.getLong(dateColumn))
+                val isoDate = isoFormatter.format(takenOn)
+                imgJson.put("creationDate", isoDate)
+                images.add(imgJson.toString())
+            }
+        }
+        return images
     }
 
     private fun getImageBytes(id: String, width: Int, height: Int, result: Result) {
