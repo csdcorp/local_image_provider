@@ -27,7 +27,7 @@ import 'package:local_image_provider/local_image_provider.dart' as lip;
     lip.LocalImageProvider imageProvider = lip.LocalImageProvider();
     bool hasPermission = await imageProvider.initialize();
     if ( hasPermission) {
-        List<lip.LocalImage> images = await imageProvider.getLatest(10);
+        List<lip.LocalImage> images = await imageProvider.findLatest(10);
         images.forEach((image) => print( image.id));
     }
     else {
@@ -45,7 +45,7 @@ import 'package:flutter/painting.dart';
     lip.LocalImageProvider imageProvider = lip.LocalImageProvider();
     bool hasPermission = await imageProvider.initialize();
     if ( hasPermission) {
-        List<lip.LocalImage> images = await imageProvider.getLatest(1);
+        List<lip.LocalImage> images = await imageProvider.findLatest(1);
         if ( !images.isEmpty ) {
             lip.LocalImage image = images.first;
             MemoryImage mImg = MemoryImage( await image.getImageBytes( 300, 300 ));

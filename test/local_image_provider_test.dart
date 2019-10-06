@@ -71,7 +71,7 @@ void main() {
       initResponse = false;
       await localImageProvider.initialize();
       try {
-        await localImageProvider.getAlbums(LocalAlbumType.all);
+        await localImageProvider.findAlbums(LocalAlbumType.all);
         fail("Should have thrown");
       } catch (e) {
         // expected
@@ -82,7 +82,7 @@ void main() {
     test('empty list returns none', () async {
       await localImageProvider.initialize();
       List<LocalAlbum> albums =
-          await localImageProvider.getAlbums(LocalAlbumType.all);
+          await localImageProvider.findAlbums(LocalAlbumType.all);
       expect(albums.length, 0);
     });
 
@@ -92,7 +92,7 @@ void main() {
         firstAlbumJson,
       ];
       List<LocalAlbum> albums =
-          await localImageProvider.getAlbums(LocalAlbumType.all);
+          await localImageProvider.findAlbums(LocalAlbumType.all);
       expect(albums.length, 1);
       LocalAlbum album = albums.first;
       expect(album.id, firstAlbumId);
@@ -101,7 +101,7 @@ void main() {
     });
     test('failed or missing initialize throws', () async {
       try {
-        await localImageProvider.getAlbums(LocalAlbumType.all);
+        await localImageProvider.findAlbums(LocalAlbumType.all);
         fail("Should have thrown");
       } catch (e) {
         // expected
@@ -112,7 +112,7 @@ void main() {
   group('latest', () {
     test('empty list returns no photos', () async {
       await localImageProvider.initialize();
-      List<LocalImage> photos = await localImageProvider.getLatest(10);
+      List<LocalImage> photos = await localImageProvider.findLatest(10);
       expect(photos.length, 0);
     });
     test('single photo returned', () async {
@@ -120,19 +120,19 @@ void main() {
       photoJsonList = [
         firstPhotoJson,
       ];
-      List<LocalImage> photos = await localImageProvider.getLatest(10);
+      List<LocalImage> photos = await localImageProvider.findLatest(10);
       expect(photos.length, 1);
     });
     test('two photos returned', () async {
       await localImageProvider.initialize();
       photoJsonList = [firstPhotoJson, secondPhotoJson];
-      List<LocalImage> photos = await localImageProvider.getLatest(10);
+      List<LocalImage> photos = await localImageProvider.findLatest(10);
       expect(photos.length, 2);
       expect(photos[0].id, firstImageId);
     });
     test('failed or missing initialize throws', () async {
       try {
-        await localImageProvider.getLatest(10);
+        await localImageProvider.findLatest(10);
         fail("Should have thrown");
       } catch (e) {
         // expected

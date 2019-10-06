@@ -26,6 +26,11 @@ class LocalImageProvider {
   /// True if [initialize] succeeded
   bool get isAvailable => _initWorked;
 
+  /// Initialize and request permission to use platform services. 
+  /// 
+  /// If this returns false then either the user has denied permission
+  /// to use the platform services or the services are not available
+  /// for some reason, possibly due to platform version. 
   Future<bool> initialize() async {
     if (_initWorked) {
       return Future.value(_initWorked);
@@ -35,7 +40,7 @@ class LocalImageProvider {
   }
 
   /// Returns the list of [LocalAlbum] available on the device matching the [localAlbumType]
-  Future<List<LocalAlbum>> getAlbums(LocalAlbumType localAlbumType) async {
+  Future<List<LocalAlbum>> findAlbums(LocalAlbumType localAlbumType) async {
     if (!_initWorked) {
       throw LocalImageProviderNotInitializedException();
     }
@@ -52,7 +57,7 @@ class LocalImageProvider {
   ///
   /// This list may be empty if there are no images on the device or the
   /// user has denied permission to see their local images.
-  Future<List<LocalImage>> getLatest(int maxImages) async {
+  Future<List<LocalImage>> findLatest(int maxImages) async {
     if (!_initWorked) {
       throw LocalImageProviderNotInitializedException();
     }
@@ -70,7 +75,7 @@ class LocalImageProvider {
   ///
   /// This list may be empty if there are no images in the album or the
   /// user has denied permission to see their local images.
-  Future<List<LocalImage>> getImagesInAlbum(
+  Future<List<LocalImage>> findImagesInAlbum(
       String albumId, int maxImages) async {
     if (!_initWorked) {
       throw LocalImageProviderNotInitializedException();

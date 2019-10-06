@@ -41,8 +41,8 @@ class _MyAppState extends State<MyApp> {
     try {
       hasPermission = await localImageProvider.initialize();
       if (hasPermission) {
-        localImages = await localImageProvider.getLatest(2);
-        localAlbums = await localImageProvider.getAlbums(LocalAlbumType.all);
+        localImages = await localImageProvider.findLatest(2);
+        localAlbums = await localImageProvider.findAlbums(LocalAlbumType.all);
       }
     } on PlatformException catch (e) {
       print('Local image provider failed: $e');
@@ -63,7 +63,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void switchAlbum( LocalAlbum album ) async {
-    List<LocalImage> albumImages = await localImageProvider.getImagesInAlbum(album.id, 100 );
+    List<LocalImage> albumImages = await localImageProvider.findImagesInAlbum(album.id, 100 );
     setState(() {
       _localImages.clear();
       _localImages.addAll(albumImages);

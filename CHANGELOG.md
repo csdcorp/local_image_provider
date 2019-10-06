@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0
+
+### Breaking
+* renamed getLatest -> findLatest
+* renamed getAlbums -> findAlbums
+  
+### New
+* findImagesInAlbum to list all the images contained in a particular album
+
 
 ## 0.5.2
 ### Breaking

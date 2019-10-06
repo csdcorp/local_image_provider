@@ -17,12 +17,12 @@ void main() async {
   bool hasPermission = await imageProvider.initialize();
   if ( hasPermission ) {
     List<LocalAlbum> albums =
-        await imageProvider.getAlbums(LocalAlbumType.all);
+        await imageProvider.findAlbums(LocalAlbumType.all);
     print('Got albums: ${albums.length}');
     albums.forEach((album) => print(
         'Title: ${album.title}, id: ${album.id}, coverImgId: ${album.coverImgId}'));
 
-    List<LocalImage> images = await imageProvider.getLatest(10);
+    List<LocalImage> images = await imageProvider.findLatest(10);
     print('Got images: ${images.length}');
     images.forEach((image) => print(
         'id: ${image.id}, height: ${image.pixelHeight}, width: ${image.pixelWidth}'));
