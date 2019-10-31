@@ -76,11 +76,11 @@ class _MyAppState extends State<MyApp> {
     switchImage(album.coverImg, 'Album');
   }
 
-  void switchImage( LocalImage image, String src) {
-      setState(() {
-        _hasImage = true;
-        _imgSource = src;
-        _selectedImg = image;
+  void switchImage(LocalImage image, String src) {
+    setState(() {
+      _hasImage = true;
+      _imgSource = src;
+      _selectedImg = image;
     });
   }
 
@@ -131,76 +131,144 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Local Image Provider Example'),
+          actions: <Widget>[
+            Container(
+              margin: EdgeInsets.all(5),
+              child: FlatButton(
+                child: Text(
+                  'Stress Test',
+                ),
+                onPressed: stressTest,
+                color: Colors.white30,
+              ),
+            ),
+          ],
         ),
         body: _hasPermission
             ? Container(
-                padding: EdgeInsets.all(10),
-                child: Column(children: [
-                  Text(
-                    'Found - Images: ${_localImages.length}; Albums: ${_localAlbums.length}.',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  Divider(),
-                  Flexible(
-                    child: FlatButton(
-                      child: Text('Stress Test'),
-                      onPressed: stressTest,
-                    ),
-                  ),
-                  Text('Albums', style: TextStyle(fontSize: 20)),
-                  Expanded(
-                    child: ListView(
-                      children: _localAlbums
-                          .map(
-                            (album) => GestureDetector(
-                                onTap: () => switchAlbum(album),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 5),
-                                  child: Text(
-                                      'Title: ${album.title}; images: ${album.imageCount}, id: ${album.id}; cover Id: ${album.coverImg}'),
-                                )),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                  Divider(),
-                  Text('Images - $_imgHeading', style: TextStyle(fontSize: 20)),
-                  Expanded(
-                    child: ListView(
-                      children: _localImages
-                          .map(
-                            (img) => GestureDetector(
-                              onTap: () => switchImage(img, 'Images'),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 5),
-                                child: Text(
-                                    'Id: ${img.id}; created: ${img.creationDate}'),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                  Divider(),
-                  Expanded(
-                    child: _hasImage
-                        ? Column(
-                            children: <Widget>[
-                              Text('Selected: $_imgSource'),
-                              Text('Image id: ${_selectedImg.id}'),
-                              Expanded(
-                                child: Image( image: DeviceImage( _selectedImg )),
-                              ),
-                            ],
-                          )
-                        : Center(
-                            child: Text(
-                                'Tap on an image or album for a preview',
-                                style: TextStyle(
-                                    fontSize: 20, fontStyle: FontStyle.italic)),
+                padding: EdgeInsets.all(20),
+                color: Colors.blueGrey[100],
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          'Found - Images: ${_localImages.length}; Albums: ${_localAlbums.length}.',
+                          style: Theme.of(context).textTheme.display1,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: Text(
+                          'Albums',
+                          style: Theme.of(context).textTheme.headline,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          color: Theme.of(context).canvasColor,
+                          padding: EdgeInsets.all(8),
+                          child: ListView(
+                            children: _localAlbums
+                                .map(
+                                  (album) => GestureDetector(
+                                      onTap: () => switchAlbum(album),
+                                      child: Container(
+                                        padding: EdgeInsets.only(bottom: 8),
+                                        child: Text(
+                                          'Title: ${album.title}; images: ${album.imageCount}, id: ${album.id}; cover Id: ${album.coverImg}',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .subhead,
+                                        ),
+                                      )),
+                                )
+                                .toList(),
                           ),
-                  ),
-                ]),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: Text(
+                          'Images - $_imgHeading \n (Images in album: ${_localImages.length})',
+                          style: Theme.of(context).textTheme.headline,
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          color: Theme.of(context).canvasColor,
+                          padding: EdgeInsets.all(8),
+                          child: ListView(
+                            children: _localImages
+                                .map(
+                                  (img) => GestureDetector(
+                                    onTap: () => switchImage(img, 'Images'),
+                                    child: Container(
+                                      color: Theme.of(context).canvasColor,
+                                      padding: EdgeInsets.all(10),
+                                      child: Text(
+                                        'Id: ${img.id}; created: ${img.creationDate}',
+                                        style:
+                                            Theme.of(context).textTheme.subhead,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: _hasImage
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Container(
+                                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                    child: Text(
+                                      'Selected: $_imgSource',
+                                      style: Theme.of(context).textTheme.title,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      color: Theme.of(context).canvasColor,
+                                      padding: EdgeInsets.all(16),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Image(
+                                            image: DeviceImage(_selectedImg),
+                                            fit: BoxFit.contain,
+                                          ),
+                                          Text(
+                                            'Image id:\n ${_selectedImg.id}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .body1,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Center(
+                                child: Text(
+                                  'Tap on an image or album for a preview',
+                                  style: Theme.of(context).textTheme.headline,
+                                ),
+                              ),
+                      )
+                    ]),
               )
             : Center(child: Text('No permission')),
       ),
