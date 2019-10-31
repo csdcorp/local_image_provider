@@ -245,15 +245,21 @@ class _MyAppState extends State<MyApp> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: <Widget>[
-                                          Image(
-                                            image: DeviceImage(_selectedImg),
-                                            fit: BoxFit.contain,
+                                          Flexible(
+                                            child: Image(
+                                              image: DeviceImage(_selectedImg),
+                                              fit: BoxFit.contain,
+                                            ),
                                           ),
-                                          Text(
-                                            'Image id:\n ${_selectedImg.id}',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .body1,
+                                          Expanded(
+                                            child: Text(
+                                              'Image id: \n ${_selectedImg.id}',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .body1,
+                                              overflow: TextOverflow.visible,
+                                              softWrap: true,
+                                            ),
                                           ),
                                         ],
                                       ),
