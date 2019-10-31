@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.7.0
+
+### Breaking
+* LocalAlbum.coverImgId has been deprecated
+* reordered height, width parameters on LocalImage constructor to match imageBytes method
+* LocalImage.getImageBytes now takes a LocalImageProvider as a parameter to improve testability
+* LocalAlbum.getCoverImage now takes a LocalImageProvider as a parameter to improve testability
+
+### New
+* LocalAlbum.coverImg has been added
+* LocalAlbum.imageCount property
+* DeviceImage has been added, use instead of using the getImageBytes method directly
+* LocalImage constructor is now const
+* LocalAlbum constructor is now const
+* added == and hashCode for both LocalImage and LocalAlbum, note they depend only on the id
+
 ## 0.6.0
 
 ### Breaking

@@ -9,6 +9,7 @@ import 'package:local_image_provider/local_image_provider.dart';
 void main() {
   LocalImageProvider localImageProvider;
   bool initResponse;
+  bool pluginInvocation;
   List<String> photoJsonList = [];
   List<String> albumJsonList = [];
   const String noSuchImageId = "noSuchImage";
@@ -23,16 +24,18 @@ void main() {
   const String firstAlbumId = "album1";
   const String firstAlbumTitle = "My first album";
   const String firstAlbumJson =
-      '{"id":"$firstAlbumId","coverImgId":"$firstImageId","title":"$firstAlbumTitle"}';
+      '{"id":"$firstAlbumId","coverImg":$firstPhotoJson,"title":"$firstAlbumTitle"}';
 
   setUp(() {
     initResponse = true;
     List<int> imgInt = imageBytesStr.codeUnits;
     imageBytes = Uint8List.fromList(imgInt);
+    pluginInvocation = false;
     localImageProvider =
         LocalImageProvider.withMethodChannel(LocalImageProvider.lipChannel);
     localImageProvider.channel
         .setMockMethodCallHandler((MethodCall methodCall) async {
+      pluginInvocation = true;
       if (methodCall.method == "initialize") {
         return initResponse;
       } else if (methodCall.method == "latest_images") {
@@ -68,11 +71,22 @@ void main() {
     test('succeeds on success return', () async {
       bool init = await localImageProvider.initialize();
       expect(init, true);
+      expect(localImageProvider.isAvailable, isTrue);
+    });
+    test('second call does not invoke', () async {
+      bool init = await localImageProvider.initialize();
+      expect(init, true);
+      expect(pluginInvocation, true);
+      pluginInvocation = false;
+      init = await localImageProvider.initialize();
+      expect(init, true);
+      expect(pluginInvocation, isFalse);
     });
     test('fails on fail return', () async {
       initResponse = false;
       bool init = await localImageProvider.initialize();
       expect(init, false);
+      expect(localImageProvider.isAvailable, isFalse);
     });
     test('fail return leaves other methods uninitialized', () async {
       initResponse = false;

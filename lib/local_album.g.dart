@@ -9,8 +9,11 @@ part of 'local_album.dart';
 LocalAlbum _$LocalAlbumFromJson(Map<String, dynamic> json) {
   return LocalAlbum(
     json['id'] as String,
-    json['coverImgId'] as String,
+    json['coverImg'] == null
+        ? null
+        : LocalImage.fromJson(json['coverImg'] as Map<String, dynamic>),
     json['title'] as String,
+    json['imageCount'] as int,
   );
 }
 
@@ -18,5 +21,6 @@ Map<String, dynamic> _$LocalAlbumToJson(LocalAlbum instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title': instance.title,
-      'coverImgId': instance.coverImgId,
+      'imageCount': instance.imageCount,
+      'coverImg': instance.coverImg?.toJson(),
     };

@@ -21,6 +21,7 @@ public enum LocalImageProviderErrors: String {
 @available(iOS 10.0, *)
 public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
   let imageManager = PHImageManager.default()
+  let isoDf = ISO8601DateFormatter()
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "plugin.csdcorp.com/local_image_provider", binaryMessenger: registrar.messenger())
@@ -113,9 +114,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                 imageOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
                 imageOptions.sortDescriptors = [NSSortDescriptor( key: "creationDate", ascending: false )]
                 let containedImgs = PHAsset.fetchAssets(in: collection, options: imageOptions )
-                var coverImgId = ""
                 if let lastImg = containedImgs.firstObject {
-                    coverImgId = lastImg.localIdentifier
                     var title = "n/a"
                     if let localizedTitle = collection.localizedTitle {
                         title = localizedTitle
@@ -123,7 +122,8 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                     let albumJson = """
                     {"id":"\(collection.localIdentifier)",
                     "title":"\(title)",
-                    "coverImgId":"\(coverImgId)"}
+                    "coverImg":\(self.imageToJson( lastImg )),
+                    "imageCount":\(containedImgs.count)}
                     """;
                     albumEncodings.append( albumJson )
                 }
@@ -143,24 +143,26 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
 
     private func imagesToJson( _ images: PHFetchResult<PHAsset> ) -> [String] {
         var photosJson = [String]()
-        let df = ISO8601DateFormatter()
         images.enumerateObjects{(object: AnyObject!,
             count: Int,
             stop: UnsafeMutablePointer<ObjCBool>) in
             
             if object is PHAsset{
                 let asset = object as! PHAsset
-                let creationDate = df.string(from: asset.creationDate!);
-                let assetJson = """
-                {"id":"\(asset.localIdentifier)",
-                "creationDate":"\(creationDate)",
-                "pixelWidth":\(asset.pixelWidth),
-                "pixelHeight":\(asset.pixelHeight)}
-                """;
-                photosJson.append( assetJson )
+                photosJson.append( self.imageToJson( asset) )
             }
         }
         return photosJson
+    }
+    
+    private func imageToJson( _ asset: PHAsset ) -> String {
+        let creationDate = isoDf.string(from: asset.creationDate!);
+        return """
+        {"id":"\(asset.localIdentifier)",
+        "creationDate":"\(creationDate)",
+        "pixelWidth":\(asset.pixelWidth),
+        "pixelHeight":\(asset.pixelHeight)}
+        """;
     }
     
     private func getImagesInAlbum( albumId: String, maxImages: Int, _ result: @escaping FlutterResult) {

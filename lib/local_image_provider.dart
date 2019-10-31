@@ -26,11 +26,11 @@ class LocalImageProvider {
   /// True if [initialize] succeeded
   bool get isAvailable => _initWorked;
 
-  /// Initialize and request permission to use platform services. 
-  /// 
+  /// Initialize and request permission to use platform services.
+  ///
   /// If this returns false then either the user has denied permission
   /// to use the platform services or the services are not available
-  /// for some reason, possibly due to platform version. 
+  /// for some reason, possibly due to platform version.
   Future<bool> initialize() async {
     if (_initWorked) {
       return Future.value(_initWorked);
@@ -95,7 +95,7 @@ class LocalImageProvider {
     return photoBytes;
   }
 
-  List<LocalImage> _jsonToLocalImages( List<dynamic> jsonImages ) {
+  List<LocalImage> _jsonToLocalImages(List<dynamic> jsonImages) {
     return jsonImages.map((imageJson) {
       // print(photoJson);
       Map<String, dynamic> imageMap = jsonDecode(imageJson);
@@ -105,5 +105,5 @@ class LocalImageProvider {
 }
 
 /// Thrown when a method is called that requires successful
-/// initialization first. See [initialize]
+/// initialization first. See [onDbReady]
 class LocalImageProviderNotInitializedException implements Exception {}

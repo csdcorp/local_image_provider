@@ -20,7 +20,7 @@ void main() async {
         await imageProvider.findAlbums(LocalAlbumType.all);
     print('Got albums: ${albums.length}');
     albums.forEach((album) => print(
-        'Title: ${album.title}, id: ${album.id}, coverImgId: ${album.coverImgId}'));
+        'Title: ${album.title}, id: ${album.id}, coverImgId: ${album.coverImg}'));
 
     List<LocalImage> images = await imageProvider.findLatest(10);
     print('Got images: ${images.length}');

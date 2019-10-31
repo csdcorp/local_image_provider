@@ -15,17 +15,46 @@ class LocalImage {
   final String id;
   final int pixelWidth;
   final int pixelHeight;
-  String creationDate;
+  final String creationDate;
 
-  LocalImage(this.id, this.creationDate, this.pixelWidth, this.pixelHeight);
+  const LocalImage(
+      this.id, this.creationDate, this.pixelHeight, this.pixelWidth);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is LocalImage) {
+      return id == other.id;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+  @override
+  String toString() =>
+      '$runtimeType($id, creation: $creationDate, height: $pixelHeight, width: $pixelWidth)';
+
+  /// Returns a jpeg scaled by the given scaling factor in each dimension.
+  ///
+  /// The resulting image will maintain its aspect ratio and fit
+  /// within a [pixelHeight]*[scale] x [pixelWidth]*[scale] area.
+  @Deprecated("See [DeviceImage] for a better way to load scaled images.")
+  Future<Uint8List> getScaledImageBytes(
+      LocalImageProvider localImageProvider, double scale) async {
+    int scaledHeight = (pixelHeight * scale).round();
+    int scaledWidth = (pixelWidth * scale).round();
+    return getImageBytes(localImageProvider, scaledHeight, scaledWidth);
+  }
 
   /// Returns a jpeg of the image that can be loaded into a [MemoryImage].
   ///
   /// The resulting image will maintain its aspect ratio and fit
   /// within a [pixelHeight]x[pixelWidth] area.
-  Future<Uint8List> getImageBytes(int desiredHeight, int desiredWidth) async {
-    return await LocalImageProvider()
-        .imageBytes(id, desiredHeight, desiredWidth);
+  @Deprecated("See [DeviceImage] for a better way to load the image contents.")
+  Future<Uint8List> getImageBytes(LocalImageProvider localImageProvider,
+      int desiredHeight, int desiredWidth) async {
+    return await localImageProvider.imageBytes(id, desiredHeight, desiredWidth);
   }
 
   factory LocalImage.fromJson(Map<String, dynamic> json) =>

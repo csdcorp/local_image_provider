@@ -10,8 +10,8 @@ LocalImage _$LocalImageFromJson(Map<String, dynamic> json) {
   return LocalImage(
     json['id'] as String,
     json['creationDate'] as String,
-    json['pixelWidth'] as int,
     json['pixelHeight'] as int,
+    json['pixelWidth'] as int,
   );
 }
 
