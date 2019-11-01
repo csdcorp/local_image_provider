@@ -201,16 +201,31 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                         return
                     }
                 }
-                if let image = result, let data = UIImageJPEGRepresentation(image, 0.7 ) {
+                var details = "";
+                if let image = result {
+                    if image.cgImage == nil {
+//                        guard let ciImage = image.ciImage, let cgImage = CIContext(options: nil).createCGImage(ciImage, from: ciImage.extent) else { return }
+//                        image.cgImage = cgImage;
+                        details = "cgImage nil"
+                    }
+
+                    if let data = UIImageJPEGRepresentation(image, 0.7 ) {
                         let typedData = FlutterStandardTypedData( bytes: data );
                         DispatchQueue.main.async {
                             flutterResult( typedData)
                         }
                     }
+                    else {
+                            DispatchQueue.main.async {
+                                flutterResult(FlutterError( code: LocalImageProviderErrors.imgLoadFailed.rawValue, message: "Could not convert image: \(id)", details: details ))
+                            }
+                        }
+            
+                }
                 else {
                     print("Could not load")
                     DispatchQueue.main.async {
-                        flutterResult(FlutterError( code: LocalImageProviderErrors.imgLoadFailed.rawValue, message: "Could not load image: \(id)", details: nil ))
+                        flutterResult(FlutterError( code: LocalImageProviderErrors.imgLoadFailed.rawValue, message: "Could not load image: \(id)", details: details ))
                     }
                 }
             });
