@@ -19,6 +19,10 @@ class LocalImageProvider {
       LocalImageProvider.withMethodChannel(lipChannel);
   final MethodChannel channel;
   bool _initWorked = false;
+  int _bytesLoaded = 0;
+  int _totalLoadTime = 0;
+  int _lastLoadTime = 0;
+  final Stopwatch _stopwatch = Stopwatch();
   factory LocalImageProvider() => _instance;
   @visibleForTesting
   LocalImageProvider.withMethodChannel(this.channel);
@@ -90,10 +94,26 @@ class LocalImageProvider {
     if (!_initWorked) {
       throw LocalImageProviderNotInitializedException();
     }
+    _stopwatch.reset();
+    _stopwatch.start();
     final Uint8List photoBytes = await channel.invokeMethod(
         'image_bytes', {'id': id, 'pixelHeight': height, 'pixelWidth': width});
+    _stopwatch.stop();
+    _totalLoadTime += _stopwatch.elapsedMilliseconds;
+    _lastLoadTime = _stopwatch.elapsedMilliseconds;
+    _bytesLoaded += photoBytes.length;
     return photoBytes;
   }
+
+  void resetStats() {
+    _totalLoadTime = 0;
+    _lastLoadTime = 0;
+    _bytesLoaded = 0;
+  }
+
+  int get totalLoadTime => _totalLoadTime;
+  int get lastLoadTime => _lastLoadTime;
+  int get imgBytesLoaded => _bytesLoaded;
 
   List<LocalImage> _jsonToLocalImages(List<dynamic> jsonImages) {
     return jsonImages.map((imageJson) {

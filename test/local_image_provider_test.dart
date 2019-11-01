@@ -212,5 +212,25 @@ void main() {
         // expected
       }
     });
+
+    group('stats', () {
+      test('start at 0', () {
+        expect(localImageProvider.imgBytesLoaded, 0);
+        expect(localImageProvider.totalLoadTime, 0);
+        expect(localImageProvider.lastLoadTime, 0);
+      });
+      test('counts bytes loaded', () async {
+        await localImageProvider.initialize();
+        Uint8List bytes =
+            await localImageProvider.imageBytes(firstImageId, 300, 300);
+        expect(localImageProvider.imgBytesLoaded, bytes.length);
+      });
+      test('resets bytes loaded', () async {
+        await localImageProvider.initialize();
+        await localImageProvider.imageBytes(firstImageId, 300, 300);
+        localImageProvider.resetStats();
+        expect(localImageProvider.imgBytesLoaded, 0);
+      });
+    });
   });
 }
