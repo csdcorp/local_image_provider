@@ -193,6 +193,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             let requestOptions = PHImageRequestOptions()
             requestOptions.isSynchronous = false
             requestOptions.isNetworkAccessAllowed = true
+            requestOptions.resizeMode = PHImageRequestOptionsResizeMode.fast
             imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: contentMode, options: requestOptions, resultHandler: {(result, info)->Void in
                 if let resultInfo = info
                 {
