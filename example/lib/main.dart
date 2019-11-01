@@ -27,6 +27,10 @@ class _MyAppState extends State<MyApp> {
   String _selectedId;
   String _imgHeading = "most recent 100";
   LocalImage _selectedImg;
+  int _desiredHeight = 500;
+  int _desiredWidth = 500;
+  TextEditingController heightController = TextEditingController();
+  TextEditingController widthController = TextEditingController();
 
   @override
   void initState() {
@@ -125,6 +129,11 @@ class _MyAppState extends State<MyApp> {
     print("Stress test complete");
   }
 
+  void _updateDesired(String current) {
+    _desiredHeight = int.parse(heightController.text);
+    _desiredWidth = int.parse(widthController.text);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -159,6 +168,40 @@ class _MyAppState extends State<MyApp> {
                           textAlign: TextAlign.center,
                         ),
                       ),
+                      Expanded(
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  hintText: 'Height',
+                                  hintStyle: TextStyle(
+                                    fontSize: 18.0,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                                controller: heightController,
+                                onChanged: _updateDesired,
+                              ),
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  hintText: 'Width',
+                                  hintStyle: TextStyle(
+                                    fontSize: 18.0,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                                controller: widthController,
+                                onChanged: _updateDesired,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       Container(
                         padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                         child: Text(
@@ -179,7 +222,7 @@ class _MyAppState extends State<MyApp> {
                                       child: Container(
                                         padding: EdgeInsets.only(bottom: 8),
                                         child: Text(
-                                          'Title: ${album.title}; images: ${album.imageCount}, id: ${album.id}; cover Id: ${album.coverImg}',
+                                          'Title: ${album.title}; images: ${album.imageCount}, id: ${album.id}; cover Id: ${album.coverImg.id}',
                                           style: Theme.of(context)
                                               .textTheme
                                               .subhead,
@@ -246,7 +289,10 @@ class _MyAppState extends State<MyApp> {
                                             CrossAxisAlignment.start,
                                         children: <Widget>[
                                           Image(
-                                            image: DeviceImage(_selectedImg),
+                                            image: DeviceImage(_selectedImg,
+                                                scale: _selectedImg.scaleToFit(
+                                                    _desiredHeight,
+                                                    _desiredWidth)),
                                             fit: BoxFit.contain,
                                           ),
                                           Text(
