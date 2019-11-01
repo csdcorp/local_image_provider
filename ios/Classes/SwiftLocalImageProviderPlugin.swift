@@ -217,7 +217,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                     }
                     else {
                             DispatchQueue.main.async {
-                                flutterResult(FlutterError( code: LocalImageProviderErrors.imgLoadFailed.rawValue, message: "Could not convert image: \(id)", details: details ))
+                                flutterResult(FlutterError( code: LocalImageProviderErrors.imgLoadFailed.rawValue, message: "Could not convert image: \(id) \(details)", details: details ))
                             }
                         }
             
