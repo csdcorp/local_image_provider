@@ -201,13 +201,12 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                         return
                     }
                 }
-                if let image = result {
-                    let data = UIImageJPEGRepresentation(image, 0.7 );
-                    let typedData = FlutterStandardTypedData( bytes: data! );
-                    DispatchQueue.main.async {
-                        flutterResult( typedData)
+                if let image = result, let data = UIImageJPEGRepresentation(image, 0.7 ) {
+                        let typedData = FlutterStandardTypedData( bytes: data );
+                        DispatchQueue.main.async {
+                            flutterResult( typedData)
+                        }
                     }
-                }
                 else {
                     print("Could not load")
                     DispatchQueue.main.async {
