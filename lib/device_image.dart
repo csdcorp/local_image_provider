@@ -46,7 +46,7 @@ class DeviceImage extends ImageProvider<DeviceImage> {
     int height = (localImage.pixelHeight * scale).round();
     int width = (localImage.pixelWidth * scale).round();
     final Uint8List bytes =
-        await localImage.getImageBytes(LocalImageProvider(), height, width);
+        await LocalImageProvider().imageBytes( localImage.id, height, width);
     if (bytes.lengthInBytes == 0) return null;
 
     return await instantiateImageCodec(bytes);
