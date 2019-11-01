@@ -201,6 +201,10 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                     if ( degraded ?? false ) {
                         return
                     }
+                    if let error = resultInfo[PHImageErrorKey] {
+                        DispatchQueue.main.async {
+                            flutterResult(FlutterError( code: LocalImageProviderErrors.imgLoadFailed.rawValue, message: "request image failed: \(id) \(error) - \(pixelHeight)x\(pixelWidth)", details: nil ))
+                        }                    }
                 }
                 var details = "";
                 if let image = result {
