@@ -30,10 +30,10 @@ class LocalImage {
     return false;
   }
 
-  double scaleToFit( int height, int width ) {
+  double scaleToFit(int height, int width) {
     double vScale = height / pixelHeight;
     double hScale = width / pixelWidth;
-    if ( vScale >= 1 && hScale >= 1 ) {
+    if (vScale >= 1 && hScale >= 1) {
       return 1.0;
     }
     return min(vScale, hScale);

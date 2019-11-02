@@ -16,7 +16,7 @@ class DeviceImage extends ImageProvider<DeviceImage> {
   /// Creates an object that decodes a [LocalImage] as an image.
   ///
   /// The arguments must not be null.
-  const DeviceImage(this.localImage, {this.scale = 1.0,this.minPixels=0})
+  const DeviceImage(this.localImage, {this.scale = 1.0, this.minPixels = 0})
       : assert(localImage != null),
         assert(scale != null),
         assert(minPixels != null);
@@ -48,10 +48,10 @@ class DeviceImage extends ImageProvider<DeviceImage> {
 
   Future<ui.Codec> _loadAsync(DeviceImage key) async {
     assert(key == this);
-    int height = max((localImage.pixelHeight * scale).round(), minPixels );
-    int width = max( (localImage.pixelWidth * scale).round(), minPixels );
+    int height = max((localImage.pixelHeight * scale).round(), minPixels);
+    int width = max((localImage.pixelWidth * scale).round(), minPixels);
     final Uint8List bytes =
-        await LocalImageProvider().imageBytes( localImage.id, height, width);
+        await LocalImageProvider().imageBytes(localImage.id, height, width);
     if (bytes.lengthInBytes == 0) return null;
 
     return await instantiateImageCodec(bytes);
