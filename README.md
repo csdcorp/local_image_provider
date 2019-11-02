@@ -81,3 +81,13 @@ Add the following key to your _Info.plist_ file, located in `<project root>/ios/
 Add the storage permission to your _AndroidManifest.xml_ file, located in `<project root>/android/app/src/main/AndroidManifest.xml`:
 
 * `android.permission.READ_EXTERNAL_STORAGE` - this allows the app to query and read the image and album information.
+
+## Build Issues
+
+If you get the error "_File local_image_provider-Swift.h missing_" when trying to build, see this [SO reference](https://stackoverflow.com/questions/51056579/flutter-plugin-geolocator-swift-h-file-not-found) for possible solutions. The issue seems to be mixing Swift plugins with Flutter projects that weren't built with the Swift option. At least one user resolved the issue by adding `use_frameworks!` to their Podfile. That looks like this:
+```
+...
+target 'Runner' do
+  use_frameworks!
+...
+```
