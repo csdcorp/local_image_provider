@@ -24,7 +24,6 @@ class _MyAppState extends State<MyApp> {
   List<LocalAlbum> _localAlbums = [];
   bool _hasImage = false;
   String _imgSource;
-  String _selectedId;
   String _imgHeading = "most recent 100";
   LocalImage _selectedImg;
   int _desiredHeight = 500;
@@ -55,9 +54,6 @@ class _MyAppState extends State<MyApp> {
       print('Local image provider failed: $e');
     }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {
@@ -104,7 +100,7 @@ class _MyAppState extends State<MyApp> {
       totalAlbums += localAlbums.length;
       for (var album in localAlbums) {
         Uint8List imgBytes =
-            await localImageProvider.imageBytes(album.coverImgId, 500, 500);
+            await localImageProvider.imageBytes(album.coverImg.id, 500, 500);
         totalBytesLoaded += imgBytes.length;
         ++totalImagesLoaded;
         List<LocalImage> albumImages =
