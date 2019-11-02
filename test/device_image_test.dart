@@ -6,6 +6,10 @@ import 'package:local_image_provider/device_image.dart';
 import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 
+String requestedImgId;
+int requestedHeight;
+int requestedWidth;
+
 void main() {
   const String testId1 = "id1";
   const String create1 = "2019-11-25";
@@ -16,15 +20,16 @@ void main() {
   const int width2 = 300;
   const int height2 = 600;
   const double scale80Percent = 0.8;
+  const double scale20Percent = 0.2;
   const int width80Percent = 80;
   const int height80Percent = 160;
+  const int height20Percent = 40;
+  const int minPixelsWidth = 30;
+  const int minPixelsHeight = 50;
   const img1 = LocalImage(testId1, create1, height1, width1);
   const img2 = LocalImage(testId2, create2, height2, width2);
   String expectedToString =
       "DeviceImage(${img1.toString()}, scale: $scale80Percent)";
-  String requestedImgId;
-  int requestedHeight;
-  int requestedWidth;
   Uint8List imageBytes;
   LocalImageProvider localImageProvider;
 
@@ -92,10 +97,33 @@ void main() {
   });
 
   group('load', () {
-    test('returns expected object', () {
+    test('loads expected image', () {
       var dImg1 = DeviceImage(img1, scale: scale80Percent);
-      var completer = dImg1.load(dImg1);
-      expect(completer, isNotNull);
+      loadAndExpect( dImg1, height80Percent, width80Percent );
+    });
+    test('1:1 scale by default', () {
+      var dImg1 = DeviceImage(img1);
+      loadAndExpect( dImg1, height1, width1 );
+    });
+    test('respects min pixels on height', () {
+      var dImg1 = DeviceImage(img1, scale: scale20Percent, minPixels: minPixelsHeight );
+      loadAndExpect( dImg1, minPixelsHeight, minPixelsHeight );
+    });
+    test('respects min pixels on width', () {
+      var dImg1 = DeviceImage(img1, scale: scale20Percent, minPixels: minPixelsWidth );
+      loadAndExpect( dImg1, height20Percent, minPixelsWidth );
+    });
+    test('min pixels below actual has no effect', () {
+      var dImg1 = DeviceImage(img1, scale: scale80Percent, minPixels: minPixelsWidth );
+      loadAndExpect( dImg1, height80Percent, width80Percent );
     });
   });
+}
+
+void loadAndExpect( DeviceImage dImg, int expectedHeight, int expectedWidth ) {
+      var completer = dImg.load(dImg);
+      expect(completer, isNotNull);
+      expect(requestedImgId, dImg.localImage.id );
+      expect(requestedHeight, expectedHeight );
+      expect(requestedWidth, expectedWidth);
 }

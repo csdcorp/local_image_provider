@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui show Codec;
 import 'dart:ui';
@@ -15,15 +16,19 @@ class DeviceImage extends ImageProvider<DeviceImage> {
   /// Creates an object that decodes a [LocalImage] as an image.
   ///
   /// The arguments must not be null.
-  const DeviceImage(this.localImage, {this.scale = 1.0})
+  const DeviceImage(this.localImage, {this.scale = 1.0,this.minPixels=0})
       : assert(localImage != null),
-        assert(scale != null);
+        assert(scale != null),
+        assert(minPixels != null);
 
   /// The LocalImage to decode into an image.
   final LocalImage localImage;
 
   /// The scale to place in the [ImageInfo] object of the image.
   final double scale;
+
+  /// The minPixels to place in the [ImageInfo] object of the image.
+  final int minPixels;
 
   @override
   Future<DeviceImage> obtainKey(ImageConfiguration configuration) {
@@ -43,8 +48,8 @@ class DeviceImage extends ImageProvider<DeviceImage> {
 
   Future<ui.Codec> _loadAsync(DeviceImage key) async {
     assert(key == this);
-    int height = (localImage.pixelHeight * scale).round();
-    int width = (localImage.pixelWidth * scale).round();
+    int height = max((localImage.pixelHeight * scale).round(), minPixels );
+    int width = max( (localImage.pixelWidth * scale).round(), minPixels );
     final Uint8List bytes =
         await LocalImageProvider().imageBytes( localImage.id, height, width);
     if (bytes.lengthInBytes == 0) return null;
