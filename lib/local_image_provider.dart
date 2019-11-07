@@ -9,7 +9,21 @@ import 'package:local_image_provider/local_image.dart';
 
 /// An interface to get information from the local image storage on the device.
 ///
-/// Use LocalImageProvider to query for albums and images
+/// Use [LocalImageProvider] to query for albums and images.
+/// The general flow is as follows:
+/// ```dart
+///   LocalImageProvider lip = LocalImageProvider();
+///   await lip.initialize();
+///   if ( lip.isAvailable ) {
+///     List<LocalImage> images = await lip.findLatest(10);
+///     if ( images.isNotEmpty) {
+///       // Do stuff with the image
+///     }
+///   }
+///   else {
+///     print('Access denied.');
+///   }
+/// ```
 class LocalImageProvider {
   @visibleForTesting
   static const MethodChannel lipChannel =
@@ -23,11 +37,18 @@ class LocalImageProvider {
   int _totalLoadTime = 0;
   int _lastLoadTime = 0;
   final Stopwatch _stopwatch = Stopwatch();
+
+  /// Returns the singleton instance of the [LocalImageProvider].
   factory LocalImageProvider() => _instance;
   @visibleForTesting
   LocalImageProvider.withMethodChannel(this.channel);
 
-  /// True if [initialize] succeeded
+  /// True if [initialize] succeeded and the user granted
+  /// permission to access local images.
+  ///
+  /// Use this property to determine if calls to the [LocalImageProvider]
+  /// are availablle. If [isAvailable] is false then other calls with
+  /// throw an [LocalImageProviderNotInitializedException] exception.
   bool get isAvailable => _initWorked;
 
   /// Initialize and request permission to use platform services.
@@ -74,7 +95,11 @@ class LocalImageProvider {
   /// up to [maxImages] in length.
   ///
   /// This list may be empty if there are no images in the album or the
-  /// user has denied permission to see their local images.
+  /// user has denied permission to see their local images. If there are
+  /// more images in the album than maxImages the list is silently truncated.
+  /// Note that images are quite small and fast to load since they don't load
+  /// the image contents just basic metadata, so it is usually safe to load a
+  /// large number of images from an album if required.
   Future<List<LocalImage>> findImagesInAlbum(
       String albumId, int maxImages) async {
     if (!_initWorked) {
@@ -89,7 +114,12 @@ class LocalImageProvider {
   /// [MemoryImage].
   ///
   /// The returned image will maintain its aspect ratio while fitting within the given dimensions
-  /// [height], [width]. The [id] to use is available from a returned LocalImage.
+  /// [height], [width]. The [id] to use is available from a returned [LocalImage]. The image is
+  /// sent from the device as a JPEG compressed at 0.7 quality, which is a reasonable tradeoff
+  /// between quality and size. If displayed images look blurry or low quality try requesting
+  /// more pixels, i.e. a larger value for [height] and [width].
+  /// Instead of using this directly look at [DeviceImage] which creates an [ImageProvider] from
+  /// a [LocalImage], suitable for use in a widget tree.
   Future<Uint8List> imageBytes(String id, int height, int width) async {
     if (!_initWorked) {
       throw LocalImageProviderNotInitializedException();
@@ -105,14 +135,24 @@ class LocalImageProvider {
     return photoBytes;
   }
 
+  /// Resets the [totalLoadTime], [lastLaodTime], and [imgBytesLoaded]
+  /// stats to zero.
   void resetStats() {
     _totalLoadTime = 0;
     _lastLoadTime = 0;
     _bytesLoaded = 0;
   }
 
+  /// Returns the total milliseconds spent in [imageBytes] since the last call
+  /// to [resetStats].
   int get totalLoadTime => _totalLoadTime;
+
+  /// Returns the milliseconds spent in the last call to [imageBytes] assuming
+  /// that [resetStats] wasn't called after the last call.
   int get lastLoadTime => _lastLoadTime;
+
+  /// Returns the total bytes loaded in [imageBytes] since the last call
+  /// to [resetStats].
   int get imgBytesLoaded => _bytesLoaded;
 
   List<LocalImage> _jsonToLocalImages(List<dynamic> jsonImages) {
@@ -125,5 +165,5 @@ class LocalImageProvider {
 }
 
 /// Thrown when a method is called that requires successful
-/// initialization first. See [onDbReady]
+/// initialization first. See [initialize]
 class LocalImageProviderNotInitializedException implements Exception {}

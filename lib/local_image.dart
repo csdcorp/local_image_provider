@@ -13,23 +13,32 @@ part 'local_image.g.dart';
 /// photo can be retrieved.
 @JsonSerializable()
 class LocalImage {
+  /// Unique identifier for the image on the local device, this should
+  /// be stable across invocations.
   final String id;
-  final int pixelWidth;
+
+  /// pixel height of the image
   final int pixelHeight;
+
+  /// pixel width of the image
+  final int pixelWidth;
+
+  /// date the image was created as reported by the local device
   final String creationDate;
 
   const LocalImage(
       this.id, this.creationDate, this.pixelHeight, this.pixelWidth);
 
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is LocalImage) {
-      return id == other.id;
-    }
-    return false;
-  }
-
+  /// Returns the scale required to fit the image into the given
+  /// [height] and [width] in pixels.
+  ///
+  /// The scale is the lower of the vertical or horizontal scale.
+  /// For example if the image [pixelHeight]x[pixelWidth] is 1000 x 2000
+  /// and this was called with 100x250 then the correct scale would be
+  /// 10% or 0.1 since 100/1000 = 0.1 while 250/2000 = 0.125, so the
+  /// the 0.1 scale is the lower of the two.
+  /// Use this with [DeviceImage] to find a scale for a particular
+  /// desired screen resolution.
   double scaleToFit(int height, int width) {
     double vScale = height / pixelHeight;
     double hScale = width / pixelWidth;
@@ -38,12 +47,6 @@ class LocalImage {
     }
     return min(vScale, hScale);
   }
-
-  @override
-  int get hashCode => id.hashCode;
-  @override
-  String toString() =>
-      '$runtimeType($id, creation: $creationDate, height: $pixelHeight, width: $pixelWidth)';
 
   /// Returns a jpeg scaled by the given scaling factor in each dimension.
   ///
@@ -66,6 +69,21 @@ class LocalImage {
       int desiredHeight, int desiredWidth) async {
     return await localImageProvider.imageBytes(id, desiredHeight, desiredWidth);
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is LocalImage) {
+      return id == other.id;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+  @override
+  String toString() =>
+      '$runtimeType($id, creation: $creationDate, height: $pixelHeight, width: $pixelWidth)';
 
   factory LocalImage.fromJson(Map<String, dynamic> json) =>
       _$LocalImageFromJson(json);

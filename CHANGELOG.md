@@ -15,6 +15,7 @@
 * LocalImage constructor is now const
 * LocalAlbum constructor is now const
 * added == and hashCode for both LocalImage and LocalAlbum, note they depend only on the id
+* LocalImageProvder stats added for image loading, see resetStats(), imgBytesLoaded, lastLoadTime, totalLoadTime 
 
 ## 0.6.0
 
