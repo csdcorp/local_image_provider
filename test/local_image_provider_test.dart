@@ -9,6 +9,7 @@ import 'package:local_image_provider/local_image_provider.dart';
 void main() {
   LocalImageProvider localImageProvider;
   bool initResponse;
+  bool hasResponse;
   bool pluginInvocation;
   List<String> photoJsonList = [];
   List<String> albumJsonList = [];
@@ -28,6 +29,7 @@ void main() {
 
   setUp(() {
     initResponse = true;
+    hasResponse = true;
     List<int> imgInt = imageBytesStr.codeUnits;
     imageBytes = Uint8List.fromList(imgInt);
     pluginInvocation = false;
@@ -36,7 +38,9 @@ void main() {
     localImageProvider.channel
         .setMockMethodCallHandler((MethodCall methodCall) async {
       pluginInvocation = true;
-      if (methodCall.method == "initialize") {
+      if (methodCall.method == "has_permission") {
+        return hasResponse;
+      } else if (methodCall.method == "initialize") {
         return initResponse;
       } else if (methodCall.method == "latest_images") {
         return photoJsonList;
@@ -67,6 +71,17 @@ void main() {
     localImageProvider.channel.setMockMethodCallHandler(null);
   });
 
+  group('hasPermission', () {
+    test('true on true return', () async {
+      bool has = await localImageProvider.hasPermission;
+      expect(has, isTrue);
+    });
+    test('false on false return', () async {
+      hasResponse = false;
+      bool has = await localImageProvider.hasPermission;
+      expect(has, isFalse);
+    });
+  });
   group('initialize', () {
     test('succeeds on success return', () async {
       bool init = await localImageProvider.initialize();

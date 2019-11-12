@@ -1,6 +1,6 @@
 name: local_image_provider
 description: A library for retrieving the metadata and contents of the images and albums on a mobile device.
-version: 0.7.0
+version: 0.7.1
 author: Corner Software Development Corp. <info@csdcorp.com>
 homepage: https://github.com/csdcorp/local_image_provider
 

@@ -48,8 +48,22 @@ class LocalImageProvider {
   ///
   /// Use this property to determine if calls to the [LocalImageProvider]
   /// are availablle. If [isAvailable] is false then other calls with
-  /// throw an [LocalImageProviderNotInitializedException] exception.
+  /// throw an [LocalImageProviderNotInitializedException] exception. This
+  /// method can be called before [initialize] although it will  
+  /// return false.
   bool get isAvailable => _initWorked;
+
+  /// Returns true if the user has already granted permission to access photos. 
+  /// 
+  /// This method can be called before [initialize] to check if permission 
+  /// has already been granted. If this returns false then the [initialize]
+  /// call will prompt the user for permission if it is allowed to do so. 
+  /// Note that applications cannot ask for permission again if the user has
+  /// denied them permission in the past. 
+  Future<bool> get hasPermission async {
+    bool hasPermission = await channel.invokeMethod('has_permission');
+    return hasPermission;
+  }
 
   /// Initialize and request permission to use platform services.
   ///

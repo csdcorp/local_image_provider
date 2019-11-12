@@ -8,6 +8,7 @@ public enum LocalImageProviderMethods: String {
     case image_bytes
     case images_in_album
     case albums
+    case has_permission
     case unknown // just for testing
 }
 
@@ -20,73 +21,83 @@ public enum LocalImageProviderErrors: String {
 
 @available(iOS 10.0, *)
 public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
-  let imageManager = PHImageManager.default()
-  let isoDf = ISO8601DateFormatter()
-
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "plugin.csdcorp.com/local_image_provider", binaryMessenger: registrar.messenger())
-    let instance = SwiftLocalImageProviderPlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
-  }
-
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    switch call.method {
-    case LocalImageProviderMethods.initialize.rawValue:
-        initialize( result )
-    case LocalImageProviderMethods.albums.rawValue:
-        guard let albumType = call.arguments as? Int else {
-            result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
-                message:"Missing arg albumType",
-                details: nil ))
-            return
-        }
-        getAlbums( albumType, result)
-    case LocalImageProviderMethods.latest_images.rawValue:
-        guard let maxImages = call.arguments as? Int else {
-            result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
-                message:"Missing arg maxPhotos",
-                details: nil ))
-            return
-        }
-        getLatestImages( maxImages, result);
-    case LocalImageProviderMethods.images_in_album.rawValue:
-        guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
-            let albumId = argsArr["albumId"] as? String,
-            let maxImages = argsArr["maxImages"] as? Int
-            else {
-            result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
-                message:"Missing arg maxPhotos",
-                details: nil ))
-            return
-        }
-        getImagesInAlbum( albumId: albumId, maxImages: maxImages, result);
-    case LocalImageProviderMethods.image_bytes.rawValue:
-        guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
-            let localId = argsArr["id"] as? String,
-            let width = argsArr["pixelWidth"] as? Int,
-            let height = argsArr["pixelHeight"] as? Int
-            else {
-                result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
-                    message:"Missing args requires id, pixelWidth, pixelHeight",
-                    details: nil ))
-                return
-        }
-        getPhotoImage( localId, width, height, result)
-    default:
-        print("Unrecognized method: \(call.method)")
-        result( FlutterMethodNotImplemented)
+    let imageManager = PHImageManager.default()
+    let isoDf = ISO8601DateFormatter()
+    
+    public static func register(with registrar: FlutterPluginRegistrar) {
+        let channel = FlutterMethodChannel(name: "plugin.csdcorp.com/local_image_provider", binaryMessenger: registrar.messenger())
+        let instance = SwiftLocalImageProviderPlugin()
+        registrar.addMethodCallDelegate(instance, channel: channel)
     }
-  // result("iOS Photos min" )
-  }
+    
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        switch call.method {
+        case LocalImageProviderMethods.has_permission.rawValue:
+            hasPermission( result )
+        case LocalImageProviderMethods.initialize.rawValue:
+            initialize( result )
+        case LocalImageProviderMethods.albums.rawValue:
+            guard let albumType = call.arguments as? Int else {
+                result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
+                                     message:"Missing arg albumType",
+                                     details: nil ))
+                return
+            }
+            getAlbums( albumType, result)
+        case LocalImageProviderMethods.latest_images.rawValue:
+            guard let maxImages = call.arguments as? Int else {
+                result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
+                                     message:"Missing arg maxPhotos",
+                                     details: nil ))
+                return
+            }
+            getLatestImages( maxImages, result);
+        case LocalImageProviderMethods.images_in_album.rawValue:
+            guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
+                let albumId = argsArr["albumId"] as? String,
+                let maxImages = argsArr["maxImages"] as? Int
+                else {
+                    result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
+                                         message:"Missing arg maxPhotos",
+                                         details: nil ))
+                    return
+            }
+            getImagesInAlbum( albumId: albumId, maxImages: maxImages, result);
+        case LocalImageProviderMethods.image_bytes.rawValue:
+            guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
+                let localId = argsArr["id"] as? String,
+                let width = argsArr["pixelWidth"] as? Int,
+                let height = argsArr["pixelHeight"] as? Int
+                else {
+                    result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
+                                         message:"Missing args requires id, pixelWidth, pixelHeight",
+                                         details: nil ))
+                    return
+            }
+            getPhotoImage( localId, width, height, result)
+        default:
+            print("Unrecognized method: \(call.method)")
+            result( FlutterMethodNotImplemented)
+        }
+        // result("iOS Photos min" )
+    }
+    
+    private func hasPermission(_ result: @escaping FlutterResult) {
+        if ( PHPhotoLibrary.authorizationStatus() == PHAuthorizationStatus.authorized ) {
+            result( true )
+        }
+        result( false )
+    }
     
     private func initialize(_ result: @escaping FlutterResult) {
-        if ( PHPhotoLibrary.authorizationStatus() == PHAuthorizationStatus.notDetermined ) {
+        let currentAuth = PHPhotoLibrary.authorizationStatus()
+        if ( currentAuth == PHAuthorizationStatus.notDetermined ) {
             PHPhotoLibrary.requestAuthorization({(status)->Void in
                 result( status == PHAuthorizationStatus.authorized )
             });
         }
         else {
-            result( true )
+            result( currentAuth == PHAuthorizationStatus.authorized )
         }
     }
     
@@ -98,7 +109,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedAlbum ));
         albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumImported ));
         albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumCloudShared ));
-
+        
         result(albumEncodings)
     }
     
@@ -106,8 +117,8 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         let albums = PHAssetCollection.fetchAssetCollections(with: with, subtype: subtype, options: nil)
         var albumEncodings = [String]();
         albums.enumerateObjects{(object: AnyObject!,
-        count: Int,
-        stop: UnsafeMutablePointer<ObjCBool>) in
+            count: Int,
+            stop: UnsafeMutablePointer<ObjCBool>) in
             if object is PHAssetCollection {
                 let collection = object as! PHAssetCollection
                 let imageOptions = PHFetchOptions()
@@ -140,7 +151,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         let photos = imagesToJson( allPhotos )
         result( photos )
     }
-
+    
     private func imagesToJson( _ images: PHFetchResult<PHAsset> ) -> [String] {
         var photosJson = [String]()
         images.enumerateObjects{(object: AnyObject!,
@@ -180,9 +191,9 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             let albumPhotos = PHAsset.fetchAssets(in: album, options: allPhotosOptions)
             photos = imagesToJson( albumPhotos )
         }
-       result( photos )
+        result( photos )
     }
-
+    
     private func getPhotoImage(_ id: String, _ pixelHeight: Int, _ pixelWidth: Int, _ flutterResult: @escaping FlutterResult) {
         let fetchOptions = PHFetchOptions()
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: fetchOptions )
@@ -210,11 +221,11 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                 var details = "";
                 if let image = result {
                     if image.cgImage == nil {
-//                        guard let ciImage = image.ciImage, let cgImage = CIContext(options: nil).createCGImage(ciImage, from: ciImage.extent) else { return }
-//                        image.cgImage = cgImage;
+                        //                        guard let ciImage = image.ciImage, let cgImage = CIContext(options: nil).createCGImage(ciImage, from: ciImage.extent) else { return }
+                        //                        image.cgImage = cgImage;
                         details = "cgImage nil"
                     }
-
+                    
                     if let data = UIImageJPEGRepresentation(image, 0.7 ) {
                         let typedData = FlutterStandardTypedData( bytes: data );
                         DispatchQueue.main.async {
@@ -222,11 +233,11 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                         }
                     }
                     else {
-                            DispatchQueue.main.async {
-                                flutterResult(FlutterError( code: LocalImageProviderErrors.imgLoadFailed.rawValue, message: "Could not convert image: \(id) \(details) - \(pixelHeight)x\(pixelWidth)", details: details ))
-                            }
+                        DispatchQueue.main.async {
+                            flutterResult(FlutterError( code: LocalImageProviderErrors.imgLoadFailed.rawValue, message: "Could not convert image: \(id) \(details) - \(pixelHeight)x\(pixelWidth)", details: details ))
                         }
-            
+                    }
+                    
                 }
                 else {
                     print("Could not load")

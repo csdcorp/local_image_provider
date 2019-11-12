@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1
+
+### New
+* LocalImage hasPermission added
+
 ## 0.7.0
 
 ### Breaking

@@ -62,6 +62,7 @@ class LocalImageProviderPlugin(activity: Activity) : MethodCallHandler,
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "initialize" -> initialize(result)
+            "has_permission" -> hasPermission(result)
             "latest_images" -> {
                 if (null != call.arguments && call.arguments is Int) {
                     val maxResults = call.arguments as Int
@@ -103,6 +104,14 @@ class LocalImageProviderPlugin(activity: Activity) : MethodCallHandler,
             }
             else -> result.notImplemented()
         }
+    }
+
+    private fun hasPermission(result: Result) {
+        if (sdkVersionTooLow(result)) {
+            return
+        }
+        result.success(ContextCompat.checkSelfPermission(application,
+                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED )
     }
 
     private fun initialize(result: Result) {
