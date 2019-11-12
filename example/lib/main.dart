@@ -46,7 +46,7 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       hasPermission = await localImageProvider.hasPermission;
-      if ( hasPermission ) {
+      if (hasPermission) {
         print('Already granted, initialize will not ask');
       }
       hasPermission = await localImageProvider.initialize();
