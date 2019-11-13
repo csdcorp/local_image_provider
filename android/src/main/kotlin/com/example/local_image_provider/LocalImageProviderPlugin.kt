@@ -337,9 +337,6 @@ class LocalImageProviderPlugin(activity: Activity) : MethodCallHandler,
 
     private fun completeInitialize() {
 
-//        if ( permissionGranted ) {
-//        }
-
         initializedSuccessfully = permissionGranted
         activeResult?.success(permissionGranted)
         activeResult = null
@@ -354,8 +351,9 @@ class LocalImageProviderPlugin(activity: Activity) : MethodCallHandler,
                             grantResults[0] == PackageManager.PERMISSION_GRANTED
                 }
                 completeInitialize()
+                return true
             }
         }
-        return true
+        return false
     }
 }
