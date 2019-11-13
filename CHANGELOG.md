@@ -5,6 +5,9 @@
 ### New
 * LocalImage hasPermission added
 
+### Updates
+* fix for permission handling to ensure it doesn't conflict with other permission requests
+
 ## 0.7.0
 
 ### Breaking
