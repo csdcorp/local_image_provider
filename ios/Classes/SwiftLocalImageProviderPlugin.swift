@@ -21,7 +21,7 @@ public enum LocalImageProviderErrors: String {
 
 @available(iOS 10.0, *)
 public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
-    let imageManager = PHImageManager.default()
+    var imageManager: PHImageManager?
     let isoDf = ISO8601DateFormatter()
     
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -90,14 +90,21 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
     }
     
     private func initialize(_ result: @escaping FlutterResult) {
+        var authorized = false
         let currentAuth = PHPhotoLibrary.authorizationStatus()
         if ( currentAuth == PHAuthorizationStatus.notDetermined ) {
             PHPhotoLibrary.requestAuthorization({(status)->Void in
-                result( status == PHAuthorizationStatus.authorized )
+                authorized = status == PHAuthorizationStatus.authorized
+                result( authorized )
             });
         }
         else {
-            result( currentAuth == PHAuthorizationStatus.authorized )
+            authorized = currentAuth == PHAuthorizationStatus.authorized
+            result( authorized )
+        }
+        /// Note that authorized is initilally null, it must be set in this method or subsequent use will fail
+        if ( authorized ) {
+            imageManager = PHImageManager.default()
         }
     }
     
