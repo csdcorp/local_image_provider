@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.2
+
+### Updates
+* fix for prompt for user photo permission before initialize on iOS 10/11
+  
 ## 0.7.1
 
 ### New
