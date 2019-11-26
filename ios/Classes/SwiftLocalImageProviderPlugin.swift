@@ -95,19 +95,23 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         if ( currentAuth == PHAuthorizationStatus.notDetermined ) {
             PHPhotoLibrary.requestAuthorization({(status)->Void in
                 authorized = status == PHAuthorizationStatus.authorized
-                result( authorized )
-            });
+                self.handleInitResult( authorized, result )
+            })
         }
         else {
             authorized = currentAuth == PHAuthorizationStatus.authorized
-            result( authorized )
+            handleInitResult( authorized, result )
         }
-        /// Note that authorized is initilally null, it must be set in this method or subsequent use will fail
+    }
+
+    /// Note that authorized is initilally null, it must be set in this method or subsequent use will fail
+    private func handleInitResult( _ authorized: Bool, _ result: @escaping FlutterResult ) {
         if ( authorized ) {
             imageManager = PHImageManager.default()
         }
+        result( authorized )
     }
-    
+
     private func getAlbums( _ albumType: Int, _ result: @escaping FlutterResult) {
         var albumEncodings = [String]();
         albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumRegular ));

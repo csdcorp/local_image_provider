@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.4
+
+### Updates
+* initialize could return true and still fail to load the first few images, now ensures all init is done before returning
+  
 ## 0.7.3
 
 ### Updates
