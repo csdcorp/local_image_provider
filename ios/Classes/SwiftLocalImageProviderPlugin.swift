@@ -171,7 +171,9 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             
             if object is PHAsset{
                 let asset = object as! PHAsset
-                photosJson.append( self.imageToJson( asset) )
+                if ( asset.mediaType == PHAssetMediaType.image ) {
+                    photosJson.append( self.imageToJson( asset) )
+                }
             }
         }
         return photosJson

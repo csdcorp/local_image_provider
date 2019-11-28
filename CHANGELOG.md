@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.5
+
+### Updates
+* findImagesInAlbum was returning non image assets like video, this is fixed now, only images are returned
+* the count member of LocalAlbum didn't match the count of images returned by findImagesInAlbum, this is fixed by the change above.
+  
 ## 0.7.4
 
 ### Updates
