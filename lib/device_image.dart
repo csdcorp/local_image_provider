@@ -53,10 +53,10 @@ class DeviceImage extends ImageProvider<DeviceImage> {
     return SynchronousFuture<DeviceImage>(this);
   }
 
-  // @override
-  ImageStreamCompleter load(DeviceImage key) {
+  @override
+  ImageStreamCompleter load(DeviceImage key, DecoderCallback decoder ) {
     return MultiFrameImageStreamCompleter(
-      codec: _loadAsync(key),
+      codec: _loadAsync(key, decoder ),
       scale: key.scale,
       informationCollector: () sync* {
         yield ErrorDescription('Id: ${localImage?.id}');
@@ -64,7 +64,7 @@ class DeviceImage extends ImageProvider<DeviceImage> {
     );
   }
 
-  Future<ui.Codec> _loadAsync(DeviceImage key) async {
+  Future<ui.Codec> _loadAsync(DeviceImage key, DecoderCallback decoder) async {
     assert(key == this);
     int height = max((localImage.pixelHeight * scale).round(), minPixels);
     int width = max((localImage.pixelWidth * scale).round(), minPixels);
@@ -72,7 +72,7 @@ class DeviceImage extends ImageProvider<DeviceImage> {
         await LocalImageProvider().imageBytes(localImage.id, height, width);
     if (bytes.lengthInBytes == 0) return null;
 
-    return await instantiateImageCodec(bytes);
+    return await decoder(bytes);
   }
 
   @override
@@ -88,4 +88,5 @@ class DeviceImage extends ImageProvider<DeviceImage> {
 
   @override
   String toString() => '$runtimeType($localImage, scale: $scale)';
+
 }
