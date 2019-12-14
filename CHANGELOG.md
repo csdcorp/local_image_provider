@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0
+
+### Updates
+* updated for Flutter 1.12.x, fix for DeviceImage, likely won't work for earlier Flutter versions
+
 ## 0.7.5
 
 ### Updates
