@@ -54,9 +54,9 @@ class DeviceImage extends ImageProvider<DeviceImage> {
   }
 
   @override
-  ImageStreamCompleter load(DeviceImage key, DecoderCallback decoder ) {
+  ImageStreamCompleter load(DeviceImage key, DecoderCallback decoder) {
     return MultiFrameImageStreamCompleter(
-      codec: _loadAsync(key, decoder ),
+      codec: _loadAsync(key, decoder),
       scale: key.scale,
       informationCollector: () sync* {
         yield ErrorDescription('Id: ${localImage?.id}');
@@ -88,5 +88,4 @@ class DeviceImage extends ImageProvider<DeviceImage> {
 
   @override
   String toString() => '$runtimeType($localImage, scale: $scale)';
-
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.1
+
+### Updates
+
+  * Upgrade Kotlin to 1.3.5 to match the Flutter 1.12 version
+  * Upgrade Gradle build to 3.5.0 to match the Flutter 1.12 version
+
 ## 0.8.0
 
 ### Updates
