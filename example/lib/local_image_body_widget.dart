@@ -144,42 +144,62 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return _hasPermission
-        ? GestureDetector(
-            onTap: () {
-              FocusScope.of(context).requestFocus(new FocusNode()); //to take focus out of height/width fields when done updating
-            },
-            child: Container(
-              padding: EdgeInsets.all(20),
-              color: Colors.blueGrey[100],
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    AlbumsListWidget(
-                      localImages: _localImages,
-                      localAlbums: _localAlbums,
-                      switchAlbum: switchAlbum,
-                      selectedAlbum: _selectedAlbum,
-                    ),
-                    ImagesListWidget(
-                      imgHeading: _imgHeading,
-                      localImages: _localImages,
-                      switchImage: switchImage,
-                      selectedImage: _selectedImg,
-                    ),
-                    ImagePreviewWidget(
-                        hasImage: _hasImage,
-                        imgSource: _imgSource,
-                        selectedImg: _selectedImg,
-                        desiredHeight: _desiredHeight,
-                        desiredWidth: _desiredWidth,
-                        heightController: heightController,
-                        widthController: widthController,
-                        updateDesired: _updateDesired)
-                  ]),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Local Image Provider Example'),
+        actions: <Widget>[
+          Container(
+            margin: EdgeInsets.all(5),
+            child: FlatButton(
+              child: Text(
+                'Stress Test',
+              ),
+              onPressed: stressTest,
+              color: Colors.white30,
             ),
-          )
-        : Center(child: Text('No permission'));
+          ),
+        ],
+      ),
+      body: _hasPermission
+          ? GestureDetector(
+              onTap: () {
+                FocusScope.of(context).requestFocus(
+                    new FocusNode()); //to take focus out of height/width fields when done updating
+              },
+              child: Container(
+                padding: EdgeInsets.all(20),
+                color: Colors.blueGrey[100],
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      AlbumsListWidget(
+                        localImages: _localImages,
+                        localAlbums: _localAlbums,
+                        switchAlbum: switchAlbum,
+                        selectedAlbum: _selectedAlbum,
+                      ),
+                      ImagesListWidget(
+                        imgHeading: _imgHeading,
+                        localImages: _localImages,
+                        switchImage: switchImage,
+                        selectedImage: _selectedImg,
+                      ),
+                      ImagePreviewWidget(
+                          hasImage: _hasImage,
+                          imgSource: _imgSource,
+                          selectedImg: _selectedImg,
+                          desiredHeight: _desiredHeight,
+                          desiredWidth: _desiredWidth,
+                          heightController: heightController,
+                          widthController: widthController,
+                          updateDesired: _updateDesired)
+                    ]),
+              ),
+            )
+          : Center(
+              child: Text('No permission'),
+            ),
+    );
   }
 }
