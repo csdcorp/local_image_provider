@@ -7,8 +7,8 @@ import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/device_image.dart';
 import 'package:local_image_provider/local_album.dart';
 
-/// Builds a simple UI that shows the functionality of the 
-/// local_image_provider plugin. 
+/// Builds a simple UI that shows the functionality of the
+/// local_image_provider plugin.
 class LocalImageBodyWidget extends StatefulWidget {
   @override
   _LocalImageBodyWidgetState createState() => _LocalImageBodyWidgetState();
@@ -88,10 +88,10 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
   }
 
   /// This runs repeated image loads in a loop to check for
-  /// resource allocation/free on iOS and Android. 
-  /// 
-  /// No need to run this unless you're curious and have some 
-  /// time to wait. 
+  /// resource allocation/free on iOS and Android.
+  ///
+  /// No need to run this unless you're curious and have some
+  /// time to wait.
   void stressTest() async {
     if (_inStress) {
       return;
@@ -291,9 +291,8 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
                                       ),
                                       Text(
                                         'Image id:\n ${_selectedImg.id}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .body1,
+                                        style:
+                                            Theme.of(context).textTheme.body1,
                                       ),
                                     ],
                                   ),
