@@ -1,0 +1,59 @@
+import 'package:flutter/material.dart';
+import 'package:local_image_provider/local_image.dart';
+
+class ImagesListWidget extends StatelessWidget {
+  const ImagesListWidget({
+    Key key,
+    this.imgHeading,
+    this.localImages,
+    this.switchImage,
+    this.selectedImage,
+  }) : super(key: key);
+
+  final String imgHeading;
+  final List<LocalImage> localImages;
+  final void Function(LocalImage image, String src) switchImage;
+  final LocalImage selectedImage;
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.all(8),
+            child: Text(
+              'Images - $imgHeading (Images in album: ${localImages.length})',
+              style: Theme.of(context).textTheme.title,
+            ),
+          ),
+          Expanded(
+            child: Container(
+              color: Theme.of(context).canvasColor,
+              padding: EdgeInsets.all(8),
+              child: ListView(
+                children: localImages
+                    .map(
+                      (img) => GestureDetector(
+                        onTap: () => switchImage(img, 'Images'),
+                        child: Container(
+                          color: img == selectedImage
+                              ? Colors.black12
+                              : Theme.of(context).canvasColor,
+                          padding: EdgeInsets.all(10),
+                          child: Text(
+                            'Id: ${img.id}; created: ${img.creationDate}',
+                            style: Theme.of(context).textTheme.subhead,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

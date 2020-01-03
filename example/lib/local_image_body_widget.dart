@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 import 'package:local_image_provider/local_image.dart';
-import 'package:local_image_provider/device_image.dart';
 import 'package:local_image_provider/local_album.dart';
+import 'package:local_image_provider_example/albums_list_widget.dart';
+import 'package:local_image_provider_example/image_preview_widget.dart';
+import 'package:local_image_provider_example/images_list_widget.dart';
 
 /// Builds a simple UI that shows the functionality of the
 /// local_image_provider plugin.
@@ -25,15 +27,21 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
   String _imgSource;
   String _imgHeading = "most recent 100";
   LocalImage _selectedImg;
-  int _desiredHeight = 2000;
-  int _desiredWidth = 2000;
+  LocalAlbum _selectedAlbum;
   TextEditingController heightController = TextEditingController();
   TextEditingController widthController = TextEditingController();
+  int _desiredHeight = 2000;
+  int _desiredWidth = 2000;
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+  }
+
+  void _updateDesired(String current) {
+    _desiredHeight = int.parse(heightController.text);
+    _desiredWidth = int.parse(widthController.text);
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -75,6 +83,7 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
       _imgHeading = "from album: ${album.title}";
       _localImages.clear();
       _localImages.addAll(albumImages);
+      _selectedAlbum = album;
     });
     switchImage(album.coverImg, 'Album');
   }
@@ -133,209 +142,44 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
     print("Stress test complete");
   }
 
-  void _updateDesired(String current) {
-    _desiredHeight = int.parse(heightController.text);
-    _desiredWidth = int.parse(widthController.text);
-  }
-
   @override
   Widget build(BuildContext context) {
     return _hasPermission
-        ? Container(
-            padding: EdgeInsets.all(20),
-            color: Colors.blueGrey[100],
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Flexible(
-                    child: Text(
-                      'Found - Images: ${_localImages.length}; Albums: ${_localAlbums.length}.',
-                      style: Theme.of(context).textTheme.display1,
-                      textAlign: TextAlign.center,
+        ? GestureDetector(
+            onTap: () {
+              FocusScope.of(context).requestFocus(new FocusNode()); //to take focus out of height/width fields when done updating
+            },
+            child: Container(
+              padding: EdgeInsets.all(20),
+              color: Colors.blueGrey[100],
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    AlbumsListWidget(
+                      localImages: _localImages,
+                      localAlbums: _localAlbums,
+                      switchAlbum: switchAlbum,
+                      selectedAlbum: _selectedAlbum,
                     ),
-                  ),
-                  Expanded(
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              hintText: 'Height',
-                              hintStyle: TextStyle(
-                                fontSize: 18.0,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                            controller: heightController,
-                            onChanged: _updateDesired,
-                          ),
-                        ),
-                        Expanded(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              hintText: 'Width',
-                              hintStyle: TextStyle(
-                                fontSize: 18.0,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                            controller: widthController,
-                            onChanged: _updateDesired,
-                          ),
-                        ),
-                      ],
+                    ImagesListWidget(
+                      imgHeading: _imgHeading,
+                      localImages: _localImages,
+                      switchImage: switchImage,
+                      selectedImage: _selectedImg,
                     ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Text(
-                      'Albums',
-                      style: Theme.of(context).textTheme.headline,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      color: Theme.of(context).canvasColor,
-                      padding: EdgeInsets.all(8),
-                      child: ListView(
-                        children: _localAlbums
-                            .map(
-                              (album) => GestureDetector(
-                                  onTap: () => switchAlbum(album),
-                                  child: Container(
-                                    padding: EdgeInsets.only(bottom: 8),
-                                    child: Text(
-                                      'Title: ${album.title}; images: ${album.imageCount}, id: ${album.id}; cover Id: ${album.coverImg.id}',
-                                      style:
-                                          Theme.of(context).textTheme.subhead,
-                                    ),
-                                  )),
-                            )
-                            .toList(),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                    child: Text(
-                      'Images - $_imgHeading \n (Images in album: ${_localImages.length})',
-                      style: Theme.of(context).textTheme.headline,
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      color: Theme.of(context).canvasColor,
-                      padding: EdgeInsets.all(8),
-                      child: ListView(
-                        children: _localImages
-                            .map(
-                              (img) => GestureDetector(
-                                onTap: () => switchImage(img, 'Images'),
-                                child: Container(
-                                  color: Theme.of(context).canvasColor,
-                                  padding: EdgeInsets.all(10),
-                                  child: Text(
-                                    'Id: ${img.id}; created: ${img.creationDate}',
-                                    style: Theme.of(context).textTheme.subhead,
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: _hasImage
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                                child: Text(
-                                  'Selected: $_imgSource',
-                                  style: Theme.of(context).textTheme.title,
-                                ),
-                              ),
-                              Expanded(
-                                child: Container(
-                                  color: Theme.of(context).canvasColor,
-                                  padding: EdgeInsets.all(16),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      FlatButton(
-                                        child: Image(
-                                          image: DeviceImage(_selectedImg,
-                                              scale: 1),
-                                          fit: BoxFit.contain,
-                                        ),
-                                        onPressed: () =>
-                                            Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (_) => FullSizeImageWidget(
-                                                _selectedImg,
-                                                _desiredHeight,
-                                                _desiredWidth),
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        'Image id:\n ${_selectedImg.id}',
-                                        style:
-                                            Theme.of(context).textTheme.body1,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        : Center(
-                            child: Text(
-                              'Tap on an image or album for a preview',
-                              style: Theme.of(context).textTheme.headline,
-                            ),
-                          ),
-                  )
-                ]),
+                    ImagePreviewWidget(
+                        hasImage: _hasImage,
+                        imgSource: _imgSource,
+                        selectedImg: _selectedImg,
+                        desiredHeight: _desiredHeight,
+                        desiredWidth: _desiredWidth,
+                        heightController: heightController,
+                        widthController: widthController,
+                        updateDesired: _updateDesired)
+                  ]),
+            ),
           )
         : Center(child: Text('No permission'));
-  }
-}
-
-class FullSizeImageWidget extends StatelessWidget {
-  FullSizeImageWidget(this.selectedImg, this.desiredHeight, this.desiredWidth);
-
-  final LocalImage selectedImg;
-  final int desiredHeight;
-  final int desiredWidth;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Local Image Provider Example'),
-      ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: Image(
-              image: DeviceImage(selectedImg, scale: 1),
-              fit: BoxFit.contain,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
