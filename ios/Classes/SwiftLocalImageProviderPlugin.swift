@@ -182,11 +182,11 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
     private func imageToJson( _ asset: PHAsset ) -> String {
         let creationDate = isoDf.string(from: asset.creationDate!);
         return """
-        {"id":"\(asset.localIdentifier)",
-        "creationDate":"\(creationDate)",
-        "pixelWidth":\(asset.pixelWidth),
-        "pixelHeight":\(asset.pixelHeight)}
-        """;
+            {"id":"\(asset.localIdentifier)",
+            "creationDate":"\(creationDate)",
+            "pixelWidth":\(asset.pixelWidth),
+            "pixelHeight":\(asset.pixelHeight)}
+            """
     }
     
     private func getImagesInAlbum( albumId: String, maxImages: Int, _ result: @escaping FlutterResult) {
@@ -239,7 +239,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                         details = "cgImage nil"
                     }
                     
-                    if let data = UIImageJPEGRepresentation(image, 0.7 ) {
+                    if let data = image.jpegData(compressionQuality: 0.7 ) {
                         let typedData = FlutterStandardTypedData( bytes: data );
                         DispatchQueue.main.async {
                             flutterResult( typedData)

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.2
+
+### Breaking
+
+  * Upgrade to Swift 5 to match Flutter 1.12. Projects including this plugin must be using Swift 5. 
+  
 ## 0.8.1
 
 ### Updates
