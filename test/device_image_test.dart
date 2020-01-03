@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:local_image_provider/device_image.dart';
@@ -33,6 +34,8 @@ void main() {
   Uint8List imageBytes;
   LocalImageProvider localImageProvider;
 
+  WidgetsFlutterBinding.ensureInitialized();
+  
   setUp(() async {
     List<int> imgInt = "GIF89a,,,,,,,,,,,,,,,,;".codeUnits;
     imageBytes = Uint8List.fromList(imgInt);

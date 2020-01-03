@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:local_image_provider/local_album.dart';
@@ -27,6 +28,9 @@ void main() {
   const String firstAlbumJson =
       '{"id":"$firstAlbumId","coverImg":$firstPhotoJson,"title":"$firstAlbumTitle"}';
 
+
+  WidgetsFlutterBinding.ensureInitialized();
+  
   setUp(() {
     initResponse = true;
     hasResponse = true;
