@@ -18,7 +18,7 @@ LocalImage _$LocalImageFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$LocalImageToJson(LocalImage instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'pixelWidth': instance.pixelWidth,
       'pixelHeight': instance.pixelHeight,
+      'pixelWidth': instance.pixelWidth,
       'creationDate': instance.creationDate,
     };

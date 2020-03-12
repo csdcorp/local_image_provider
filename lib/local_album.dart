@@ -9,21 +9,31 @@ part 'local_album.g.dart';
 class LocalAlbumType {
   const LocalAlbumType._(this.value);
   static LocalAlbumType fromInt(int value) {
-    if (value < values.length) {
+    if (value < values.length && value >= 0) {
       return values[value];
     }
-    return null;
+    return album;
   }
 
   final int value;
 
   static const LocalAlbumType all = LocalAlbumType._(0);
-  static const LocalAlbumType user = LocalAlbumType._(1);
-  static const LocalAlbumType generated = LocalAlbumType._(0);
+  static const LocalAlbumType album = LocalAlbumType._(1);
+  static const LocalAlbumType user = LocalAlbumType._(2);
+  static const LocalAlbumType generated = LocalAlbumType._(3);
+  static const LocalAlbumType faces = LocalAlbumType._(4);
+  static const LocalAlbumType event = LocalAlbumType._(5);
+  static const LocalAlbumType imported = LocalAlbumType._(6);
+  static const LocalAlbumType shared = LocalAlbumType._(7);
   static const List<LocalAlbumType> values = <LocalAlbumType>[
     all,
+    album,
     user,
     generated,
+    faces,
+    event,
+    imported,
+    shared,
   ];
 }
 
@@ -41,8 +51,6 @@ class LocalAlbum {
 
   /// The number of images contained in the album
   final int imageCount;
-  @Deprecated('The [coverImg] property will replace this in the next version.')
-  String get coverImgId => coverImg.id;
 
   /// An image that can be used as a cover for the album.
   ///
@@ -50,7 +58,12 @@ class LocalAlbum {
   /// To load the image see the [DeviceImage] class.
   final LocalImage coverImg;
 
-  const LocalAlbum(this.id, this.coverImg, this.title, this.imageCount);
+  final int transferType;
+
+  const LocalAlbum(
+      this.id, this.coverImg, this.title, this.imageCount, this.transferType);
+
+  LocalAlbumType get albumType => LocalAlbumType.fromInt(transferType);
 
   @override
   bool operator ==(Object other) {

@@ -1,27 +1,26 @@
 # Local Image Provider Plugin
 
-[![pub package](https://img.shields.io/badge/pub-v0.8.2-blue)](https://pub.dartlang.org/packages/local_image_provider) [![build status](https://github.com/csdcorp/local_image_provider/workflows/build/badge.svg)](https://github.com/csdcorp/local_image_provider/actions?query=workflow%3Abuild)
+[![pub package](https://img.shields.io/badge/pub-v0.9.0-blue)](https://pub.dartlang.org/packages/local_image_provider) [![build status](https://github.com/csdcorp/local_image_provider/workflows/build/badge.svg)](https://github.com/csdcorp/local_image_provider/actions?query=workflow%3Abuild)
 
 A library for searching and retrieving the metadata and contents of the images and 
 albums on a mobile device. 
 
 This plugin contains a set of classes that make it easy to discover the metadata of the images 
 and albums on the mobile device. It supports both Android and iOS. The content of images can be 
-retrieved in a format compatible with the ImageProvider. Note that this plugin has no UI 
+retrieved in a format compatible with `ImageProvider`. Note that this plugin has no UI 
 components, it provides information about local photos that can be used to develop other 
 applications.
 
 ## Recent Updates
-The 0.8.0 version upgrades to Flutter 1.12.13. This version may not be backwards compatible due to a change in the ImageProvider.
-The 0.7.0 version adds the DeviceImage class which can be used to more easily and efficiently display a LocalImage in a Flutter Image widget. This version also provides the count of images in each LocalAlbum and exposes the cover image for an album as LocalImage so that it can be used with a DeviceImage. Test coverage has also improved substantially. Check the change log for some breaking changes in 0.7.0. 
+The 0.9.0 version improves support for album types on iOS.
 
-*Note*: This plugin is under development and will be extended over the coming weeks. It is not 
-yet fully tested on multiple platforms. If you have any compatibility results you'd like to share please 
-post them as [issues](https://github.com/csdcorp/local_image_provider/issues). 
+The 0.8.0 version upgrades to Flutter 1.12.13. This version may not be backwards compatible due to a change in the ImageProvider.
+
+*Note*: If you have feature requests or issue reports please post them as [issues](https://github.com/csdcorp/local_image_provider/issues). 
 
 ## Using
 
-To retrieve the list of the ten latest local images just import the package and call the plugin, like so: 
+To retrieve the list of the ten latest local images import the package and call the plugin, like so: 
 
 ```dart
 import 'package:local_image_provider/local_image_provider.dart' as lip;
@@ -37,7 +36,7 @@ import 'package:local_image_provider/local_image_provider.dart' as lip;
     }
 ```
 
-Get an ImageProvider for an image like so: 
+Get an ImageProvider for a local image like so: 
 
 ```dart
 import 'package:local_image_provider/local_image_provider.dart' as lip;

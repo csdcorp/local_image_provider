@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.0
+
+### New
+  * Added `albumType` to `LocalAlbum` provides more detail on the album type for iOS, always `album` for Android
+  * New options added for `LocalAlbumType`
+  * `FindAlbum` now restricts by the requested `LocalAlbumType`
+  
+### Breaking
+
+  * `coverImgId` on `LocalAlbum` which was deprecated is now gone, use `coverImg` instead
+
 ## 0.8.2
 
 ### Breaking

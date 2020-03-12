@@ -19,10 +19,29 @@ public enum LocalImageProviderErrors: String {
     case unimplemented
 }
 
+public enum LocalImageAlbumType: Int {
+    case all
+    case album
+    case user
+    case generated
+    case faces
+    case event
+    case imported
+    case shared
+}
+
 @available(iOS 10.0, *)
 public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
     var imageManager: PHImageManager?
     let isoDf = ISO8601DateFormatter()
+    let subtypeToSource: [PHAssetCollectionSubtype: LocalImageAlbumType] = [
+        PHAssetCollectionSubtype.albumRegular: LocalImageAlbumType.user,
+        PHAssetCollectionSubtype.albumSyncedEvent: LocalImageAlbumType.event,
+        PHAssetCollectionSubtype.albumSyncedFaces: LocalImageAlbumType.faces,
+        PHAssetCollectionSubtype.albumSyncedAlbum: LocalImageAlbumType.generated,
+        PHAssetCollectionSubtype.albumImported: LocalImageAlbumType.imported,
+        PHAssetCollectionSubtype.albumCloudShared: LocalImageAlbumType.shared,
+    ]
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "plugin.csdcorp.com/local_image_provider", binaryMessenger: registrar.messenger())
@@ -112,14 +131,34 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         result( authorized )
     }
 
-    private func getAlbums( _ albumType: Int, _ result: @escaping FlutterResult) {
+    private func getAlbums( _ rawAlbumType: Int, _ result: @escaping FlutterResult) {
+        let albumType = LocalImageAlbumType(rawValue: rawAlbumType)
         var albumEncodings = [String]();
-        albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumRegular ));
-        albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedEvent ));
-        albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedFaces));
-        albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedAlbum ));
-        albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumImported ));
-        albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumCloudShared ));
+        switch albumType {
+        case .user:
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumRegular));
+        case .faces:
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedFaces));
+        case .event:
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedEvent));
+        case .album:
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedAlbum));
+        case .generated:
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedEvent ));
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedFaces));
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedAlbum ));
+        case .imported:
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumImported));
+        case .shared:
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumCloudShared));
+        default:
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumRegular ));
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedEvent ));
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedFaces));
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumSyncedAlbum ));
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumImported ));
+            albumEncodings.append(contentsOf: getAlbumsWith( with: .album, subtype: .albumCloudShared ));
+        }
         
         result(albumEncodings)
     }
@@ -145,7 +184,9 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                     {"id":"\(collection.localIdentifier)",
                     "title":"\(title)",
                     "coverImg":\(self.imageToJson( lastImg )),
-                    "imageCount":\(containedImgs.count)}
+                    "imageCount":\(containedImgs.count),
+                    "transferType":\(self.subtypeToSource[subtype]?.rawValue ?? LocalImageAlbumType.album.rawValue)
+                    }
                     """;
                     albumEncodings.append( albumJson )
                 }

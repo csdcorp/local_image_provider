@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,7 +36,7 @@ void main() {
   LocalImageProvider localImageProvider;
 
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   setUp(() async {
     List<int> imgInt = "GIF89a,,,,,,,,,,,,,,,,;".codeUnits;
     imageBytes = Uint8List.fromList(imgInt);
@@ -102,31 +103,39 @@ void main() {
   group('load', () {
     test('loads expected image', () {
       var dImg1 = DeviceImage(img1, scale: scale80Percent);
-      loadAndExpect( dImg1, height80Percent, width80Percent );
+      loadAndExpect(dImg1, height80Percent, width80Percent);
     });
     test('1:1 scale by default', () {
       var dImg1 = DeviceImage(img1);
-      loadAndExpect( dImg1, height1, width1 );
+      loadAndExpect(dImg1, height1, width1);
     });
     test('respects min pixels on height', () {
-      var dImg1 = DeviceImage(img1, scale: scale20Percent, minPixels: minPixelsHeight );
-      loadAndExpect( dImg1, minPixelsHeight, minPixelsHeight );
+      var dImg1 =
+          DeviceImage(img1, scale: scale20Percent, minPixels: minPixelsHeight);
+      loadAndExpect(dImg1, minPixelsHeight, minPixelsHeight);
     });
     test('respects min pixels on width', () {
-      var dImg1 = DeviceImage(img1, scale: scale20Percent, minPixels: minPixelsWidth );
-      loadAndExpect( dImg1, height20Percent, minPixelsWidth );
+      var dImg1 =
+          DeviceImage(img1, scale: scale20Percent, minPixels: minPixelsWidth);
+      loadAndExpect(dImg1, height20Percent, minPixelsWidth);
     });
     test('min pixels below actual has no effect', () {
-      var dImg1 = DeviceImage(img1, scale: scale80Percent, minPixels: minPixelsWidth );
-      loadAndExpect( dImg1, height80Percent, width80Percent );
+      var dImg1 =
+          DeviceImage(img1, scale: scale80Percent, minPixels: minPixelsWidth);
+      loadAndExpect(dImg1, height80Percent, width80Percent);
     });
   });
 }
 
-void loadAndExpect( DeviceImage dImg, int expectedHeight, int expectedWidth ) {
-      // var completer = dImg.load(dImg);
-      // expect(completer, isNotNull);
-      // expect(requestedImgId, dImg.localImage.id );
-      // expect(requestedHeight, expectedHeight );
-      // expect(requestedWidth, expectedWidth);
+void loadAndExpect(DeviceImage dImg, int expectedHeight, int expectedWidth) {
+  var completer = dImg.load(dImg, decoderCallback);
+  expect(completer, isNotNull);
+  expect(requestedHeight, expectedHeight);
+  expect(requestedWidth, expectedWidth);
+}
+
+Future<Codec> decoderCallback(Uint8List bytes,
+    {int cacheHeight, int cacheWidth}) async {
+  return instantiateImageCodec(bytes,
+      targetHeight: cacheHeight, targetWidth: cacheWidth);
 }

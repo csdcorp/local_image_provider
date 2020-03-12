@@ -25,12 +25,11 @@ void main() {
   const String emptyAlbumId = "emptyAlbum1";
   const String firstAlbumId = "album1";
   const String firstAlbumTitle = "My first album";
-  const String firstAlbumJson =
-      '{"id":"$firstAlbumId","coverImg":$firstPhotoJson,"title":"$firstAlbumTitle"}';
-
+  final String firstAlbumJson =
+      '{"id":"$firstAlbumId","coverImg":$firstPhotoJson,"title":"$firstAlbumTitle","transferType":${LocalAlbumType.shared.value}}';
 
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   setUp(() {
     initResponse = true;
     hasResponse = true;
@@ -137,7 +136,7 @@ void main() {
       LocalAlbum album = albums.first;
       expect(album.id, firstAlbumId);
       expect(album.title, firstAlbumTitle);
-      expect(album.coverImgId, firstImageId);
+      expect(album.albumType, LocalAlbumType.shared);
     });
     test('failed or missing initialize throws', () async {
       try {

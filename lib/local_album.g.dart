@@ -14,6 +14,7 @@ LocalAlbum _$LocalAlbumFromJson(Map<String, dynamic> json) {
         : LocalImage.fromJson(json['coverImg'] as Map<String, dynamic>),
     json['title'] as String,
     json['imageCount'] as int,
+    json['transferType'] as int,
   );
 }
 
@@ -23,4 +24,5 @@ Map<String, dynamic> _$LocalAlbumToJson(LocalAlbum instance) =>
       'title': instance.title,
       'imageCount': instance.imageCount,
       'coverImg': instance.coverImg?.toJson(),
+      'transferType': instance.transferType,
     };

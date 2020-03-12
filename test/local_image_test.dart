@@ -31,7 +31,7 @@ void main() {
   LocalImageProvider localImageProvider;
 
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   setUp(() async {
     List<int> imgInt = "087imgbytes234".codeUnits;
     imageBytes = Uint8List.fromList(imgInt);
@@ -109,13 +109,13 @@ void main() {
       expect(img1.scaleToFit(height1, width1), 1.0);
     });
     test('returns 1 for larger size', () {
-      expect(img1.scaleToFit(height1+1000, width1+1000), 1.0);
+      expect(img1.scaleToFit(height1 + 1000, width1 + 1000), 1.0);
     });
     test('returns .5 for half size', () {
-      expect(img1.scaleToFit((height1/2).round(), (width1/2).round()), 0.5 );
+      expect(img1.scaleToFit((height1 / 2).round(), (width1 / 2).round()), 0.5);
     });
     test('returns the smaller scale', () {
-      expect(img1.scaleToFit((height1/2).round(), width1), 0.5 );
+      expect(img1.scaleToFit((height1 / 2).round(), width1), 0.5);
     });
   });
 }
