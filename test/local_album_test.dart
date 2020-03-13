@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -94,6 +95,13 @@ void main() {
       expect(localAlbum1.imageCount, roundtripAlbum.imageCount);
       expect(localAlbum1.transferType, roundtripAlbum.transferType);
       expect(localAlbum1.albumType, roundtripAlbum.albumType);
+    });
+    test('Handles missing type', () {
+      String missingTypeJson =
+          '{"id":"album","title":"Album 1","imageCount":1}';
+      var jsonMap = jsonDecode(missingTypeJson);
+      var roundtripAlbum = LocalAlbum.fromJson(jsonMap);
+      expect(roundtripAlbum.albumType, LocalAlbumType.album);
     });
   });
   group('imageBytes', () {

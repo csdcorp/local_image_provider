@@ -9,6 +9,9 @@ part 'local_album.g.dart';
 class LocalAlbumType {
   const LocalAlbumType._(this.value);
   static LocalAlbumType fromInt(int value) {
+    if (value == null) {
+      return album;
+    }
     if (value < values.length && value >= 0) {
       return values[value];
     }
@@ -43,6 +46,8 @@ class LocalAlbumType {
 /// local device.
 @JsonSerializable(explicitToJson: true)
 class LocalAlbum {
+  static const int albumTransferType = 1;
+
   /// A unique identifier for the album on the device
   final String id;
 
@@ -60,8 +65,8 @@ class LocalAlbum {
 
   final int transferType;
 
-  const LocalAlbum(
-      this.id, this.coverImg, this.title, this.imageCount, this.transferType);
+  const LocalAlbum(this.id, this.coverImg, this.title, this.imageCount, tType)
+      : transferType = tType != null ? tType : albumTransferType;
 
   LocalAlbumType get albumType => LocalAlbumType.fromInt(transferType);
 
