@@ -20,6 +20,7 @@ import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
+import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -325,10 +326,20 @@ class LocalImageProviderPlugin(activity: Activity) : MethodCallHandler,
                     pluginActivity.runOnUiThread { result.success(jpegBytes.toByteArray()) }
                 }
             }
-            catch ( glideExc: GlideException ) {
-                pluginActivity.runOnUiThread { result.error(
-                        LocalImageProviderErrors.missingOrInvalidImage.name,
-                        "Missing image", id ) }
+            catch ( glideExc: Exception ) {
+                if ( glideExc is GlideException ||
+                        glideExc is FileNotFoundException ||
+                        glideExc.cause is GlideException ||
+                        glideExc.cause is FileNotFoundException ) {
+                    pluginActivity.runOnUiThread { result.error(
+                            LocalImageProviderErrors.missingOrInvalidImage.name,
+                            "Missing image", id ) }
+                }
+                else {
+                    pluginActivity.runOnUiThread { result.error(
+                            LocalImageProviderErrors.imgLoadFailed.name,
+                            "Exception while loading image", glideExc.localizedMessage ) }
+                }
             }
         }).start()
     }
