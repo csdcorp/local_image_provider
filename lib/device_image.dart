@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui show Codec;
@@ -6,6 +7,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 
@@ -18,6 +20,10 @@ import 'package:local_image_provider/local_image_provider.dart';
 /// needed in Flutter. In particular with an [Image] widget.
 ///
 class DeviceImage extends ImageProvider<DeviceImage> {
+  static final String noImageBase64 =
+      "iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAIAAABLixI0AAAAA3NCSVQICAjb4U/gAAADCUlEQVQ4ja2VT0zTYBTAX9dttB3b6AzFAEIlgEaH7gRxHIyBYGIkGMNAQpaBCdEYjiacPHD0QCQSlcSL8aaZhIN/4xBFlkVj5mY0hgMskwDyt5SNtdBu9VDp1m6AGt/p/fm+33vv+16/IpIkwX8S/d7hZCy2NTMtzs/rS0ryDlegZvPfs1IpZsQbuzeYYlcz3Yi5wNx1lex0I/ocG5HsHoWlxcUr3eLs9G75dYXF1NB9rLJyH5YkCHOdLnHme9qF6nU2SoqxEr+Zxh04WPLkGZqfr8qhYa/cvpUG6VBLb1+5P1z2Yrx8Mlh496GuoFCOpFZ/Lvff0NabafA8n3j9XDFN167j7R28IHAcx3GcruYEOXAnvTjwbovjcvSYSCS8Xi83NXX2lVcObOkMo+fbthFEk9z19BGWFGR9vKEFPW5vbW0lCAKUewyFQtFoFDBstLmDjMdNsY0UimaDiriEAkoCEsNxNhoNhUJOpzPNYhhGVqiq6tra2rW1Nb/fD/F4JsiYStmDHxSTMZMsqs/cqxoTDMNcLpfBYAAAk8k0MjKihMxJsf79WCG7LJsSwGzVMU3VKlZxcbEMAgCaptOgVPL0m5dkYl0Bfaup+3qIBrWoWJFIhGVZq9UKAOFwWGnNOeFTQADIRsulz4BClqhYkiQNDw/b7XaGYSKRiOys/zhJ7bQGANa+ftrVvuzzBQIBDUs7q9vb28FgcGFhQa6uQBRLF38oUUtvH+lqB4DGxsa6urp9WABAEITH4+np6aEoqmhlSfFjZ87Zui4rZlNTE4Zhe7EIgnC73RRF4TjudrtLd6YJAIw1JzWLEfUAqs4LRVEZpHCPnqrfnIvKZl71kewmdmUZjUYFJIvN023zdO+NyM0SBEFzO5a3Y8aJMVkX7Y71i22a9TlYJEkCgCiKPp8vM1wf+lSxPC/rK1/AZ7FllyPvBeXsHQ5H5qD/udA07XA4ZF31rvI8r3lm2aFB/vEDWTc4G2w3BzKjCIJkjoX229akRZov8FW/r89QVobj+B415vh3/LP8AvvVK04ZJmjyAAAAAElFTkSuQmCC";
+  static final Uint8List noImageBytes = base64Decode(noImageBase64);
+
   /// Creates an object that decodes a [LocalImage] as an image.
   ///
   /// The arguments must not be null. [scale] returns a scaled down
@@ -68,11 +74,15 @@ class DeviceImage extends ImageProvider<DeviceImage> {
     assert(key == this);
     int height = max((localImage.pixelHeight * scale).round(), minPixels);
     int width = max((localImage.pixelWidth * scale).round(), minPixels);
-    final Uint8List bytes =
-        await LocalImageProvider().imageBytes(localImage.id, height, width);
-    if (bytes.lengthInBytes == 0) return null;
+    try {
+      final Uint8List bytes =
+          await LocalImageProvider().imageBytes(localImage.id, height, width);
+      if (bytes.lengthInBytes == 0) return null;
 
-    return await decoder(bytes);
+      return await decoder(bytes);
+    } on PlatformException catch (err) {
+      return await decoder(noImageBytes);
+    }
   }
 
   @override

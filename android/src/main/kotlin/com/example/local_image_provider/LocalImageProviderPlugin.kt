@@ -11,6 +11,7 @@ import android.net.Uri
 import android.provider.MediaStore
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.load.engine.GlideException
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -29,6 +30,7 @@ enum class LocalImageProviderErrors {
     imgNotFound,
     missingOrInvalidArg,
     multipleRequests,
+    missingOrInvalidImage,
     unimplemented
 }
 
@@ -309,17 +311,24 @@ class LocalImageProviderPlugin(activity: Activity) : MethodCallHandler,
         }
         Thread(Runnable {
             val imgUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
-            val bitmapLoad = GlideApp.with(pluginActivity)
-                    .asBitmap()
-                    .load(imgUri)
-                    .override(width, height)
-                    .fitCenter()
-                    .submit()
-            val bitmap = bitmapLoad.get()
-            val jpegBytes = ByteArrayOutputStream()
-            jpegBytes.use {
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, jpegBytes)
-                pluginActivity.runOnUiThread { result.success(jpegBytes.toByteArray()) }
+            try {
+                val bitmapLoad = GlideApp.with(pluginActivity)
+                        .asBitmap()
+                        .load(imgUri)
+                        .override(width, height)
+                        .fitCenter()
+                        .submit()
+                val bitmap = bitmapLoad.get()
+                val jpegBytes = ByteArrayOutputStream()
+                jpegBytes.use {
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 70, jpegBytes)
+                    pluginActivity.runOnUiThread { result.success(jpegBytes.toByteArray()) }
+                }
+            }
+            catch ( glideExc: GlideException ) {
+                pluginActivity.runOnUiThread { result.error(
+                        LocalImageProviderErrors.missingOrInvalidImage.name,
+                        "Missing image", id ) }
             }
         }).start()
     }
