@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0
+
+### Updates
+* fix for file not found exception in `imageBytes` 
+* `DeviceImage` now loads a default image if the load fails 
+
 ## 0.9.0
 
 ### New
