@@ -1,7 +1,10 @@
 # Changelog
 
-## 1.1.0
+## 2.0.0
 
+### Breaking
+  * Upgraded to New Swift 1.12 plugin structure, may work with older Flutter version but not guaranteed
+  
 ### New
 * control cache usage with the new `maxCacheDimension` property on `LocalImageProvider`
 * test coverage improvements

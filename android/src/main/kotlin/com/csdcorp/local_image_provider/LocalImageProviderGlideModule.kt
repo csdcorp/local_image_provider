@@ -1,4 +1,4 @@
-package com.example.local_image_provider
+package com.csdcorp.local_image_provider
 
 import android.content.Context
 import com.bumptech.glide.GlideBuilder

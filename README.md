@@ -1,6 +1,6 @@
 # Local Image Provider Plugin
 
-[![pub package](https://img.shields.io/badge/pub-v1.9.0-blue)](https://pub.dartlang.org/packages/local_image_provider) [![build status](https://github.com/csdcorp/local_image_provider/workflows/build/badge.svg)](https://github.com/csdcorp/local_image_provider/actions?query=workflow%3Abuild)
+[![pub package](https://img.shields.io/badge/pub-v2.0.0-blue)](https://pub.dartlang.org/packages/local_image_provider) [![build status](https://github.com/csdcorp/local_image_provider/workflows/build/badge.svg)](https://github.com/csdcorp/local_image_provider/actions?query=workflow%3Abuild)
 
 A library for searching and retrieving the metadata and contents of the images and 
 albums on a mobile device. 
@@ -12,9 +12,10 @@ components, it provides information about local photos that can be used to devel
 applications.
 
 ## Recent Updates
-The 0.9.0 version improves support for album types on iOS.
+The 2.0.0 version uses the new Flutter 1.12.x plugin registration. Although it may be backwards compatible with older Flutter versions,
+you should consider upgrading your projects to protect future compatibility. 
 
-The 0.8.0 version upgrades to Flutter 1.12.13. This version may not be backwards compatible due to a change in the ImageProvider.
+The 1.0.0  version adds error handling for missing images on Android.
 
 *Note*: If you have feature requests or issue reports please post them as [issues](https://github.com/csdcorp/local_image_provider/issues). 
 

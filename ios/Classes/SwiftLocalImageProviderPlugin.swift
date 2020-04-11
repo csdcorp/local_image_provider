@@ -122,7 +122,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             handleInitResult( authorized, result )
         }
     }
-
+    
     /// Note that authorized is initilally null, it must be set in this method or subsequent use will fail
     private func handleInitResult( _ authorized: Bool, _ result: @escaping FlutterResult ) {
         if ( authorized ) {
@@ -130,7 +130,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         }
         result( authorized )
     }
-
+    
     private func getAlbums( _ rawAlbumType: Int, _ result: @escaping FlutterResult) {
         let albumType = LocalImageAlbumType(rawValue: rawAlbumType)
         var albumEncodings = [String]();
@@ -223,11 +223,11 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
     private func imageToJson( _ asset: PHAsset ) -> String {
         let creationDate = isoDf.string(from: asset.creationDate!);
         return """
-            {"id":"\(asset.localIdentifier)",
-            "creationDate":"\(creationDate)",
-            "pixelWidth":\(asset.pixelWidth),
-            "pixelHeight":\(asset.pixelHeight)}
-            """
+        {"id":"\(asset.localIdentifier)",
+        "creationDate":"\(creationDate)",
+        "pixelWidth":\(asset.pixelWidth),
+        "pixelHeight":\(asset.pixelHeight)}
+        """
     }
     
     private func getImagesInAlbum( albumId: String, maxImages: Int, _ result: @escaping FlutterResult) {
