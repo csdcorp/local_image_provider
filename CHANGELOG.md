@@ -5,6 +5,7 @@
 ### New
 * control cache usage with the new `maxCacheDimension` property on `LocalImageProvider`
 * test coverage improvements
+* pubspec changes for Flutter 1.12, minimum version now 1.12
 
 ## 1.0.0
 
