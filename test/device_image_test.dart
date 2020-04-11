@@ -18,6 +18,7 @@ void main() {
   const int width1 = 100;
   const int height1 = 200;
   const String testId2 = "id2";
+  const String missingId = "missing1";
   const String create2 = "2019-10-17";
   const int width2 = 300;
   const int height2 = 600;
@@ -30,6 +31,7 @@ void main() {
   const int minPixelsHeight = 50;
   const img1 = LocalImage(testId1, create1, height1, width1);
   const img2 = LocalImage(testId2, create2, height2, width2);
+  const missingImg = LocalImage(missingId, create2, height2, width2);
   String expectedToString =
       "DeviceImage(${img1.toString()}, scale: $scale80Percent)";
   Uint8List imageBytes;
@@ -49,6 +51,9 @@ void main() {
         requestedImgId = methodCall.arguments["id"];
         requestedHeight = methodCall.arguments["pixelHeight"];
         requestedWidth = methodCall.arguments["pixelWidth"];
+        if (missingId == requestedImgId) {
+          throw PlatformException(code: "missing");
+        }
         return imageBytes;
       }
       return null;
@@ -100,6 +105,22 @@ void main() {
     });
   });
 
+  group('shouldCache', () {
+    test('true when all cached is true', () {
+      var dImg1 = DeviceImage(img1);
+      expect(dImg1.shouldCache(), isTrue);
+    });
+    test('false when image size exceeds maxCacheSize', () {
+      var dImg1 = DeviceImage(img1);
+      localImageProvider.maxCacheDimension = img1.pixelHeight - 1;
+      expect(dImg1.shouldCache(), isFalse);
+    });
+    test('true when image size equals maxCacheSize', () {
+      var dImg1 = DeviceImage(img1);
+      localImageProvider.maxCacheDimension = img1.pixelHeight;
+      expect(dImg1.shouldCache(), isTrue);
+    });
+  });
   group('load', () {
     test('loads expected image', () {
       var dImg1 = DeviceImage(img1, scale: scale80Percent);
@@ -123,6 +144,27 @@ void main() {
       var dImg1 =
           DeviceImage(img1, scale: scale80Percent, minPixels: minPixelsWidth);
       loadAndExpect(dImg1, height80Percent, width80Percent);
+    });
+    test('platform exception returns default image', () {
+      var dImg1 = DeviceImage(missingImg);
+      loadAndExpect(dImg1, height2, width2);
+    });
+  });
+  group('resolve', () {
+    test('caches by default', () {
+      var dImg1 = DeviceImage(img1);
+      ImageStream stream = ImageStream();
+      dImg1.resolveStreamForKey(
+          ImageConfiguration.empty, stream, dImg1, (exception, stackTrace) {});
+      expect(stream.completer, isNotNull);
+    });
+    test('works when not cached', () {
+      localImageProvider.maxCacheDimension = 1;
+      var dImg1 = DeviceImage(img1);
+      ImageStream stream = ImageStream();
+      dImg1.resolveStreamForKey(
+          ImageConfiguration.empty, stream, dImg1, (exception, stackTrace) {});
+      expect(stream.completer, isNotNull);
     });
   });
 }

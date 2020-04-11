@@ -26,6 +26,8 @@ import 'package:local_image_provider/local_image.dart';
 /// ```
 class LocalImageProvider {
   @visibleForTesting
+  static const int cacheAtAnySize = 0;
+  static const int cacheSuggestedCutoff = 800;
   static const MethodChannel lipChannel =
       const MethodChannel('plugin.csdcorp.com/local_image_provider');
 
@@ -64,6 +66,37 @@ class LocalImageProvider {
     bool hasPermission = await channel.invokeMethod('has_permission');
     return hasPermission;
   }
+
+  /// Returns true if all [DeviceImage] should be cached in the global
+  /// Flutter imageCache.
+  ///
+  /// Set the [maxCacheDimension] to change this to false. For example, to have all
+  /// images with either a height or width of <= 800 pixels be cached but
+  /// avoid adding anything larger than that set [maxCacheDimension] to
+  /// 800.
+  bool get cacheAll => cacheAtAnySize == maxCacheDimension;
+
+  /// The maximum size at which a [DeviceImage] should be cached in the global
+  /// Flutter imageCache.
+  ///
+  /// For example, to have all images with either a height or width of <=
+  /// 800 pixels be cached but avoid adding anything larger than that set
+  /// [maxCacheDimension] to 800. To cache any image use the constant
+  /// value [cacheAtAnySize]. The constant [cacheSuggestedCutoff] is a
+  /// reasonable tradeoff but particular applications will have different
+  /// expected sizes so tuning may be required. Looking at the size of
+  /// thumbnails can be a good guide so that the thumbnails are cached
+  /// while the fullsize images are not.
+  ///
+  /// The Flutter cache uses a lot of memory for large images since it caches
+  /// them as bitmaps. For applications that are displaying a number of
+  /// large images this may not be desirable, especially if those images
+  /// are only displayed once. This property provides control over what images
+  /// are put in cache. To avoid caching entirely set this value very high.
+  /// Be aware that when displaying images in grids or lists the Flutter cache
+  /// makes redraw during scrolling very smooth, without caching there will be
+  /// redraw flicker.
+  int maxCacheDimension = cacheAtAnySize;
 
   /// Initialize and request permission to use platform services.
   ///

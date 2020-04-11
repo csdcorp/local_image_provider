@@ -70,10 +70,31 @@ class DeviceImage extends ImageProvider<DeviceImage> {
     );
   }
 
+  @override
+  void resolveStreamForKey(ImageConfiguration configuration, ImageStream stream,
+      DeviceImage key, ImageErrorListener handleError) {
+    if (shouldCache()) {
+      super.resolveStreamForKey(configuration, stream, key, handleError);
+      return;
+    }
+    final ImageStreamCompleter completer =
+        load(key, PaintingBinding.instance.instantiateImageCodec);
+    if (completer != null) {
+      stream.setCompleter(completer);
+    }
+  }
+
+  int get height => max((localImage.pixelHeight * scale).round(), minPixels);
+  int get width => max((localImage.pixelWidth * scale).round(), minPixels);
+
+  @visibleForTesting
+  bool shouldCache() {
+    return LocalImageProvider().cacheAll ||
+        max(height, width) <= LocalImageProvider().maxCacheDimension;
+  }
+
   Future<ui.Codec> _loadAsync(DeviceImage key, DecoderCallback decoder) async {
     assert(key == this);
-    int height = max((localImage.pixelHeight * scale).round(), minPixels);
-    int width = max((localImage.pixelWidth * scale).round(), minPixels);
     try {
       final Uint8List bytes =
           await LocalImageProvider().imageBytes(localImage.id, height, width);

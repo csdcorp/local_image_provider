@@ -85,6 +85,21 @@ void main() {
       expect(has, isFalse);
     });
   });
+  group('cacheProperties', () {
+    test('changing maxCacheDimension makes cacheAll false', () async {
+      localImageProvider.maxCacheDimension =
+          LocalImageProvider.cacheSuggestedCutoff;
+      expect(localImageProvider.cacheAll, isFalse);
+    });
+    test('cacheAll defaults to true', () async {
+      expect(localImageProvider.cacheAll, isTrue);
+    });
+    test('maxCacheDimension defaults to 0, which means all images cached',
+        () async {
+      expect(localImageProvider.maxCacheDimension,
+          LocalImageProvider.cacheAtAnySize);
+    });
+  });
   group('initialize', () {
     test('succeeds on success return', () async {
       bool init = await localImageProvider.initialize();

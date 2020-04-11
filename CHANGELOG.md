@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+### New
+* control cache usage with the new `maxCacheDimension` property on `LocalImageProvider`
+* test coverage improvements
+
 ## 1.0.0
 
 ### Updates
