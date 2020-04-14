@@ -6,6 +6,10 @@
   * Upgraded to New Swift 1.12 plugin structure, may work with older Flutter version but not guaranteed
   
 ### New
+* new `getVideoFile` method on `LocalImageProvider` retrieves a file path for a video. 
+* `LocalImage` now includes both images and videos
+* added the `mediaType`, `isVideo` and `isImage` properties to `LocalImage`
+* added `fileName` and `fileSize` properties to `LocalImage`
 * control cache usage with the new `maxCacheDimension` property on `LocalImageProvider`
 * test coverage improvements
 * pubspec changes for Flutter 1.12, minimum version now 1.12
