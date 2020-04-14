@@ -20,8 +20,12 @@ void main() {
   const String testId2 = "id2";
   const String missingId = "missing1";
   const String create2 = "2019-10-17";
+  const String fileName1 = "file1";
+  const String fileName2 = "file2";
   const int width2 = 300;
   const int height2 = 600;
+  const int fileSize1 = 1024;
+  const int fileSize2 = 2048;
   const double scale80Percent = 0.8;
   const double scale20Percent = 0.2;
   const int width80Percent = 80;
@@ -29,9 +33,12 @@ void main() {
   const int height20Percent = 40;
   const int minPixelsWidth = 30;
   const int minPixelsHeight = 50;
-  const img1 = LocalImage(testId1, create1, height1, width1);
-  const img2 = LocalImage(testId2, create2, height2, width2);
-  const missingImg = LocalImage(missingId, create2, height2, width2);
+  const img1 = LocalImage(testId1, create1, height1, width1, fileName1,
+      fileSize1, LocalImage.imageMediaType);
+  const img2 = LocalImage(testId2, create2, height2, width2, fileName2,
+      fileSize2, LocalImage.imageMediaType);
+  const missingImg = LocalImage(missingId, create2, height2, width2, fileName2,
+      fileSize2, LocalImage.imageMediaType);
   String expectedToString =
       "DeviceImage(${img1.toString()}, scale: $scale80Percent)";
   Uint8List imageBytes;

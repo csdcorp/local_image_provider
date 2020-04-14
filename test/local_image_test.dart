@@ -13,16 +13,23 @@ void main() {
   const int height1 = 200;
   const String testId2 = "id2";
   const String create2 = "2019-10-17";
+  const String fileName1 = "file1";
+  const String fileName2 = "file2";
   const int width2 = 300;
   const int height2 = 600;
   const double scale80Percent = 0.8;
   const int width80Percent = 80;
   const int height80Percent = 160;
+  const int fileSize1 = 1024;
+  const int fileSize2 = 2048;
   const String expectedToString =
       "LocalImage($testId1, creation: $create1, height: $height1, width: $width1)";
-  const img1 = LocalImage(testId1, create1, height1, width1);
-  const img1a = LocalImage(testId1, create1, height1, width1);
-  const img2 = LocalImage(testId2, create2, height2, width2);
+  const img1 = LocalImage(testId1, create1, height1, width1, fileName1,
+      fileSize1, LocalImage.imageMediaType);
+  const img1a = LocalImage(testId1, create1, height1, width1, fileName1,
+      fileSize1, LocalImage.imageMediaType);
+  const img2 = LocalImage(testId2, create2, height2, width2, fileName2,
+      fileSize2, LocalImage.imageMediaType);
 
   String requestedImgId;
   int requestedHeight;
@@ -54,11 +61,14 @@ void main() {
 
   group('properties', () {
     test(' properties set properly', () {
-      var img = LocalImage(testId1, create1, height1, width1);
+      var img = LocalImage(testId1, create1, height1, width1, fileName1,
+          fileSize1, LocalImage.imageMediaType);
       expect(img.id, testId1);
       expect(img.creationDate, create1);
       expect(img.pixelHeight, height1);
       expect(img.pixelWidth, width1);
+      expect(img.isImage, isTrue);
+      expect(img.isVideo, isFalse);
     });
     test('hash works', () {
       expect(img1.hashCode, img1.hashCode);
@@ -76,7 +86,8 @@ void main() {
   });
   group('json', () {
     test('round trips as expected', () {
-      var img = LocalImage(testId1, create1, height1, width1);
+      var img = LocalImage(testId1, create1, height1, width1, fileName1,
+          fileSize1, LocalImage.imageMediaType);
       var json = img.toJson();
       var img1 = LocalImage.fromJson(json);
       expect(img.id, img1.id);
@@ -87,7 +98,8 @@ void main() {
   });
   group('imageBytes', () {
     test('simple get succeeds', () async {
-      var img = LocalImage(testId1, create1, height1, width1);
+      var img = LocalImage(testId1, create1, height1, width1, fileName1,
+          fileSize1, LocalImage.imageMediaType);
       var bytes = await img.getImageBytes(localImageProvider, height1, width1);
       expect(requestedImgId, testId1);
       expect(requestedHeight, height1);
@@ -95,7 +107,8 @@ void main() {
       expect(bytes, imageBytes);
     });
     test('scaled get succeeds', () async {
-      var img = LocalImage(testId1, create1, height1, width1);
+      var img = LocalImage(testId1, create1, height1, width1, fileName1,
+          fileSize1, LocalImage.imageMediaType);
       var bytes =
           await img.getScaledImageBytes(localImageProvider, scale80Percent);
       expect(requestedImgId, testId1);

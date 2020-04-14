@@ -65,10 +65,11 @@ class LocalAlbum {
 
   final int transferType;
 
-  const LocalAlbum(this.id, this.coverImg, this.title, this.imageCount, tType)
-      : transferType = tType != null ? tType : albumTransferType;
+  const LocalAlbum(
+      this.id, this.coverImg, this.title, this.imageCount, this.transferType);
 
-  LocalAlbumType get albumType => LocalAlbumType.fromInt(transferType);
+  LocalAlbumType get albumType => LocalAlbumType.fromInt(
+      transferType != null ? transferType : albumTransferType);
 
   @override
   bool operator ==(Object other) {

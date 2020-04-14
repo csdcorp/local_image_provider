@@ -105,7 +105,7 @@ class ImagePreviewWidget extends StatelessWidget {
                         ),
                         Expanded(
                           child: Text(
-                            'Image id:\n ${selectedImg.id}',
+                            'Image id:\n ${selectedImg.id}\n${selectedImg.mediaType}',
                             softWrap: true,
                             overflow: TextOverflow.clip,
                             style: Theme.of(context).textTheme.caption,

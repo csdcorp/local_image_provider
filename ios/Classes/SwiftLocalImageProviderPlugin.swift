@@ -6,6 +6,7 @@ public enum LocalImageProviderMethods: String {
     case initialize
     case latest_images
     case image_bytes
+    case video_file
     case images_in_album
     case albums
     case has_permission
@@ -94,6 +95,16 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                     return
             }
             getPhotoImage( localId, width, height, result)
+        case LocalImageProviderMethods.video_file.rawValue:
+            guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
+                let localId = argsArr["id"] as? String
+                else {
+                    result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
+                                         message:"Missing args requires id",
+                                         details: nil ))
+                    return
+            }
+            getVideoFile( localId, result)
         default:
             print("Unrecognized method: \(call.method)")
             result( FlutterMethodNotImplemented)
@@ -212,7 +223,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             
             if object is PHAsset{
                 let asset = object as! PHAsset
-                if ( asset.mediaType == PHAssetMediaType.image ) {
+                if ( asset.mediaType == PHAssetMediaType.image || asset.mediaType == PHAssetMediaType.video ) {
                     photosJson.append( self.imageToJson( asset) )
                 }
             }
@@ -221,12 +232,22 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
     }
     
     private func imageToJson( _ asset: PHAsset ) -> String {
-        let creationDate = isoDf.string(from: asset.creationDate!);
+        let creationDate = isoDf.string(from: asset.creationDate!)
+        var fileName = asset.fileName
+        let fileSize = asset.fileSize
+        var mediaType = "img"
+        if ( asset.mediaType == PHAssetMediaType.video ) {
+            mediaType = "video"
+        }
         return """
         {"id":"\(asset.localIdentifier)",
         "creationDate":"\(creationDate)",
         "pixelWidth":\(asset.pixelWidth),
-        "pixelHeight":\(asset.pixelHeight)}
+        "pixelHeight":\(asset.pixelHeight),
+        "fileName":"\(fileName)",
+        "fileSize":\(fileSize),
+        "mediaType":"\(mediaType)"
+        }
         """
     }
     
@@ -246,6 +267,36 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             photos = imagesToJson( albumPhotos )
         }
         result( photos )
+    }
+    
+    private func getVideoFile(_ id: String, _ flutterResult: @escaping FlutterResult) {
+        let fetchOptions = PHFetchOptions()
+        let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: fetchOptions )
+        if ( 1 == fetchResult.count ) {
+            let asset = fetchResult.firstObject!
+            let requestOptions = PHVideoRequestOptions()
+            imageManager?.requestExportSession(forVideo: asset, options: requestOptions, exportPreset: AVAssetExportPresetPassthrough, resultHandler: { (exportSession, info)->Void in
+                if let resultInfo = info
+                {
+                    if let error = resultInfo[PHImageErrorKey] as? Bool {
+                        if error {
+                            DispatchQueue.main.async {
+                                flutterResult(FlutterError( code: LocalImageProviderErrors.imgLoadFailed.rawValue, message: "request video failed: \(id) ", details: nil ))
+                            }
+                            return
+                        }
+                    }
+                }
+                let tempDir = FileManager.default.temporaryDirectory
+                let outputFile = tempDir.appendingPathComponent(UUID().uuidString)
+                let finalFile = outputFile.appendingPathExtension("mov")
+                exportSession?.outputURL = finalFile
+                exportSession?.outputFileType = AVFileType.mov
+                exportSession?.exportAsynchronously {
+                    flutterResult( finalFile.path)
+                }
+            });
+        }
     }
     
     private func getPhotoImage(_ id: String, _ pixelHeight: Int, _ pixelWidth: Int, _ flutterResult: @escaping FlutterResult) {
@@ -305,6 +356,34 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             DispatchQueue.main.async {
                 flutterResult(FlutterError( code: LocalImageProviderErrors.imgNotFound.rawValue, message:"Image not found: \(id)", details: nil ))
             }
+        }
+    }
+}
+
+extension PHAsset {
+    var fileSize: Int {
+        get {
+            if #available(iOS 9, *) {
+                let resource = PHAssetResource.assetResources(for: self)
+                if nil != resource.first {
+                    let imageSizeByte = resource.first?.value(forKey: "fileSize") as! Int
+                    return imageSizeByte
+                }
+            }
+            return 0
+        }
+    }
+    var fileName: String {
+        get {
+            if #available(iOS 9, *) {
+                let resource = PHAssetResource.assetResources(for: self)
+                if nil != resource.first {
+                    if let fileName = resource.first?.originalFilename {
+                        return fileName
+                    }
+                }
+            }
+            return ""
         }
     }
 }

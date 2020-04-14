@@ -13,6 +13,9 @@ part 'local_image.g.dart';
 /// photo can be retrieved.
 @JsonSerializable()
 class LocalImage {
+  static const String imageMediaType = 'img';
+  static const String videoMediaType = 'video';
+
   /// Unique identifier for the image on the local device, this should
   /// be stable across invocations.
   final String id;
@@ -26,8 +29,21 @@ class LocalImage {
   /// date the image was created as reported by the local device
   final String creationDate;
 
-  const LocalImage(
-      this.id, this.creationDate, this.pixelHeight, this.pixelWidth);
+  /// Local filename for the image on the device
+  final String fileName;
+
+  /// Size in bytes of the image on disk
+  final int fileSize;
+
+  /// 'video' or 'img', use the isImage or isVideo properties instead
+  /// of using this value directly
+  final String mediaType;
+
+  const LocalImage(this.id, this.creationDate, this.pixelHeight,
+      this.pixelWidth, this.fileName, this.fileSize, this.mediaType);
+
+  bool get isImage => imageMediaType == mediaType;
+  bool get isVideo => videoMediaType == mediaType;
 
   /// Returns the scale required to fit the image into the given
   /// [height] and [width] in pixels.

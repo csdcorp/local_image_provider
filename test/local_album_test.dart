@@ -15,6 +15,8 @@ void main() {
   const String title1 = "title1";
   const String title2 = "title2";
   const String title3 = "title3";
+  const String fileName1 = "file1";
+  const int fileSize1 = 1024;
   const int imageCount1 = 10;
   const int imageCount2 = 20;
   const String imgId1 = "img1";
@@ -22,7 +24,8 @@ void main() {
   const String expectedToString = "LocalAlbum($albumId1, title: $title1)";
   const int height1 = 100;
   const int width1 = 200;
-  const LocalImage coverImg1 = LocalImage(imgId1, creation1, height1, width1);
+  const LocalImage coverImg1 = LocalImage(imgId1, creation1, height1, width1,
+      fileName1, fileSize1, LocalImage.imageMediaType);
   final LocalAlbum localAlbum1 = LocalAlbum(
       albumId1, coverImg1, title1, imageCount1, LocalAlbumType.album.value);
   final LocalAlbum localAlbum1a = LocalAlbum(

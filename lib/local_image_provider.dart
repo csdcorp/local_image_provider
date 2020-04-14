@@ -182,6 +182,22 @@ class LocalImageProvider {
     return photoBytes;
   }
 
+  /// Returns a temporary file path for the image.
+  ///
+  Future<String> videoFile(String id) async {
+    if (!_initWorked) {
+      throw LocalImageProviderNotInitializedException();
+    }
+    _stopwatch.reset();
+    _stopwatch.start();
+    final String filePath =
+        await channel.invokeMethod('video_file', {'id': id});
+    _stopwatch.stop();
+    _totalLoadTime += _stopwatch.elapsedMilliseconds;
+    _lastLoadTime = _stopwatch.elapsedMilliseconds;
+    return filePath;
+  }
+
   /// Resets the [totalLoadTime], [lastLaodTime], and [imgBytesLoaded]
   /// stats to zero.
   void resetStats() {
@@ -204,7 +220,7 @@ class LocalImageProvider {
 
   List<LocalImage> _jsonToLocalImages(List<dynamic> jsonImages) {
     return jsonImages.map((imageJson) {
-      // print(photoJson);
+      print(imageJson);
       Map<String, dynamic> imageMap = jsonDecode(imageJson);
       return LocalImage.fromJson(imageMap);
     }).toList();

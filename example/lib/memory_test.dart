@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:local_image_provider_example/local_image_body_widget.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 import 'package:local_image_provider/local_image.dart';
@@ -127,9 +128,10 @@ class _LIPMemoryWidgetState extends State<LIPMemoryWidget> {
     // add the image_picker dependency and uncomment this to compare to
     // native Flutter image handling overhead.
     // var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    // setState(() {
-    //   _fileImg = image;
-    // });
+    var image = await ImagePicker.pickVideo(source: ImageSource.gallery);
+    setState(() {
+      _fileImg = image;
+    });
   }
 
   @override
