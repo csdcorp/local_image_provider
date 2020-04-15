@@ -183,7 +183,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             if object is PHAssetCollection {
                 let collection = object as! PHAssetCollection
                 let imageOptions = PHFetchOptions()
-                imageOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+                imageOptions.predicate = NSPredicate(format: "mediaType = %d OR mediaType = %d", PHAssetMediaType.image.rawValue, PHAssetMediaType.video.rawValue)
                 imageOptions.sortDescriptors = [NSSortDescriptor( key: "creationDate", ascending: false )]
                 let containedImgs = PHAsset.fetchAssets(in: collection, options: imageOptions )
                 if let lastImg = containedImgs.firstObject {
