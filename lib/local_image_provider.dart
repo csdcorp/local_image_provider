@@ -220,7 +220,7 @@ class LocalImageProvider {
 
   List<LocalImage> _jsonToLocalImages(List<dynamic> jsonImages) {
     return jsonImages.map((imageJson) {
-      print(imageJson);
+      // print(imageJson);
       Map<String, dynamic> imageMap = jsonDecode(imageJson);
       return LocalImage.fromJson(imageMap);
     }).toList();
