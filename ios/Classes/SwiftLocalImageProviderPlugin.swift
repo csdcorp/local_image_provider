@@ -182,11 +182,10 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             stop: UnsafeMutablePointer<ObjCBool>) in
             if object is PHAssetCollection {
                 let collection = object as! PHAssetCollection
-                let imageOptions = PHFetchOptions()
-                imageOptions.predicate = NSPredicate(format: "mediaType = %d OR mediaType = %d", PHAssetMediaType.image.rawValue, PHAssetMediaType.video.rawValue)
-                imageOptions.sortDescriptors = [NSSortDescriptor( key: "creationDate", ascending: false )]
-                let containedImgs = PHAsset.fetchAssets(in: collection, options: imageOptions )
-                if let lastImg = containedImgs.firstObject {
+                let containedImages = self.findContainedMedia( assetCollection: collection, mediaType: PHAssetMediaType.image )
+                let containedVideos = self.findContainedMedia( assetCollection: collection, mediaType: PHAssetMediaType.video )
+                
+                if let lastImg = containedImages.count > 0 ? containedImages.firstObject : containedVideos.firstObject {
                     var title = "n/a"
                     if let localizedTitle = collection.localizedTitle {
                         title = localizedTitle
@@ -195,7 +194,8 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                     {"id":"\(collection.localIdentifier)",
                     "title":"\(title)",
                     "coverImg":\(self.imageToJson( lastImg )),
-                    "imageCount":\(containedImgs.count),
+                    "imageCount":\(containedImages.count),
+                    "videoCount":\(containedVideos.count),
                     "transferType":\(self.subtypeToSource[subtype]?.rawValue ?? LocalImageAlbumType.album.rawValue)
                     }
                     """;
@@ -204,6 +204,13 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             }
         }
         return albumEncodings
+    }
+    
+    private func findContainedMedia( assetCollection: PHAssetCollection, mediaType: PHAssetMediaType ) ->  PHFetchResult<PHAsset> {
+        let imageOptions = PHFetchOptions()
+        imageOptions.predicate = NSPredicate(format: "mediaType = %d", mediaType.rawValue)
+        imageOptions.sortDescriptors = [NSSortDescriptor( key: "creationDate", ascending: false )]
+        return PHAsset.fetchAssets(in: assetCollection, options: imageOptions )
     }
     
     private func getLatestImages( _ maxPhotos: Int, _ result: @escaping FlutterResult) {
@@ -275,6 +282,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         if ( 1 == fetchResult.count ) {
             let asset = fetchResult.firstObject!
             let requestOptions = PHVideoRequestOptions()
+            requestOptions.deliveryMode = .mediumQualityFormat
             imageManager?.requestExportSession(forVideo: asset, options: requestOptions, exportPreset: AVAssetExportPresetPassthrough, resultHandler: { (exportSession, info)->Void in
                 if let resultInfo = info
                 {
@@ -287,7 +295,8 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                         }
                     }
                 }
-                let tempDir = FileManager.default.temporaryDirectory
+                let paths = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
+                let tempDir = paths[0]
                 let outputFile = tempDir.appendingPathComponent(UUID().uuidString)
                 let finalFile = outputFile.appendingPathExtension("mov")
                 exportSession?.outputURL = finalFile

@@ -19,6 +19,8 @@ void main() {
   const int fileSize1 = 1024;
   const int imageCount1 = 10;
   const int imageCount2 = 20;
+  const int videoCount1 = 0;
+  const int videoCount2 = 1;
   const String imgId1 = "img1";
   const String creation1 = "2019-10-25";
   const String expectedToString = "LocalAlbum($albumId1, title: $title1)";
@@ -26,14 +28,14 @@ void main() {
   const int width1 = 200;
   const LocalImage coverImg1 = LocalImage(imgId1, creation1, height1, width1,
       fileName1, fileSize1, LocalImage.imageMediaType);
-  final LocalAlbum localAlbum1 = LocalAlbum(
-      albumId1, coverImg1, title1, imageCount1, LocalAlbumType.album.value);
-  final LocalAlbum localAlbum1a = LocalAlbum(
-      albumId1, coverImg1, title1, imageCount1, LocalAlbumType.album.value);
-  final LocalAlbum localAlbum2 = LocalAlbum(
-      albumId2, coverImg1, title2, imageCount2, LocalAlbumType.user.value);
-  final LocalAlbum localAlbum3 = LocalAlbum(
-      albumId3, coverImg1, title3, imageCount2, LocalAlbumType.shared.value);
+  final LocalAlbum localAlbum1 = LocalAlbum(albumId1, coverImg1, title1,
+      imageCount1, videoCount1, LocalAlbumType.album.value);
+  final LocalAlbum localAlbum1a = LocalAlbum(albumId1, coverImg1, title1,
+      imageCount1, videoCount1, LocalAlbumType.album.value);
+  final LocalAlbum localAlbum2 = LocalAlbum(albumId2, coverImg1, title2,
+      imageCount2, videoCount2, LocalAlbumType.user.value);
+  final LocalAlbum localAlbum3 = LocalAlbum(albumId3, coverImg1, title3,
+      imageCount2, videoCount2, LocalAlbumType.shared.value);
   String requestedImgId;
   int requestedHeight;
   int requestedWidth;

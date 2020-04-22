@@ -57,6 +57,9 @@ class LocalAlbum {
   /// The number of images contained in the album
   final int imageCount;
 
+  /// The number of videos contained in the album
+  final int videoCount;
+
   /// An image that can be used as a cover for the album.
   ///
   /// The [LocalImageProvider] implementation picks the newest image in the album.
@@ -65,8 +68,8 @@ class LocalAlbum {
 
   final int transferType;
 
-  const LocalAlbum(
-      this.id, this.coverImg, this.title, this.imageCount, this.transferType);
+  const LocalAlbum(this.id, this.coverImg, this.title, this.imageCount,
+      this.videoCount, this.transferType);
 
   LocalAlbumType get albumType => LocalAlbumType.fromInt(
       transferType != null ? transferType : albumTransferType);

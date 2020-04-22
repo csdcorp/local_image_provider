@@ -243,11 +243,11 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
             )
             val sortOrder = "${MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME} ASC"
             val distinctAlbums = HashSet<Album>()
-            distinctAlbums.addAll( getAlbumsFromLocation(MediaStore.Images.Media.INTERNAL_CONTENT_URI,
+            distinctAlbums.addAll(getAlbumsFromLocation(MediaStore.Images.Media.INTERNAL_CONTENT_URI,
                     imageColumns, sortOrder,
                     MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
                     MediaStore.Images.ImageColumns.BUCKET_ID))
-          distinctAlbums.addAll(getAlbumsFromLocation(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            distinctAlbums.addAll(getAlbumsFromLocation(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     imageColumns, sortOrder,
                     MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
                     MediaStore.Images.ImageColumns.BUCKET_ID))
@@ -256,30 +256,32 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
                     "DISTINCT " + MediaStore.Video.VideoColumns.BUCKET_DISPLAY_NAME,
                     MediaStore.Video.VideoColumns.BUCKET_ID
             )
-          distinctAlbums.addAll( getAlbumsFromLocation(MediaStore.Video.Media.INTERNAL_CONTENT_URI,
+            distinctAlbums.addAll(getAlbumsFromLocation(MediaStore.Video.Media.INTERNAL_CONTENT_URI,
                     videColumns, sortOrder,
                     MediaStore.Video.VideoColumns.BUCKET_DISPLAY_NAME,
                     MediaStore.Video.VideoColumns.BUCKET_ID))
-          distinctAlbums.addAll(getAlbumsFromLocation(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+            distinctAlbums.addAll(getAlbumsFromLocation(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     videColumns, sortOrder,
                     MediaStore.Video.VideoColumns.BUCKET_DISPLAY_NAME,
                     MediaStore.Video.VideoColumns.BUCKET_ID))
 
-          for ( album in distinctAlbums ) {
-            val imageCount = countAlbumMedia(album.id)
-            val albumJson = JSONObject()
-            albumJson.put("title", album.title)
-            albumJson.put("imageCount", imageCount)
-            albumJson.put("id", album.id)
-            albumJson.put("coverImg", getAlbumCoverImage(album.id, album.contentUri ))
-            albums.add(albumJson.toString())
-          }
+            for (album in distinctAlbums) {
+                val imageCount = countAlbumImages(album.id)
+                val videoCount = countAlbumVideos(album.id)
+                val albumJson = JSONObject()
+                albumJson.put("title", album.title)
+                albumJson.put("imageCount", imageCount)
+                albumJson.put("videoCount", videoCount)
+                albumJson.put("id", album.id)
+                albumJson.put("coverImg", getAlbumCoverImage(album.id, album.contentUri))
+                albums.add(albumJson.toString())
+            }
             result.success(albums)
         }).start()
 
     }
 
-  private fun getAlbumsFromLocation(contentUri: Uri, mediaColumns: Array<String>, sortOrder: String,
+    private fun getAlbumsFromLocation(contentUri: Uri, mediaColumns: Array<String>, sortOrder: String,
                                       bucketDisplayName: String, bucketId: String): ArrayList<Album> {
         val albums = ArrayList<Album>()
         val localActivity = currentActivity
@@ -344,15 +346,19 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
         return imgJson
     }
 
-    private fun countAlbumMedia(id: String): Int {
-      var mediaCount = getAlbumImageCount(id, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
-      mediaCount += getAlbumImageCount(id, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-      mediaCount += getAlbumVideoCount(id, MediaStore.Video.Media.INTERNAL_CONTENT_URI)
-      mediaCount += getAlbumVideoCount(id, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-      return mediaCount
+    private fun countAlbumImages(id: String): Int {
+        var mediaCount = getAlbumImageCount(id, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+        mediaCount += getAlbumImageCount(id, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        return mediaCount
     }
 
-  private fun getAlbumImageCount(bucketId: String, imgUri: Uri): Int {
+    private fun countAlbumVideos(id: String): Int {
+        var mediaCount = getAlbumVideoCount(id, MediaStore.Video.Media.INTERNAL_CONTENT_URI)
+        mediaCount += getAlbumVideoCount(id, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+        return mediaCount
+    }
+
+    private fun getAlbumImageCount(bucketId: String, imgUri: Uri): Int {
         var imageCount = 0
         val mediaColumns = arrayOf(
                 MediaStore.Images.ImageColumns._ID,

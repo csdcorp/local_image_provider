@@ -26,7 +26,7 @@ void main() {
   const String firstAlbumId = "album1";
   const String firstAlbumTitle = "My first album";
   final String firstAlbumJson =
-      '{"id":"$firstAlbumId","coverImg":$firstPhotoJson,"title":"$firstAlbumTitle","transferType":${LocalAlbumType.shared.value}}';
+      '{"id":"$firstAlbumId","coverImg":$firstPhotoJson,"title":"$firstAlbumTitle","imageCount":2,"videoCount":0,"transferType":${LocalAlbumType.shared.value}}';
 
   WidgetsFlutterBinding.ensureInitialized();
 
