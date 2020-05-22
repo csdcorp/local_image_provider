@@ -101,7 +101,7 @@ class DeviceImage extends ImageProvider<DeviceImage> {
       if (bytes.lengthInBytes == 0) return null;
 
       return await decoder(bytes);
-    } on PlatformException catch (err) {
+    } on PlatformException {
       return await decoder(noImageBytes);
     }
   }

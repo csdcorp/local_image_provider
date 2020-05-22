@@ -15,7 +15,7 @@ applications.
 The 2.0.0 version uses the new Flutter 1.12.x plugin registration. Although it may be backwards compatible with older Flutter versions,
 you should consider upgrading your projects to protect future compatibility. This version also supports video, look for the new 
 properties on `LocalImage`: `mediaType`, `isVideo`, `isImage`, to detect video and the `getVideoFile` method on `LocalImageProvider`. 
-**NOTE**This version only works on Flutter 1.17.0+ which is currently on the beta channel. 
+**NOTE**This version only works on Flutter 1.17.0+. 
 
 The 1.0.0  version adds error handling for missing images on Android.
 
