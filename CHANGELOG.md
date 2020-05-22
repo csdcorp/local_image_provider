@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.0
+
+### New
+  * `cleanup` method on `LocalImageProvider` removes all temporary files created by the plugin
+
+### Updates
+* fix for `videoFile` call with id that does not exist
+
 ## 2.0.0
 
 ### Breaking

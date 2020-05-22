@@ -10,12 +10,15 @@ import 'package:local_image_provider/local_image_provider.dart';
 void main() {
   LocalImageProvider localImageProvider;
   bool initResponse;
+  bool cleanupResponse;
   bool hasResponse;
   bool pluginInvocation;
   List<String> photoJsonList = [];
   List<String> albumJsonList = [];
   const String noSuchImageId = "noSuchImage";
   const String firstImageId = "image1";
+  const String firstVideoId = "video1";
+  const String firstVideoPath = "/tmp/video1";
   const String firstPhotoJson =
       '{"id":"$firstImageId","creationDate":"2019-01-01 12:12Z","pixelWidth":1920,"pixelHeight":1024}';
   const String secondPhotoJson =
@@ -33,6 +36,7 @@ void main() {
   setUp(() {
     initResponse = true;
     hasResponse = true;
+    cleanupResponse = true;
     List<int> imgInt = imageBytesStr.codeUnits;
     imageBytes = Uint8List.fromList(imgInt);
     pluginInvocation = false;
@@ -41,32 +45,52 @@ void main() {
     localImageProvider.channel
         .setMockMethodCallHandler((MethodCall methodCall) async {
       pluginInvocation = true;
-      if (methodCall.method == "has_permission") {
-        return hasResponse;
-      } else if (methodCall.method == "initialize") {
-        return initResponse;
-      } else if (methodCall.method == "latest_images") {
-        return photoJsonList;
-      } else if (methodCall.method == "request_permission") {
-        return true;
-      } else if (methodCall.method == "image_bytes") {
-        if (null == methodCall.arguments) {}
-        String imgId = methodCall.arguments["id"];
-        if (noSuchImageId == imgId) {
-          throw PlatformException(
-              code: "imgNotFound", message: "$noSuchImageId not found");
-        }
-        return imageBytes;
-      } else if (methodCall.method == "albums") {
-        return albumJsonList;
-      } else if (methodCall.method == "images_in_album") {
-        if (methodCall.arguments["albumId"] == emptyAlbumId) {
-          return [];
-        } else {
+      switch (methodCall.method) {
+        case "has_permission":
+          return hasResponse;
+          break;
+        case "initialize":
+          return initResponse;
+          break;
+        case "cleanup":
+          return cleanupResponse;
+          break;
+        case "latest_images":
           return photoJsonList;
-        }
+          break;
+        case "request_permission":
+          return true;
+          break;
+        case "image_bytes":
+          if (null == methodCall.arguments) {}
+          String imgId = methodCall.arguments["id"];
+          if (noSuchImageId == imgId) {
+            throw PlatformException(
+                code: "imgNotFound", message: "$noSuchImageId not found");
+          }
+          return imageBytes;
+          break;
+        case "albums":
+          return albumJsonList;
+          break;
+        case "video_file":
+          String imgId = methodCall.arguments["id"];
+          if (noSuchImageId == imgId) {
+            throw PlatformException(
+                code: "imgNotFound", message: "$noSuchImageId not found");
+          }
+          return firstVideoPath;
+          break;
+        case "images_in_album":
+          if (methodCall.arguments["albumId"] == emptyAlbumId) {
+            return [];
+          } else {
+            return photoJsonList;
+          }
+          break;
+        default:
+          return Future.value(true);
       }
-      return Future.value(true);
     });
   });
 
@@ -246,6 +270,44 @@ void main() {
       }
     });
 
+    group('videoFile', () {
+      test('fails if not initialized', () async {
+        try {
+          await localImageProvider.videoFile(firstVideoId);
+          fail("Should have thrown");
+        } catch (e) {
+          // expected
+        }
+      });
+      test('Returns expected video file', () async {
+        await localImageProvider.initialize();
+        var path = await localImageProvider.videoFile(firstVideoId);
+        expect(path, firstVideoPath);
+      });
+      test('Handles video file not found', () async {
+        await localImageProvider.initialize();
+        try {
+          await localImageProvider.videoFile(noSuchImageId);
+          fail("Expected PlatformException");
+        } on PlatformException catch (e) {
+          expect(e.code, "imgNotFound");
+        }
+      });
+    });
+    group('cleanup', () {
+      test('fails if not initialized', () async {
+        try {
+          await localImageProvider.cleanup();
+          fail("Should have thrown");
+        } catch (e) {
+          // expected
+        }
+      });
+      test('works silently if initialized', () async {
+        await localImageProvider.initialize();
+        await localImageProvider.cleanup();
+      });
+    });
     group('stats', () {
       test('start at 0', () {
         expect(localImageProvider.imgBytesLoaded, 0);

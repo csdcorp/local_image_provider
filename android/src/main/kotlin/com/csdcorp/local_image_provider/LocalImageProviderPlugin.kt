@@ -174,6 +174,9 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
                             "Missing arg requires id", null)
                 }
             }
+            "cleanup" -> {
+                cleanup(result)
+            }
             "images_in_album" -> {
                 val albumId = call.argument<String>("albumId")
                 val maxImages = call.argument<Int>("maxImages")
@@ -543,6 +546,14 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
                 Log.e(logTag, "Needed a context")
             }
         }).start()
+    }
+
+    // Since no temporary files are created on android this method is a no-op
+    private fun cleanup(result: Result) {
+        if (isNotInitialized(result)) {
+            return
+        }
+        result.success(true )
     }
 
     private fun getImageBytes(id: String, width: Int, height: Int, result: Result) {

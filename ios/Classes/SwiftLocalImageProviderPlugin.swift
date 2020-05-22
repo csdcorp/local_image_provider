@@ -7,6 +7,7 @@ public enum LocalImageProviderMethods: String {
     case latest_images
     case image_bytes
     case video_file
+    case cleanup
     case images_in_album
     case albums
     case has_permission
@@ -105,6 +106,8 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                     return
             }
             getVideoFile( localId, result)
+        case LocalImageProviderMethods.cleanup.rawValue:
+            cleanup( result)
         default:
             print("Unrecognized method: \(call.method)")
             result( FlutterMethodNotImplemented)
@@ -295,9 +298,8 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                         }
                     }
                 }
-                let paths = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
-                let tempDir = paths[0]
-                let outputFile = tempDir.appendingPathComponent(UUID().uuidString)
+                let tempPath = self.getTemporaryPath()
+                let outputFile = tempPath.appendingPathComponent(UUID().uuidString)
                 let finalFile = outputFile.appendingPathExtension("mov")
                 exportSession?.outputURL = finalFile
                 exportSession?.outputFileType = AVFileType.mov
@@ -306,8 +308,39 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                 }
             });
         }
+        else {
+            DispatchQueue.main.async {
+                flutterResult(FlutterError( code: LocalImageProviderErrors.imgNotFound.rawValue, message:"Video not found: \(id)", details: nil ))
+            }
+        }
     }
     
+    private func cleanup( _ flutterResult: @escaping FlutterResult) {
+        let tempPath = getTemporaryPath()
+        guard let filePaths = try? FileManager.default.contentsOfDirectory(at: tempPath, includingPropertiesForKeys: nil, options: []) else { return }
+        for filePath in filePaths {
+            try? FileManager.default.removeItem(at: filePath)
+        }
+        DispatchQueue.main.async {
+            flutterResult( true )
+        }
+    }
+
+    private func getTemporaryPath() -> URL {
+        let paths = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
+        let tempDir = paths[0]
+        let tempPath = tempDir.appendingPathComponent("csdcorp_lip")
+        if !FileManager.default.fileExists(atPath: tempPath.path) {
+                do {
+                    try FileManager.default.createDirectory(atPath: tempPath.path, withIntermediateDirectories: true, attributes: nil)
+                } catch {
+                    NSLog("Couldn't create folder in tmp directory")
+                    NSLog("==> directory is: \(tempPath)")
+                }
+            }        
+        return tempPath
+    }   
+
     private func getPhotoImage(_ id: String, _ pixelHeight: Int, _ pixelWidth: Int, _ flutterResult: @escaping FlutterResult) {
         let fetchOptions = PHFetchOptions()
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: fetchOptions )

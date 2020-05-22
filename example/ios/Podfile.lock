@@ -6,12 +6,6 @@ PODS:
     - Flutter
   - local_image_provider (0.0.1):
     - Flutter
-  - native_video_view (0.0.1):
-    - Flutter
-  - path_provider (0.0.1):
-    - Flutter
-  - path_provider_macos (0.0.1):
-    - Flutter
   - video_player (0.0.1):
     - Flutter
   - video_player_web (0.0.1):
@@ -22,9 +16,6 @@ DEPENDENCIES:
   - flutter_plugin_android_lifecycle (from `.symlinks/plugins/flutter_plugin_android_lifecycle/ios`)
   - image_picker (from `.symlinks/plugins/image_picker/ios`)
   - local_image_provider (from `.symlinks/plugins/local_image_provider/ios`)
-  - native_video_view (from `.symlinks/plugins/native_video_view/ios`)
-  - path_provider (from `.symlinks/plugins/path_provider/ios`)
-  - path_provider_macos (from `.symlinks/plugins/path_provider_macos/ios`)
   - video_player (from `.symlinks/plugins/video_player/ios`)
   - video_player_web (from `.symlinks/plugins/video_player_web/ios`)
 
@@ -37,12 +28,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker/ios"
   local_image_provider:
     :path: ".symlinks/plugins/local_image_provider/ios"
-  native_video_view:
-    :path: ".symlinks/plugins/native_video_view/ios"
-  path_provider:
-    :path: ".symlinks/plugins/path_provider/ios"
-  path_provider_macos:
-    :path: ".symlinks/plugins/path_provider_macos/ios"
   video_player:
     :path: ".symlinks/plugins/video_player/ios"
   video_player_web:
@@ -53,9 +38,6 @@ SPEC CHECKSUMS:
   flutter_plugin_android_lifecycle: 47de533a02850f070f5696a623995e93eddcdb9b
   image_picker: e3eacd46b94694dde7cf2705955cece853aa1a8f
   local_image_provider: 05b1af32561482c0ca5a440fbc7f489ad818c962
-  native_video_view: 02756aebe7ec9d0ab00d039b7aa3756548900bc3
-  path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
-  path_provider_macos: f760a3c5b04357c380e2fddb6f9db6f3015897e0
   video_player: 69c5f029fac4ffe4fc8a85ea7f7b793709661549
   video_player_web: da8cadb8274ed4f8dbee8d7171b420dedd437ce7
 

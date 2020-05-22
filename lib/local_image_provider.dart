@@ -182,8 +182,13 @@ class LocalImageProvider {
     return photoBytes;
   }
 
-  /// Returns a temporary file path for the image.
+  /// Returns a temporary file path for the requested video.
   ///
+  /// Call this method to get a playable video file where [id] is from
+  /// a [LocalImage] that has `isVideo` true. These files can be
+  /// used for video playback using the `video_player` plugin
+  /// for example. These files should either be moved or deleted by
+  /// client code, or cleaned up occasionally using the [cleanup] method.
   Future<String> videoFile(String id) async {
     if (!_initWorked) {
       throw LocalImageProviderNotInitializedException();
@@ -196,6 +201,21 @@ class LocalImageProvider {
     _totalLoadTime += _stopwatch.elapsedMilliseconds;
     _lastLoadTime = _stopwatch.elapsedMilliseconds;
     return filePath;
+  }
+
+  /// Call this method to cleanup any temporary files that have been
+  /// created by the image provider.
+  ///
+  /// After this method completes any file paths returned from
+  /// [videoFile] or other methods will no longer be valid. Only call
+  /// this method when you no longer depend on those files. Calling this
+  /// at program startup is safe, or at a point when you have finished
+  /// using all returned file paths.
+  Future cleanup() async {
+    if (!_initWorked) {
+      throw LocalImageProviderNotInitializedException();
+    }
+    await channel.invokeMethod('cleanup');
   }
 
   /// Resets the [totalLoadTime], [lastLaodTime], and [imgBytesLoaded]

@@ -58,6 +58,7 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
       }
       hasPermission = await localImageProvider.initialize();
       if (hasPermission) {
+        await localImageProvider.cleanup();
         // localImages = await localImageProvider.findLatest(50);
         localAlbums = await localImageProvider.findAlbums(LocalAlbumType.all);
       }
