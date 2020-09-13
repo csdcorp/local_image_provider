@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
+import kotlin.math.min
 
 enum class LocalImageProviderErrors {
     imgLoadFailed,
@@ -45,6 +46,32 @@ enum class LocalImageProviderErrors {
 }
 
 const val pluginChannelName = "plugin.csdcorp.com/local_image_provider"
+
+class MediaAsset( title: String, height: Int, width: Int, id: String, takenOn: Date, fileName: String, fileSize: Int, mediaType: String ) {
+    val title: String = title
+    val height: Int = height
+    val width: Int = width
+    val id: String = id
+    val takenOn: Date = takenOn
+    val fileName: String = fileName
+    val fileSize: Int = fileSize
+    val mediaType: String = mediaType
+    private val isoFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SZZZZZ")
+
+    fun toJson(): String {
+        val imgJson = JSONObject()
+        imgJson.put("title", title)
+        imgJson.put("pixelWidth", width)
+        imgJson.put("pixelHeight", height)
+        imgJson.put("id", id)
+        val isoDate = isoFormatter.format(takenOn)
+        imgJson.put("creationDate", isoDate)
+        imgJson.put("fileName", fileName)
+        imgJson.put("fileSize", fileSize)
+        imgJson.put("mediaType", mediaType)
+        return imgJson.toString()
+    }
+}
 
 /** LocalImageProviderPlugin */
 public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
@@ -411,13 +438,26 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
                 val imgUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 val sortOrder = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC LIMIT $maxResults"
                 val mediaResolver = localActivity.contentResolver
-                val images = findImagesToJson(mediaResolver, imgUri, null, null, sortOrder)
-                result.success(images)
+                val images = findImagesToMedia(mediaResolver, imgUri, null, null, sortOrder)
+                val videoUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                val vidoeSortOrder = "${MediaStore.Video.VideoColumns.DATE_TAKEN} DESC LIMIT $maxResults"
+                val videos = findVideoToMedia(mediaResolver, videoUri, null, null, vidoeSortOrder)
+                val results = chooseLatest( images, videos )
+                val latestJson = results.subList(0, min( maxResults, results.size ))
+                result.success(mediaToJson(latestJson))
             } else {
                 result.error(LocalImageProviderErrors.noActivity.name,
                         "This method requires an activity", null)
             }
         }).start()
+    }
+
+    private fun chooseLatest( images: ArrayList<MediaAsset>, videos: ArrayList<MediaAsset>): List<MediaAsset> {
+        val latest = ArrayList<MediaAsset>()
+        latest.addAll(images)
+        latest.addAll(videos)
+        val sorted = latest.sortedWith( compareByDescending({it.takenOn}))
+        return sorted
     }
 
     private fun findAlbumImages(albumId: String, maxImages: Int, result: Result) {
@@ -458,6 +498,34 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
         return findVideoToJson(mediaResolver, imgUri, selection, selectionArgs, sortOrder)
     }
 
+    private fun findImagesToMedia(mediaResolver: ContentResolver, imgUri: Uri, selection: String?,
+                                 selectionArgs: Array<String>?, sortOrder: String?): ArrayList<MediaAsset> {
+        val media = ArrayList<MediaAsset>()
+        val imageCursor = mediaResolver.query(imgUri, imageColumns, selection,
+                selectionArgs, sortOrder)
+        imageCursor?.use {
+            val widthColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.WIDTH)
+            val heightColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.HEIGHT)
+            val dateColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATE_TAKEN)
+            val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.TITLE)
+            val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
+            val sizeColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.SIZE)
+            val fileName = imgUri
+            val mediaType = "img"
+            while (imageCursor.moveToNext()) {
+                val mediaAsset = MediaAsset(
+                        imageCursor.getString(titleColumn),
+                        imageCursor.getInt(heightColumn),
+                        imageCursor.getInt(widthColumn),
+                        imageCursor.getString(idColumn),
+                        Date(imageCursor.getLong(dateColumn)), fileName.path,
+                        imageCursor.getInt(sizeColumn), mediaType)
+                media.add(mediaAsset)
+            }
+        }
+        return media
+    }
+
     private fun findImagesToJson(mediaResolver: ContentResolver, imgUri: Uri, selection: String?,
                                  selectionArgs: Array<String>?, sortOrder: String?):
             ArrayList<String> {
@@ -487,6 +555,35 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
         return images
     }
 
+    private fun findVideoToMedia(mediaResolver: ContentResolver, imgUri: Uri, selection: String?,
+                                selectionArgs: Array<String>?, sortOrder: String?):
+            ArrayList<MediaAsset> {
+        val media = ArrayList<MediaAsset>()
+        val imageCursor = mediaResolver.query(imgUri, videoColumns, selection,
+                selectionArgs, sortOrder)
+        imageCursor?.use {
+            val widthColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.WIDTH)
+            val heightColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.HEIGHT)
+            val dateColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DATE_TAKEN)
+            val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.TITLE)
+            val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns._ID)
+            val sizeColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.SIZE)
+            val fileName = imgUri
+            val mediaType = "video"
+            while (imageCursor.moveToNext()) {
+                val mediaAsset = MediaAsset(
+                        imageCursor.getString(titleColumn),
+                        imageCursor.getInt(heightColumn),
+                        imageCursor.getInt(widthColumn),
+                        imageCursor.getString(idColumn),
+                        Date(imageCursor.getLong(dateColumn)), fileName.path,
+                        imageCursor.getInt(sizeColumn), mediaType)
+                media.add(mediaAsset)
+            }
+        }
+        return media
+    }
+
     private fun findVideoToJson(mediaResolver: ContentResolver, imgUri: Uri, selection: String?,
                                 selectionArgs: Array<String>?, sortOrder: String?):
             ArrayList<String> {
@@ -514,6 +611,14 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
             }
         }
         return images
+    }
+
+    private fun mediaToJson( media: List<MediaAsset>) : ArrayList<String> {
+        val mediaJson = ArrayList<String>()
+        media.forEach() {
+            mediaJson.add( it.toJson())
+        }
+        return mediaJson
     }
 
     private fun imageToJson(title: String, height: Int, width: Int, id: String, takenOn: Date,
