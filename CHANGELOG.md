@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.0
+
+### Updates
+* fix for `findLatest` to include videos in the list of returned latest media
+* fix for Android Q SQL issue
+
 ## 2.1.0
 
 ### New
