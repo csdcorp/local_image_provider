@@ -184,7 +184,7 @@ void loadAndExpect(DeviceImage dImg, int expectedHeight, int expectedWidth) {
 }
 
 Future<Codec> decoderCallback(Uint8List bytes,
-    {int cacheHeight, int cacheWidth}) async {
+    {bool allowUpscaling, int cacheHeight, int cacheWidth}) async {
   return instantiateImageCodec(bytes,
       targetHeight: cacheHeight, targetWidth: cacheWidth);
 }
