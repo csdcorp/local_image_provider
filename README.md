@@ -1,6 +1,6 @@
 # Local Image Provider Plugin
 
-[![pub package](https://img.shields.io/badge/pub-v2.2.0-blue)](https://pub.dartlang.org/packages/local_image_provider) [![build status](https://github.com/csdcorp/local_image_provider/workflows/build/badge.svg)](https://github.com/csdcorp/local_image_provider/actions?query=workflow%3Abuild)
+[![pub package](https://img.shields.io/badge/pub-v2.2.1-blue)](https://pub.dartlang.org/packages/local_image_provider) [![build status](https://github.com/csdcorp/local_image_provider/workflows/build/badge.svg)](https://github.com/csdcorp/local_image_provider/actions?query=workflow%3Abuild)
 
 A library for searching and retrieving the metadata and contents of the images and 
 albums on a mobile device. 
