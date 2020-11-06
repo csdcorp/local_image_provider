@@ -180,9 +180,9 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
                 val id = call.argument<String>("id")
                 val width = call.argument<Int>("pixelWidth")
                 val height = call.argument<Int>("pixelHeight")
-                val compression = call.argument<Int?>("compression")
+                val compression = call.argument<Int?>("compression") ?: 70
                 if (id != null && width != null && height != null) {
-                    getImageBytes(id, width, height, compression ?: 70, result)
+                    getImageBytes(id, width, height, compression, result)
                 } else {
                     result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
                             "Missing arg requires id, width, height", null)

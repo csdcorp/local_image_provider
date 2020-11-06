@@ -95,8 +95,8 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                                          details: nil ))
                     return
             }
-            let compression = argsArr["compression"] as? Int
-            getPhotoImage( localId, height, width, compression ?? 70, result)
+            let compression = argsArr["compression"] as? Int ?? 70
+            getPhotoImage( localId, height, width, compression, result)
         case LocalImageProviderMethods.video_file.rawValue:
             guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
                 let localId = argsArr["id"] as? String
