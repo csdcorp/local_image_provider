@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.1
+
+### Updates
+* fix for iOS `imageBytes` implementation, width and height were swapped, causing images to be resized incorrectly
+
 ## 2.2.0
 
 ### Updates

@@ -95,7 +95,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                                          details: nil ))
                     return
             }
-            getPhotoImage( localId, width, height, result)
+            getPhotoImage( localId, height, width, result)
         case LocalImageProviderMethods.video_file.rawValue:
             guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
                 let localId = argsArr["id"] as? String
