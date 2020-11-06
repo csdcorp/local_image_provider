@@ -180,8 +180,9 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
                 val id = call.argument<String>("id")
                 val width = call.argument<Int>("pixelWidth")
                 val height = call.argument<Int>("pixelHeight")
+                val compression = call.argument<Int?>("compression")
                 if (id != null && width != null && height != null) {
-                    getImageBytes(id, width, height, result)
+                    getImageBytes(id, width, height, compression ?: 70, result)
                 } else {
                     result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
                             "Missing arg requires id, width, height", null)
@@ -548,7 +549,7 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
         result.success(true )
     }
 
-    private fun getImageBytes(id: String, width: Int, height: Int, result: Result) {
+    private fun getImageBytes(id: String, width: Int, height: Int, compression: Int, result: Result) {
         if (isNotInitialized(result)) {
             return
         }
@@ -566,7 +567,7 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
                     val bitmap = bitmapLoad.get()
                     val jpegBytes = ByteArrayOutputStream()
                     jpegBytes.use {
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, jpegBytes)
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, compression, jpegBytes)
                         result.success(jpegBytes.toByteArray())
                     }
                 } else {
