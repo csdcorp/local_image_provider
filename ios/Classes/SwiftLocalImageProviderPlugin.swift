@@ -373,8 +373,9 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                         //                        image.cgImage = cgImage;
                         details = "cgImage nil"
                     }
-                    
-                    if let data = image.jpegData(compressionQuality: CGFloat(Float(compression) / 100.0)) {
+
+                    let compressionQuality = compression == 0 ? 0 : CGFloat(Float(compression) / 100.0)
+                    if let data = image.jpegData(compressionQuality: compressionQuality) {
                         let typedData = FlutterStandardTypedData( bytes: data );
                         DispatchQueue.main.async {
                             flutterResult( typedData)
