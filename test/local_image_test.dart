@@ -6,11 +6,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 
+import 'device_image_test.dart';
+
 void main() {
   const String testId1 = "id1";
   const String create1 = "2019-11-25";
   const int width1 = 100;
   const int height1 = 200;
+  const int compression1 = 20;
   const String testId2 = "id2";
   const String create2 = "2019-10-17";
   const String fileName1 = "file1";
@@ -34,6 +37,7 @@ void main() {
   String requestedImgId;
   int requestedHeight;
   int requestedWidth;
+  int requestedCompression;
   Uint8List imageBytes;
   LocalImageProvider localImageProvider;
 
@@ -52,6 +56,7 @@ void main() {
         requestedImgId = methodCall.arguments["id"];
         requestedHeight = methodCall.arguments["pixelHeight"];
         requestedWidth = methodCall.arguments["pixelWidth"];
+        requestedCompression = methodCall.arguments["compression"];
         return imageBytes;
       }
       return null;
@@ -69,6 +74,7 @@ void main() {
       expect(img.pixelWidth, width1);
       expect(img.isImage, isTrue);
       expect(img.isVideo, isFalse);
+      expect(img.compression, null);
     });
     test('hash works', () {
       expect(img1.hashCode, img1.hashCode);
@@ -99,11 +105,13 @@ void main() {
   group('imageBytes', () {
     test('simple get succeeds', () async {
       var img = LocalImage(testId1, create1, height1, width1, fileName1,
-          fileSize1, LocalImage.imageMediaType);
+          fileSize1, LocalImage.imageMediaType,
+          compression: compression1);
       var bytes = await img.getImageBytes(localImageProvider, height1, width1);
       expect(requestedImgId, testId1);
       expect(requestedHeight, height1);
       expect(requestedWidth, width1);
+      expect(requestedCompression, compression1);
       expect(bytes, imageBytes);
     });
     test('scaled get succeeds', () async {
