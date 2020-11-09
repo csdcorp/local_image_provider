@@ -40,7 +40,8 @@ class DeviceImage extends ImageProvider<DeviceImage> {
   /// was added as a result of a strange result in iOS where an image with
   /// a portrait aspect ratio was failing to load when scaled below 120 pixels.
   /// Setting 150 as the minimum in this case resolved the problem.
-  const DeviceImage(this.localImage, {this.scale = 1.0, this.minPixels = 0})
+  const DeviceImage(this.localImage,
+      {this.scale = 1.0, this.minPixels = 0, this.compression})
       : assert(localImage != null),
         assert(scale != null),
         assert(minPixels != null);
@@ -53,6 +54,9 @@ class DeviceImage extends ImageProvider<DeviceImage> {
 
   /// The minPixels to place in the [ImageInfo] object of the image.
   final int minPixels;
+
+  /// Optional image compression (0-100), default is set to 70.
+  final int compression;
 
   @override
   Future<DeviceImage> obtainKey(ImageConfiguration configuration) {
@@ -96,8 +100,8 @@ class DeviceImage extends ImageProvider<DeviceImage> {
   Future<ui.Codec> _loadAsync(DeviceImage key, DecoderCallback decoder) async {
     assert(key == this);
     try {
-      final Uint8List bytes =
-          await LocalImageProvider().imageBytes(localImage.id, height, width);
+      final Uint8List bytes = await LocalImageProvider()
+          .imageBytes(localImage.id, height, width, compression: compression);
       if (bytes.lengthInBytes == 0) return null;
 
       return await decoder(bytes);
