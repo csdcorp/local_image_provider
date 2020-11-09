@@ -167,7 +167,8 @@ class LocalImageProvider {
   /// more pixels, i.e. a larger value for [height] and [width].
   /// Instead of using this directly look at [DeviceImage] which creates an [ImageProvider] from
   /// a [LocalImage], suitable for use in a widget tree.
-  Future<Uint8List> imageBytes(String id, int height, int width, { int compression }) async {
+  Future<Uint8List> imageBytes(String id, int height, int width,
+      {int compression}) async {
     if (!_initWorked) {
       throw LocalImageProviderNotInitializedException();
     }
