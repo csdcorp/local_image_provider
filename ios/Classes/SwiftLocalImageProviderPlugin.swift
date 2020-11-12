@@ -95,7 +95,8 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                                          details: nil ))
                     return
             }
-            getPhotoImage( localId, height, width, result)
+            let compression = argsArr["compression"] as? Int ?? 70
+            getPhotoImage( localId, height, width, compression, result)
         case LocalImageProviderMethods.video_file.rawValue:
             guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
                 let localId = argsArr["id"] as? String
@@ -341,7 +342,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         return tempPath
     }   
 
-    private func getPhotoImage(_ id: String, _ pixelHeight: Int, _ pixelWidth: Int, _ flutterResult: @escaping FlutterResult) {
+    private func getPhotoImage(_ id: String, _ pixelHeight: Int, _ pixelWidth: Int, _ compression: Int, _ flutterResult: @escaping FlutterResult) {
         let fetchOptions = PHFetchOptions()
         let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: fetchOptions )
         if ( 1 == fetchResult.count ) {
@@ -372,8 +373,8 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
                         //                        image.cgImage = cgImage;
                         details = "cgImage nil"
                     }
-                    
-                    if let data = image.jpegData(compressionQuality: 0.7 ) {
+
+                    if let data = image.jpegData(compressionQuality: CGFloat(Float(compression) / 100.0) {
                         let typedData = FlutterStandardTypedData( bytes: data );
                         DispatchQueue.main.async {
                             flutterResult( typedData)

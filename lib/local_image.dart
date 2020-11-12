@@ -26,6 +26,9 @@ class LocalImage {
   /// pixel width of the image
   final int pixelWidth;
 
+  /// optional image compression (0-100), default is set to 70
+  final int compression;
+
   /// date the image was created as reported by the local device
   final String creationDate;
 
@@ -40,7 +43,8 @@ class LocalImage {
   final String mediaType;
 
   const LocalImage(this.id, this.creationDate, this.pixelHeight,
-      this.pixelWidth, this.fileName, this.fileSize, this.mediaType);
+      this.pixelWidth, this.fileName, this.fileSize, this.mediaType,
+      {this.compression});
 
   bool get isImage => imageMediaType == mediaType;
   bool get isVideo => videoMediaType == mediaType;
@@ -83,7 +87,8 @@ class LocalImage {
   @Deprecated("See [DeviceImage] for a better way to load the image contents.")
   Future<Uint8List> getImageBytes(LocalImageProvider localImageProvider,
       int desiredHeight, int desiredWidth) async {
-    return await localImageProvider.imageBytes(id, desiredHeight, desiredWidth);
+    return await localImageProvider.imageBytes(id, desiredHeight, desiredWidth,
+        compression: compression);
   }
 
   @override

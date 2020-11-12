@@ -11,6 +11,7 @@ import 'package:local_image_provider/local_image_provider.dart';
 String requestedImgId;
 int requestedHeight;
 int requestedWidth;
+int requestedCompression;
 
 void main() {
   const String testId1 = "id1";
@@ -31,6 +32,7 @@ void main() {
   const int width80Percent = 80;
   const int height80Percent = 160;
   const int height20Percent = 40;
+  const int compression20Percent = 20;
   const int minPixelsWidth = 30;
   const int minPixelsHeight = 50;
   const img1 = LocalImage(testId1, create1, height1, width1, fileName1,
@@ -58,6 +60,7 @@ void main() {
         requestedImgId = methodCall.arguments["id"];
         requestedHeight = methodCall.arguments["pixelHeight"];
         requestedWidth = methodCall.arguments["pixelWidth"];
+        requestedCompression = methodCall.arguments["compression"];
         if (missingId == requestedImgId) {
           throw PlatformException(code: "missing");
         }
@@ -78,6 +81,11 @@ void main() {
       var dImg1 = DeviceImage(img1, scale: scale80Percent);
       expect(dImg1.localImage, img1);
       expect(dImg1.scale, scale80Percent);
+    });
+    test('compression can be overridden', () {
+      var dImg1 = DeviceImage(img1, compression: compression20Percent);
+      expect(dImg1.localImage, img1);
+      expect(dImg1.compression, compression20Percent);
     });
     test('hash works', () {
       var dImg1 = DeviceImage(img1);
@@ -152,6 +160,10 @@ void main() {
           DeviceImage(img1, scale: scale80Percent, minPixels: minPixelsWidth);
       loadAndExpect(dImg1, height80Percent, width80Percent);
     });
+    test('compression can be set', () {
+      var dImg1 = DeviceImage(img1, compression: compression20Percent);
+      loadAndExpect(dImg1, height1, width1, compression20Percent);
+    });
     test('platform exception returns default image', () {
       var dImg1 = DeviceImage(missingImg);
       loadAndExpect(dImg1, height2, width2);
@@ -176,11 +188,13 @@ void main() {
   });
 }
 
-void loadAndExpect(DeviceImage dImg, int expectedHeight, int expectedWidth) {
+void loadAndExpect(DeviceImage dImg, int expectedHeight, int expectedWidth,
+    [int expectedCompression]) {
   var completer = dImg.load(dImg, decoderCallback);
   expect(completer, isNotNull);
   expect(requestedHeight, expectedHeight);
   expect(requestedWidth, expectedWidth);
+  expect(requestedCompression, expectedCompression);
 }
 
 Future<Codec> decoderCallback(Uint8List bytes,

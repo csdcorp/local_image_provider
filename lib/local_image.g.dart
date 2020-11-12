@@ -15,6 +15,7 @@ LocalImage _$LocalImageFromJson(Map<String, dynamic> json) {
     json['fileName'] as String,
     json['fileSize'] as int,
     json['mediaType'] as String,
+    compression: json['compression'] as int,
   );
 }
 
@@ -27,4 +28,5 @@ Map<String, dynamic> _$LocalImageToJson(LocalImage instance) =>
       'fileName': instance.fileName,
       'fileSize': instance.fileSize,
       'mediaType': instance.mediaType,
+      'compression': instance.compression,
     };

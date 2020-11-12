@@ -26,6 +26,7 @@ void main() {
   const String expectedToString = "LocalAlbum($albumId1, title: $title1)";
   const int height1 = 100;
   const int width1 = 200;
+  const int compression1 = 20;
   const LocalImage coverImg1 = LocalImage(imgId1, creation1, height1, width1,
       fileName1, fileSize1, LocalImage.imageMediaType);
   final LocalAlbum localAlbum1 = LocalAlbum(albumId1, coverImg1, title1,
@@ -39,6 +40,7 @@ void main() {
   String requestedImgId;
   int requestedHeight;
   int requestedWidth;
+  int requestedCompression;
   Uint8List imageBytes;
   LocalImageProvider localImageProvider;
 
@@ -57,6 +59,7 @@ void main() {
         requestedImgId = methodCall.arguments["id"];
         requestedHeight = methodCall.arguments["pixelHeight"];
         requestedWidth = methodCall.arguments["pixelWidth"];
+        requestedCompression = methodCall.arguments["compression"];
         return imageBytes;
       }
       return null;
@@ -111,11 +114,13 @@ void main() {
   });
   group('imageBytes', () {
     test('loads cover image', () async {
-      var bytes =
-          await localAlbum1.getCoverImage(localImageProvider, height1, width1);
+      var bytes = await localAlbum1.getCoverImage(
+          localImageProvider, height1, width1,
+          compression: compression1);
       expect(requestedImgId, imgId1);
       expect(requestedHeight, height1);
       expect(requestedWidth, width1);
+      expect(requestedCompression, compression1);
       expect(bytes, imageBytes);
     });
   });
