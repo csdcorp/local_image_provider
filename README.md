@@ -1,6 +1,6 @@
 # Local Image Provider Plugin
 
-[![pub package](https://img.shields.io/badge/pub-v2.2.1-blue)](https://pub.dartlang.org/packages/local_image_provider) [![build status](https://github.com/csdcorp/local_image_provider/workflows/build/badge.svg)](https://github.com/csdcorp/local_image_provider/actions?query=workflow%3Abuild)
+[![pub package](https://img.shields.io/badge/pub-v2.3.0-blue)](https://pub.dartlang.org/packages/local_image_provider) [![build status](https://github.com/csdcorp/local_image_provider/workflows/build/badge.svg)](https://github.com/csdcorp/local_image_provider/actions?query=workflow%3Abuild)
 
 A library for searching and retrieving the metadata and contents of the images and 
 albums on a mobile device. 
@@ -12,12 +12,9 @@ components, it provides information about local photos that can be used to devel
 applications.
 
 ## Recent Updates
-The 2.0.0 version uses the new Flutter 1.12.x plugin registration. Although it may be backwards compatible with older Flutter versions,
-you should consider upgrading your projects to protect future compatibility. This version also supports video, look for the new 
-properties on `LocalImage`: `mediaType`, `isVideo`, `isImage`, to detect video and the `getVideoFile` method on `LocalImageProvider`. 
-**NOTE**This version only works on Flutter 1.17.0+. 
 
-The 1.0.0  version adds error handling for missing images on Android.
+The 2.3.0 version provides better support for image compression and improves support for the new limited 
+access grant under iOS 14+. 
 
 *Note*: If you have feature requests or issue reports please post them as [issues](https://github.com/csdcorp/local_image_provider/issues). 
 
@@ -78,6 +75,7 @@ Applications using this plugin require the following user permissions.
 Add the following key to your _Info.plist_ file, located in `<project root>/ios/Runner/Info.plist`:
 
 * `NSPhotoLibraryUsageDescription` - describe why your app needs permission for the photo library. This is called _Privacy - Photo Library Usage Description_ in the visual editor. This permission is required for the app to read the image and album information. 
+* `PHPhotoLibraryPreventAutomaticLimitedAccessAlert` - (optional) set this to `YES`, true, to block the iOS dialog that appears each time the app is launched if the user has granted limited access to their library.
 
 ### Android
 

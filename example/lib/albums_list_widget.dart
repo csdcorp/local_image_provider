@@ -9,12 +9,14 @@ class AlbumsListWidget extends StatelessWidget {
     this.localAlbums,
     this.switchAlbum,
     this.selectedAlbum,
+    this.limited,
   }) : super(key: key);
 
   final List<LocalImage> localImages;
   final List<LocalAlbum> localAlbums;
   final void Function(LocalAlbum album) switchAlbum;
   final LocalAlbum selectedAlbum;
+  final bool limited;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,9 @@ class AlbumsListWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Found - Images: ${localImages.length}; Albums: ${localAlbums.length}.',
+            limited
+                ? 'Found(limited) - Images: ${localImages.length}; Albums: ${localAlbums.length}.'
+                : 'Found - Images: ${localImages.length}; Albums: ${localAlbums.length}.',
             style: Theme.of(context).textTheme.title,
             textAlign: TextAlign.center,
           ),

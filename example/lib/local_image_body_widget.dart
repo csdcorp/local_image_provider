@@ -20,6 +20,7 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
   LocalImageProvider localImageProvider = LocalImageProvider();
   int _localImageCount = 0;
   bool _hasPermission = false;
+  bool _hasLimitedPermission = false;
   bool _inStress = false;
   List<LocalImage> _localImages = [];
   List<LocalAlbum> _localAlbums = [];
@@ -59,7 +60,7 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
       hasPermission = await localImageProvider.initialize();
       if (hasPermission) {
         await localImageProvider.cleanup();
-        // localImages = await localImageProvider.findLatest(50);
+        localImages = await localImageProvider.findLatest(50);
         localAlbums = await localImageProvider.findAlbums(LocalAlbumType.all);
       }
     } on PlatformException catch (e) {
@@ -68,6 +69,7 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
 
     if (!mounted) return;
 
+    _hasLimitedPermission = await localImageProvider.hasLimitedPermission;
     setState(() {
       _localImages.addAll(localImages);
       _localAlbums.addAll(localAlbums);
@@ -179,6 +181,7 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
                         localAlbums: _localAlbums,
                         switchAlbum: switchAlbum,
                         selectedAlbum: _selectedAlbum,
+                        limited: _hasLimitedPermission,
                       ),
                       ImagesListWidget(
                         imgHeading: _imgHeading,

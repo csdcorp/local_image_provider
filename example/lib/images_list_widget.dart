@@ -42,7 +42,7 @@ class ImagesListWidget extends StatelessWidget {
                               : Theme.of(context).canvasColor,
                           padding: EdgeInsets.all(10),
                           child: Text(
-                            'Id: ${img.id}; created: ${img.creationDate}',
+                            'Id: ${img.id} Name: ${img.fileName} created: ${img.creationDate}',
                             style: Theme.of(context).textTheme.subhead,
                           ),
                         ),

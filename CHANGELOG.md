@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.0
+
+### Updates
+* added the optional new parameter `compression` to `imageBytes`, `deviceImage`, `getCoverImage`, and `localImage` to allow the JPEG compression of the fetched image to be controlled. 
+* new `hasLimitedPermission` supports detecting when the library has been granted limited access to images 
+on iOS 14+. This is always false on Android. 
+* now properly handles limited permission on iOS 14+
+
 ## 2.2.1
 
 ### Updates

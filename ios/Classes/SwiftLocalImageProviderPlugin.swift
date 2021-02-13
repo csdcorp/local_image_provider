@@ -11,6 +11,7 @@ public enum LocalImageProviderMethods: String {
     case images_in_album
     case albums
     case has_permission
+    case has_limited_permission
     case unknown // just for testing
 }
 
@@ -55,6 +56,8 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case LocalImageProviderMethods.has_permission.rawValue:
             hasPermission( result )
+        case LocalImageProviderMethods.has_limited_permission.rawValue:
+            hasLimitedPermission( result )
         case LocalImageProviderMethods.initialize.rawValue:
             initialize( result )
         case LocalImageProviderMethods.albums.rawValue:
@@ -117,23 +120,76 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
     }
     
     private func hasPermission(_ result: @escaping FlutterResult) {
-        if ( PHPhotoLibrary.authorizationStatus() == PHAuthorizationStatus.authorized ) {
-            result( true )
+        let currentAuth = getAuthorizationStatus()
+        result( isAuthorized(currentAuth: currentAuth))
+    }
+    
+    private func hasLimitedPermission(_ result: @escaping FlutterResult) {
+        let currentAuth = getAuthorizationStatus()
+        if #available(iOS 14.0, *) {
+            if (currentAuth == PHAuthorizationStatus.limited ) {
+                result( true )
+                return
+            }
         }
         result( false )
     }
     
+//    private func selectLimitedImages(_ result: @escaping FlutterResult) {
+//        let currentAuth = getAuthorizationStatus()
+//        if #available(iOS 14.0, *) {
+//            if (currentAuth == PHAuthorizationStatus.limited ) {
+//                let keyWindow = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+//
+//                if var topController = keyWindow?.rootViewController {
+//                    while let presentedViewController = topController.presentedViewController {
+//                        topController = presentedViewController
+//                    }
+//
+//                    PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: topController)
+//                }
+//            }
+//        }
+//    }
+    
+
+    private func getAuthorizationStatus() -> PHAuthorizationStatus {
+        var currentAuth: PHAuthorizationStatus
+        if #available(iOS 14.0, *) {
+            currentAuth = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        }
+        else {
+            currentAuth = PHPhotoLibrary.authorizationStatus()
+        }
+        return currentAuth
+    }
+    
+    private func isAuthorized( currentAuth: PHAuthorizationStatus ) -> Bool {
+        var authorized = currentAuth == PHAuthorizationStatus.authorized
+        if #available(iOS 14.0, *) {
+            if ( !authorized ) {
+                authorized = currentAuth == PHAuthorizationStatus.limited
+            }
+        }
+        return authorized
+    }
+    
     private func initialize(_ result: @escaping FlutterResult) {
         var authorized = false
-        let currentAuth = PHPhotoLibrary.authorizationStatus()
+        let currentAuth = getAuthorizationStatus()
         if ( currentAuth == PHAuthorizationStatus.notDetermined ) {
             PHPhotoLibrary.requestAuthorization({(status)->Void in
                 authorized = status == PHAuthorizationStatus.authorized
+                if #available(iOS 14.0, *) {
+                    if ( !authorized ) {
+                        authorized = currentAuth == PHAuthorizationStatus.limited
+                    }
+                }
                 self.handleInitResult( authorized, result )
             })
         }
         else {
-            authorized = currentAuth == PHAuthorizationStatus.authorized
+            authorized = isAuthorized(currentAuth: currentAuth)
             handleInitResult( authorized, result )
         }
     }

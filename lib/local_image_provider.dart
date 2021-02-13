@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -65,6 +66,19 @@ class LocalImageProvider {
   Future<bool> get hasPermission async {
     bool hasPermission = await channel.invokeMethod('has_permission');
     return hasPermission;
+  }
+
+  /// Returns true only for iOS 14+ if the user chose to grant only limited
+  /// access to the photos in their library.
+  ///
+  /// This method can be called before [initialize] to check if limited
+  /// has been granted. When true other methods in the library only return
+  /// specific photos that have been explicitly allowed.
+  Future<bool> get hasLimitedPermission async {
+    if (Platform.isIOS) {
+      return await channel.invokeMethod('has_limited_permission');
+    }
+    return false;
   }
 
   /// Returns true if all [DeviceImage] should be cached in the global
