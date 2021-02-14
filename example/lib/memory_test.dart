@@ -171,7 +171,9 @@ class _LIPMemoryWidgetState extends State<LIPMemoryWidget> {
                 ? Image(
                     image: _currentImg,
                   )
-                : null != _fileImg ? Image.file(_fileImg) : Text('N/A'),
+                : null != _fileImg
+                    ? Image.file(_fileImg)
+                    : Text('N/A'),
           ),
         ),
       ],

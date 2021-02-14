@@ -188,8 +188,12 @@ class LocalImageProvider {
     }
     _stopwatch.reset();
     _stopwatch.start();
-    final Uint8List photoBytes = await channel.invokeMethod(
-        'image_bytes', {'id': id, 'pixelHeight': height, 'pixelWidth': width, 'compression': compression});
+    final Uint8List photoBytes = await channel.invokeMethod('image_bytes', {
+      'id': id,
+      'pixelHeight': height,
+      'pixelWidth': width,
+      'compression': compression
+    });
     _stopwatch.stop();
     _totalLoadTime += _stopwatch.elapsedMilliseconds;
     _lastLoadTime = _stopwatch.elapsedMilliseconds;
