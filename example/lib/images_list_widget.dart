@@ -24,7 +24,7 @@ class ImagesListWidget extends StatelessWidget {
             padding: EdgeInsets.all(8),
             child: Text(
               'Images - $imgHeading (Images in album: ${localImages.length})',
-              style: Theme.of(context).textTheme.title,
+              style: Theme.of(context).textTheme.headline6,
             ),
           ),
           Expanded(
@@ -43,7 +43,7 @@ class ImagesListWidget extends StatelessWidget {
                           padding: EdgeInsets.all(10),
                           child: Text(
                             'Id: ${img.id} Name: ${img.fileName} created: ${img.creationDate}',
-                            style: Theme.of(context).textTheme.subhead,
+                            style: Theme.of(context).textTheme.subtitle1,
                           ),
                         ),
                       ),

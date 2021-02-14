@@ -6,8 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 
-import 'device_image_test.dart';
-
 void main() {
   const String testId1 = "id1";
   const String create1 = "2019-11-25";

@@ -44,7 +44,7 @@ class ImagePreviewWidget extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'Selected: $imgSource',
-                            style: Theme.of(context).textTheme.title,
+                            style: Theme.of(context).textTheme.headline6,
                           ),
                         ),
                       ),
@@ -120,7 +120,7 @@ class ImagePreviewWidget extends StatelessWidget {
           : Center(
               child: Text(
                 'Tap on an image or album for a preview',
-                style: Theme.of(context).textTheme.headline,
+                style: Theme.of(context).textTheme.headline5,
               ),
             ),
     );

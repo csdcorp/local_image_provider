@@ -28,14 +28,14 @@ class AlbumsListWidget extends StatelessWidget {
             limited
                 ? 'Found(limited) - Images: ${localImages.length}; Albums: ${localAlbums.length}.'
                 : 'Found - Images: ${localImages.length}; Albums: ${localAlbums.length}.',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
             textAlign: TextAlign.center,
           ),
           Container(
             padding: EdgeInsets.all(8),
             child: Text(
               'Albums',
-              style: Theme.of(context).textTheme.title,
+              style: Theme.of(context).textTheme.headline6,
             ),
           ),
           Expanded(
@@ -54,7 +54,7 @@ class AlbumsListWidget extends StatelessWidget {
                             padding: EdgeInsets.all(8),
                             child: Text(
                               'Title: ${album.title}; images: ${album.imageCount}, id: ${album.id}; cover Id: ${album.coverImg.id}',
-                              style: Theme.of(context).textTheme.subhead,
+                              style: Theme.of(context).textTheme.subtitle1,
                             ),
                           )),
                     )
