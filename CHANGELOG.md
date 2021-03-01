@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.1
+
+### Updates
+* fix formatting of some files
+
 ## 2.3.0
 
 ### Updates
