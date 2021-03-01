@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
@@ -42,7 +43,8 @@ enum class LocalImageProviderErrors {
     multipleRequests,
     missingOrInvalidImage,
     noActivity,
-    unimplemented
+    unimplemented,
+    unknown
 }
 
 const val pluginChannelName = "plugin.csdcorp.com/local_image_provider"
@@ -155,62 +157,68 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull rawResult: Result) {
         val result = ChannelResultWrapper(rawResult)
-        when (call.method) {
-            "initialize" -> initialize(result)
-            "has_permission" -> hasPermission(result)
-            "latest_images" -> {
-                if (null != call.arguments && call.arguments is Int) {
-                    val maxResults = call.arguments as Int
-                    getLatestImages(maxResults, result)
-                } else {
-                    result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
-                            "Missing arg maxPhotos", null)
+        try {
+            when (call.method) {
+                "initialize" -> initialize(result)
+                "has_permission" -> hasPermission(result)
+                "latest_images" -> {
+                    if (null != call.arguments && call.arguments is Int) {
+                        val maxResults = call.arguments as Int
+                        getLatestImages(maxResults, result)
+                    } else {
+                        result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
+                                "Missing arg maxPhotos", null)
+                    }
                 }
-            }
-            "albums" -> {
-                if (null != call.arguments && call.arguments is Int) {
-                    val localAlbumType = call.arguments as Int
-                    getAlbums(localAlbumType, result)
-                } else {
-                    result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
-                            "Missing arg albumType", null)
+                "albums" -> {
+                    if (null != call.arguments && call.arguments is Int) {
+                        val localAlbumType = call.arguments as Int
+                        getAlbums(localAlbumType, result)
+                    } else {
+                        result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
+                                "Missing arg albumType", null)
+                    }
                 }
-            }
-            "image_bytes" -> {
-                val id = call.argument<String>("id")
-                val width = call.argument<Int>("pixelWidth")
-                val height = call.argument<Int>("pixelHeight")
-                val compression = call.argument<Int?>("compression") ?: 70
-                if (id != null && width != null && height != null) {
-                    getImageBytes(id, width, height, compression, result)
-                } else {
-                    result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
-                            "Missing arg requires id, width, height", null)
+                "image_bytes" -> {
+                    val id = call.argument<String>("id")
+                    val width = call.argument<Int>("pixelWidth")
+                    val height = call.argument<Int>("pixelHeight")
+                    val compression = call.argument<Int?>("compression") ?: 70
+                    if (id != null && width != null && height != null) {
+                        getImageBytes(id, width, height, compression, result)
+                    } else {
+                        result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
+                                "Missing arg requires id, width, height", null)
+                    }
                 }
-            }
-            "video_file" -> {
-                val id = call.argument<String>("id")
-                if (id != null) {
-                    getVideoFile(id, result)
-                } else {
-                    result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
-                            "Missing arg requires id", null)
+                "video_file" -> {
+                    val id = call.argument<String>("id")
+                    if (id != null) {
+                        getVideoFile(id, result)
+                    } else {
+                        result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
+                                "Missing arg requires id", null)
+                    }
                 }
-            }
-            "cleanup" -> {
-                cleanup(result)
-            }
-            "images_in_album" -> {
-                val albumId = call.argument<String>("albumId")
-                val maxImages = call.argument<Int>("maxImages")
-                if (albumId != null && maxImages != null) {
-                    findAlbumImages(albumId, maxImages, result)
-                } else {
-                    result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
-                            "Missing arg requires albumId, maxImages", null)
+                "cleanup" -> {
+                    cleanup(result)
                 }
+                "images_in_album" -> {
+                    val albumId = call.argument<String>("albumId")
+                    val maxImages = call.argument<Int>("maxImages")
+                    if (albumId != null && maxImages != null) {
+                        findAlbumImages(albumId, maxImages, result)
+                    } else {
+                        result.error(LocalImageProviderErrors.missingOrInvalidArg.name,
+                                "Missing arg requires albumId, maxImages", null)
+                    }
+                }
+                else -> result.notImplemented()
             }
-            else -> result.notImplemented()
+        } catch (exc: Exception) {
+            Log.e(logTag, "Unexpected exception", exc)
+            result.error(LocalImageProviderErrors.unknown.name,
+                    "Unexpected exception", exc.localizedMessage)
         }
     }
 
@@ -319,8 +327,8 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
                 val titleColumn = imageCursor.getColumnIndexOrThrow(bucketDisplayName)
                 val idColumn = imageCursor.getColumnIndexOrThrow(bucketId)
                 while (imageCursor.moveToNext()) {
-                    albums.add(Album(imageCursor.getString(titleColumn),
-                            imageCursor.getString(idColumn), contentUri))
+                    albums.add(Album(getStringColumn(imageCursor,titleColumn,""),
+                            getStringColumn(imageCursor,idColumn, ""), contentUri))
                 }
             }
         }
@@ -475,12 +483,12 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
             val mediaType = "img"
             while (imageCursor.moveToNext()) {
                 val mediaAsset = MediaAsset(
-                        imageCursor.getString(titleColumn),
-                        imageCursor.getInt(heightColumn),
-                        imageCursor.getInt(widthColumn),
-                        imageCursor.getString(idColumn),
-                        Date(imageCursor.getLong(dateColumn)), fileName,
-                        imageCursor.getInt(sizeColumn), mediaType)
+                        getStringColumn(imageCursor,titleColumn, ""),
+                        getIntColumn(imageCursor,heightColumn,0),
+                        getIntColumn(imageCursor,widthColumn,0),
+                        getStringColumn(imageCursor,idColumn,""),
+                        Date(getLongColumn(imageCursor,dateColumn, 0)), fileName,
+                        getIntColumn(imageCursor,sizeColumn, 0), mediaType)
                 media.add(mediaAsset)
             }
         }
@@ -504,16 +512,43 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
             val mediaType = "video"
             while (imageCursor.moveToNext()) {
                 val mediaAsset = MediaAsset(
-                        imageCursor.getString(titleColumn),
-                        imageCursor.getInt(heightColumn),
-                        imageCursor.getInt(widthColumn),
-                        imageCursor.getString(idColumn),
-                        Date(imageCursor.getLong(dateColumn)), fileName,
-                        imageCursor.getInt(sizeColumn), mediaType)
+                        getStringColumn( imageCursor, titleColumn, ""),
+                        getIntColumn(imageCursor, heightColumn, 0),
+                        getIntColumn(imageCursor, widthColumn, 0),
+                        getStringColumn(imageCursor,idColumn, ""),
+                        Date(getLongColumn(imageCursor,dateColumn, 0)), fileName,
+                        getIntColumn(imageCursor,sizeColumn,0), mediaType)
                 media.add(mediaAsset)
             }
         }
         return media
+    }
+
+    private fun getStringColumn( imageCursor: Cursor, columnIndex: Int, defaultValue: String ) : String {
+        try {
+            return imageCursor.getString(columnIndex)
+        }
+        catch ( exc: Exception ) {
+            return defaultValue;
+        }
+    }
+
+    private fun getIntColumn( imageCursor: Cursor, columnIndex: Int, defaultValue: Int ) : Int {
+        try {
+            return imageCursor.getInt(columnIndex)
+        }
+        catch ( exc: Exception ) {
+            return defaultValue;
+        }
+    }
+
+    private fun getLongColumn( imageCursor: Cursor, columnIndex: Int, defaultValue: Long ) : Long {
+        try {
+            return imageCursor.getLong(columnIndex)
+        }
+        catch ( exc: Exception ) {
+            return defaultValue;
+        }
     }
 
     private fun mediaToJson( media: List<MediaAsset>) : ArrayList<String> {
