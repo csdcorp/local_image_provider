@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.0
+
+### Updates
+* fix exceptions from null image info columns on Android
+* now catches top level exceptions and returns them as platform exceptions on Flutter
+
 ## 2.3.1
 
 ### Updates
