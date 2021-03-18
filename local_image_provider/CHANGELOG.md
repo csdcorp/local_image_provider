@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.0-nullsafety
+
+### Updates
+* null safety support
+
 ## 3.0.0
 
 ### Updates
