@@ -12,12 +12,12 @@ class TestLocalImageProvider extends LocalImageProviderPlatform {
   List<String> albums = [];
   List<String> latestImages = [];
   List<String> albumImages = [];
-  Uint8List imgBytes = Uint8List(0);
+  Uint8List? imgBytes = Uint8List(0);
   String videoFileResult = '';
-  String requestedImgId;
-  int requestedHeight;
-  int requestedWidth;
-  int requestedCompression;
+  String? requestedImgId;
+  int? requestedHeight;
+  int? requestedWidth;
+  int? requestedCompression;
 
   @override
   Future<bool> hasPermission() async {
@@ -56,8 +56,8 @@ class TestLocalImageProvider extends LocalImageProviderPlatform {
   }
 
   @override
-  Future<Uint8List> imageBytes(String id, int height, int width,
-      {int compression}) async {
+  Future<Uint8List?> imageBytes(String id, int height, int width,
+      {int? compression}) async {
     requestedImgId = id;
     requestedHeight = height;
     requestedWidth = width;

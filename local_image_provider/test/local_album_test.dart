@@ -12,8 +12,8 @@ import 'package:local_image_provider_platform_interface/local_image_provider_pla
 import 'test_local_image_provider.dart';
 
 void main() {
-  TestLocalImageProvider testProvider;
-  LocalImageProvider localImageProvider;
+  TestLocalImageProvider? testProvider;
+  late LocalImageProvider localImageProvider;
   const String albumId1 = "album1";
   const String albumId2 = "album2";
   const String albumId3 = "album3";
@@ -42,7 +42,7 @@ void main() {
       imageCount2, videoCount2, LocalAlbumType.user.value);
   final LocalAlbum localAlbum3 = LocalAlbum(albumId3, coverImg1, title3,
       imageCount2, videoCount2, LocalAlbumType.shared.value);
-  Uint8List imageBytes;
+  Uint8List? imageBytes;
 
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -50,9 +50,9 @@ void main() {
     List<int> imgInt = "087imgbytes234".codeUnits;
     imageBytes = Uint8List.fromList(imgInt);
     testProvider = TestLocalImageProvider();
-    LocalImageProviderPlatform.instance = testProvider;
+    LocalImageProviderPlatform.instance = testProvider!;
     localImageProvider = LocalImageProvider.testInstance();
-    testProvider.imgBytes = imageBytes;
+    testProvider!.imgBytes = imageBytes;
     await localImageProvider.initialize();
   });
 
@@ -106,10 +106,10 @@ void main() {
       var bytes = await localAlbum1.getCoverImage(
           localImageProvider, height1, width1,
           compression: compression1);
-      expect(testProvider.requestedImgId, imgId1);
-      expect(testProvider.requestedHeight, height1);
-      expect(testProvider.requestedWidth, width1);
-      expect(testProvider.requestedCompression, compression1);
+      expect(testProvider!.requestedImgId, imgId1);
+      expect(testProvider!.requestedHeight, height1);
+      expect(testProvider!.requestedWidth, width1);
+      expect(testProvider!.requestedCompression, compression1);
       expect(bytes, imageBytes);
     });
   });

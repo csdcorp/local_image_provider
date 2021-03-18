@@ -34,9 +34,9 @@ void main() {
   const img2 = LocalImage(testId2, create2, height2, width2, fileName2,
       fileSize2, LocalImage.imageMediaType);
 
-  Uint8List imageBytes;
-  TestLocalImageProvider testProvider;
-  LocalImageProvider localImageProvider;
+  Uint8List? imageBytes;
+  TestLocalImageProvider? testProvider;
+  late LocalImageProvider localImageProvider;
 
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -44,9 +44,9 @@ void main() {
     List<int> imgInt = "087imgbytes234".codeUnits;
     imageBytes = Uint8List.fromList(imgInt);
     testProvider = TestLocalImageProvider();
-    LocalImageProviderPlatform.instance = testProvider;
+    LocalImageProviderPlatform.instance = testProvider!;
     localImageProvider = LocalImageProvider.testInstance();
-    testProvider.imgBytes = imageBytes;
+    testProvider!.imgBytes = imageBytes;
     await localImageProvider.initialize();
   });
 
@@ -94,10 +94,10 @@ void main() {
           fileSize1, LocalImage.imageMediaType,
           compression: compression1);
       var bytes = await img.getImageBytes(localImageProvider, height1, width1);
-      expect(testProvider.requestedImgId, testId1);
-      expect(testProvider.requestedHeight, height1);
-      expect(testProvider.requestedWidth, width1);
-      expect(testProvider.requestedCompression, compression1);
+      expect(testProvider!.requestedImgId, testId1);
+      expect(testProvider!.requestedHeight, height1);
+      expect(testProvider!.requestedWidth, width1);
+      expect(testProvider!.requestedCompression, compression1);
       expect(bytes, imageBytes);
     });
     test('scaled get succeeds', () async {
@@ -105,9 +105,9 @@ void main() {
           fileSize1, LocalImage.imageMediaType);
       var bytes =
           await img.getScaledImageBytes(localImageProvider, scale80Percent);
-      expect(testProvider.requestedImgId, testId1);
-      expect(testProvider.requestedHeight, height80Percent);
-      expect(testProvider.requestedWidth, width80Percent);
+      expect(testProvider!.requestedImgId, testId1);
+      expect(testProvider!.requestedHeight, height80Percent);
+      expect(testProvider!.requestedWidth, width80Percent);
       expect(bytes, imageBytes);
     });
   });

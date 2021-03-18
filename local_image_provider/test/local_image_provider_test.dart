@@ -11,8 +11,8 @@ import 'package:local_image_provider_platform_interface/local_image_provider_pla
 import 'test_local_image_provider.dart';
 
 void main() {
-  TestLocalImageProvider testProvider;
-  LocalImageProvider localImageProvider;
+  TestLocalImageProvider? testProvider;
+  late LocalImageProvider localImageProvider;
   const String noSuchImageId = "noSuchImage";
   const String firstImageId = "image1";
   const String firstVideoId = "video1";
@@ -22,7 +22,7 @@ void main() {
   const String secondPhotoJson =
       '{"id":"image2","creationDate":"2019-01-02 21:07Z","pixelWidth":3324,"pixelHeight":2048}';
   const String imageBytesStr = "087imgbytes234";
-  Uint8List imageBytes;
+  Uint8List? imageBytes;
   const String emptyAlbumId = "emptyAlbum1";
   const String firstAlbumId = "album1";
   const String firstAlbumTitle = "My first album";
@@ -35,7 +35,7 @@ void main() {
     List<int> imgInt = imageBytesStr.codeUnits;
     imageBytes = Uint8List.fromList(imgInt);
     testProvider = TestLocalImageProvider();
-    LocalImageProviderPlatform.instance = testProvider;
+    LocalImageProviderPlatform.instance = testProvider!;
     localImageProvider = LocalImageProvider.testInstance();
     // pluginInvocation = true;
     // switch (methodCall.method) {
@@ -92,7 +92,7 @@ void main() {
       expect(has, isTrue);
     });
     test('false on false return', () async {
-      testProvider.permissionResult = false;
+      testProvider!.permissionResult = false;
       bool has = await localImageProvider.hasPermission;
       expect(has, isFalse);
     });
@@ -121,20 +121,20 @@ void main() {
     test('second call does not invoke', () async {
       bool init = await localImageProvider.initialize();
       expect(init, true);
-      expect(testProvider.invoked, true);
-      testProvider.invoked = false;
+      expect(testProvider!.invoked, true);
+      testProvider!.invoked = false;
       init = await localImageProvider.initialize();
       expect(init, true);
-      expect(testProvider.invoked, isFalse);
+      expect(testProvider!.invoked, isFalse);
     });
     test('fails on fail return', () async {
-      testProvider.initResult = false;
+      testProvider!.initResult = false;
       bool init = await localImageProvider.initialize();
       expect(init, false);
       expect(localImageProvider.isAvailable, isFalse);
     });
     test('fail return leaves other methods uninitialized', () async {
-      testProvider.initResult = false;
+      testProvider!.initResult = false;
       await localImageProvider.initialize();
       try {
         await localImageProvider.findAlbums(LocalAlbumType.all);
@@ -154,7 +154,7 @@ void main() {
 
     test('single album returned', () async {
       await localImageProvider.initialize();
-      testProvider.albums = [
+      testProvider!.albums = [
         firstAlbumJson,
       ];
       List<LocalAlbum> albums =
@@ -183,7 +183,7 @@ void main() {
     });
     test('single photo returned', () async {
       await localImageProvider.initialize();
-      testProvider.latestImages = [
+      testProvider!.latestImages = [
         firstPhotoJson,
       ];
       List<LocalImage> photos = await localImageProvider.findLatest(10);
@@ -191,7 +191,7 @@ void main() {
     });
     test('two photos returned', () async {
       await localImageProvider.initialize();
-      testProvider.latestImages = [firstPhotoJson, secondPhotoJson];
+      testProvider!.latestImages = [firstPhotoJson, secondPhotoJson];
       List<LocalImage> photos = await localImageProvider.findLatest(10);
       expect(photos.length, 2);
       expect(photos[0].id, firstImageId);
@@ -215,7 +215,7 @@ void main() {
     });
     test('expected photos returned', () async {
       await localImageProvider.initialize();
-      testProvider.albumImages = [firstPhotoJson, secondPhotoJson];
+      testProvider!.albumImages = [firstPhotoJson, secondPhotoJson];
       List<LocalImage> photos =
           await localImageProvider.findImagesInAlbum(firstAlbumId, 10);
       expect(photos.length, 2);
@@ -234,7 +234,7 @@ void main() {
   group('image bytes', () {
     test('returned unchanged', () async {
       await localImageProvider.initialize();
-      testProvider.imgBytes = imageBytes;
+      testProvider!.imgBytes = imageBytes;
       Uint8List bytes =
           await localImageProvider.imageBytes(firstImageId, 300, 300);
       expect(bytes, imageBytes);
@@ -260,7 +260,7 @@ void main() {
       }
     });
     test('Returns expected video file', () async {
-      testProvider.videoFileResult = firstVideoPath;
+      testProvider!.videoFileResult = firstVideoPath;
       await localImageProvider.initialize();
       var path = await localImageProvider.videoFile(firstVideoId);
       expect(path, firstVideoPath);
@@ -288,14 +288,14 @@ void main() {
     });
     test('counts bytes loaded', () async {
       await localImageProvider.initialize();
-      testProvider.imgBytes = imageBytes;
+      testProvider!.imgBytes = imageBytes;
       Uint8List bytes =
           await localImageProvider.imageBytes(firstImageId, 300, 300);
       expect(localImageProvider.imgBytesLoaded, bytes.length);
     });
     test('resets bytes loaded', () async {
       await localImageProvider.initialize();
-      testProvider.imgBytes = imageBytes;
+      testProvider!.imgBytes = imageBytes;
       await localImageProvider.imageBytes(firstImageId, 300, 300);
       localImageProvider.resetStats();
       expect(localImageProvider.imgBytesLoaded, 0);

@@ -5,25 +5,25 @@ import 'package:local_image_provider/local_image.dart';
 
 class ImagePreviewWidget extends StatelessWidget {
   const ImagePreviewWidget(
-      {Key key,
-      this.hasImage,
+      {Key? key,
+      required this.hasImage,
       this.imgSource,
       this.selectedImg,
-      this.desiredHeight,
-      this.desiredWidth,
-      this.heightController,
-      this.widthController,
-      this.updateDesired})
+      required this.desiredHeight,
+      required this.desiredWidth,
+      required this.heightController,
+      required this.widthController,
+      required this.updateDesired})
       : super(key: key);
 
   final int desiredHeight;
   final int desiredWidth;
   final bool hasImage;
-  final String imgSource;
+  final String? imgSource;
   final TextEditingController heightController;
   final TextEditingController widthController;
   final void Function(String text) updateDesired;
-  final LocalImage selectedImg;
+  final LocalImage? selectedImg;
 
   @override
   Widget build(BuildContext context) {
@@ -92,20 +92,20 @@ class ImagePreviewWidget extends StatelessWidget {
                         Expanded(
                           child: TextButton(
                             child: Image(
-                              image: DeviceImage(selectedImg, scale: 1),
+                              image: DeviceImage(selectedImg!, scale: 1),
                               fit: BoxFit.contain,
                             ),
                             onPressed: () => Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => FullSizeImageWidget(
-                                    selectedImg, desiredHeight, desiredWidth),
+                                    selectedImg!, desiredHeight, desiredWidth),
                               ),
                             ),
                           ),
                         ),
                         Expanded(
                           child: Text(
-                            'Image id:\n ${selectedImg.id}\n${selectedImg.mediaType}',
+                            'Image id:\n ${selectedImg!.id}\n${selectedImg!.mediaType}',
                             softWrap: true,
                             overflow: TextOverflow.clip,
                             style: Theme.of(context).textTheme.caption,

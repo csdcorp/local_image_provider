@@ -3,17 +3,17 @@ import 'package:local_image_provider/local_image.dart';
 
 class ImagesListWidget extends StatelessWidget {
   const ImagesListWidget({
-    Key key,
-    this.imgHeading,
-    this.localImages,
-    this.switchImage,
+    Key? key,
+    required this.imgHeading,
+    required this.localImages,
+    required this.switchImage,
     this.selectedImage,
   }) : super(key: key);
 
   final String imgHeading;
   final List<LocalImage> localImages;
   final void Function(LocalImage image, String src) switchImage;
-  final LocalImage selectedImage;
+  final LocalImage? selectedImage;
   @override
   Widget build(BuildContext context) {
     return Expanded(

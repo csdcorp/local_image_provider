@@ -8,14 +8,14 @@ part of 'local_image.dart';
 
 LocalImage _$LocalImageFromJson(Map<String, dynamic> json) {
   return LocalImage(
-    json['id'] as String,
-    json['creationDate'] as String,
-    json['pixelHeight'] as int,
-    json['pixelWidth'] as int,
-    json['fileName'] as String,
-    json['fileSize'] as int,
-    json['mediaType'] as String,
-    compression: json['compression'] as int,
+    json['id'] as String?,
+    json['creationDate'] as String?,
+    json['pixelHeight'] as int?,
+    json['pixelWidth'] as int?,
+    json['fileName'] as String?,
+    json['fileSize'] as int?,
+    json['mediaType'] as String?,
+    compression: json['compression'] as int?,
   );
 }
 

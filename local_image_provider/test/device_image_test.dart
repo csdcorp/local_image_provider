@@ -41,8 +41,8 @@ void main() {
   String expectedToString =
       "DeviceImage(${img1.toString()}, scale: $scale80Percent)";
   Uint8List imageBytes;
-  TestLocalImageProvider testProvider;
-  LocalImageProvider localImageProvider;
+  TestLocalImageProvider? testProvider;
+  late LocalImageProvider localImageProvider;
 
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -50,9 +50,9 @@ void main() {
     List<int> imgInt = "GIF89a,,,,,,,,,,,,,,,,;".codeUnits;
     imageBytes = Uint8List.fromList(imgInt);
     testProvider = TestLocalImageProvider();
-    LocalImageProviderPlatform.instance = testProvider;
+    LocalImageProviderPlatform.instance = testProvider!;
     localImageProvider = LocalImageProvider.testInstance();
-    testProvider.imgBytes = imageBytes;
+    testProvider!.imgBytes = imageBytes;
     await localImageProvider.initialize();
   });
 
@@ -112,46 +112,46 @@ void main() {
     });
     test('false when image size exceeds maxCacheSize', () {
       var dImg1 = DeviceImage(img1);
-      localImageProvider.maxCacheDimension = img1.pixelHeight - 1;
+      localImageProvider.maxCacheDimension = img1.pixelHeight! - 1;
       expect(dImg1.shouldCache(), isFalse);
     });
     test('true when image size equals maxCacheSize', () {
       var dImg1 = DeviceImage(img1);
-      localImageProvider.maxCacheDimension = img1.pixelHeight;
+      localImageProvider.maxCacheDimension = img1.pixelHeight!;
       expect(dImg1.shouldCache(), isTrue);
     });
   });
   group('load', () {
     test('loads expected image', () {
       var dImg1 = DeviceImage(img1, scale: scale80Percent);
-      loadAndExpect(testProvider, dImg1, height80Percent, width80Percent);
+      loadAndExpect(testProvider!, dImg1, height80Percent, width80Percent);
     });
     test('1:1 scale by default', () {
       var dImg1 = DeviceImage(img1);
-      loadAndExpect(testProvider, dImg1, height1, width1);
+      loadAndExpect(testProvider!, dImg1, height1, width1);
     });
     test('respects min pixels on height', () {
       var dImg1 =
           DeviceImage(img1, scale: scale20Percent, minPixels: minPixelsHeight);
-      loadAndExpect(testProvider, dImg1, minPixelsHeight, minPixelsHeight);
+      loadAndExpect(testProvider!, dImg1, minPixelsHeight, minPixelsHeight);
     });
     test('respects min pixels on width', () {
       var dImg1 =
           DeviceImage(img1, scale: scale20Percent, minPixels: minPixelsWidth);
-      loadAndExpect(testProvider, dImg1, height20Percent, minPixelsWidth);
+      loadAndExpect(testProvider!, dImg1, height20Percent, minPixelsWidth);
     });
     test('min pixels below actual has no effect', () {
       var dImg1 =
           DeviceImage(img1, scale: scale80Percent, minPixels: minPixelsWidth);
-      loadAndExpect(testProvider, dImg1, height80Percent, width80Percent);
+      loadAndExpect(testProvider!, dImg1, height80Percent, width80Percent);
     });
     test('compression can be set', () {
       var dImg1 = DeviceImage(img1, compression: compression20Percent);
-      loadAndExpect(testProvider, dImg1, height1, width1, compression20Percent);
+      loadAndExpect(testProvider!, dImg1, height1, width1, compression20Percent);
     });
     test('platform exception returns default image', () {
       var dImg1 = DeviceImage(missingImg);
-      loadAndExpect(testProvider, dImg1, height2, width2);
+      loadAndExpect(testProvider!, dImg1, height2, width2);
     });
   });
   group('resolve', () {
@@ -175,7 +175,7 @@ void main() {
 
 void loadAndExpect(TestLocalImageProvider testProvider, DeviceImage dImg,
     int expectedHeight, int expectedWidth,
-    [int expectedCompression]) {
+    [int? expectedCompression]) {
   var completer = dImg.load(dImg, decoderCallback);
   expect(completer, isNotNull);
   expect(testProvider.requestedHeight, expectedHeight);
@@ -184,7 +184,7 @@ void loadAndExpect(TestLocalImageProvider testProvider, DeviceImage dImg,
 }
 
 Future<Codec> decoderCallback(Uint8List bytes,
-    {bool allowUpscaling, int cacheHeight, int cacheWidth}) async {
+    {bool? allowUpscaling, int? cacheHeight, int? cacheWidth}) async {
   return instantiateImageCodec(bytes,
       targetHeight: cacheHeight, targetWidth: cacheWidth);
 }

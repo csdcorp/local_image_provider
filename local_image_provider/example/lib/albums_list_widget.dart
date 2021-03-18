@@ -4,18 +4,18 @@ import 'package:local_image_provider/local_album.dart';
 
 class AlbumsListWidget extends StatelessWidget {
   const AlbumsListWidget({
-    Key key,
-    this.localImages,
-    this.localAlbums,
-    this.switchAlbum,
+    Key? key,
+    required this.localImages,
+    required this.localAlbums,
+    required this.switchAlbum,
     this.selectedAlbum,
-    this.limited,
+    required this.limited,
   }) : super(key: key);
 
   final List<LocalImage> localImages;
   final List<LocalAlbum> localAlbums;
   final void Function(LocalAlbum album) switchAlbum;
-  final LocalAlbum selectedAlbum;
+  final LocalAlbum? selectedAlbum;
   final bool limited;
 
   @override
@@ -53,7 +53,7 @@ class AlbumsListWidget extends StatelessWidget {
                                 : Theme.of(context).canvasColor,
                             padding: EdgeInsets.all(8),
                             child: Text(
-                              'Title: ${album.title}; images: ${album.imageCount}, id: ${album.id}; cover Id: ${album.coverImg.id}',
+                              'Title: ${album.title}; images: ${album.imageCount}, id: ${album.id}; cover Id: ${album.coverImg?.id}',
                               style: Theme.of(context).textTheme.subtitle1,
                             ),
                           )),

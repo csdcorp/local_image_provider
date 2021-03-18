@@ -16,30 +16,30 @@ class LocalAlbum {
   static const int albumTransferType = 1;
 
   /// A unique identifier for the album on the device
-  final String id;
+  final String? id;
 
   /// A descriptive title for the album
-  final String title;
+  final String? title;
 
   /// The number of images contained in the album
-  final int imageCount;
+  final int? imageCount;
 
   /// The number of videos contained in the album
-  final int videoCount;
+  final int? videoCount;
 
   /// An image that can be used as a cover for the album.
   ///
   /// The [LocalImageProvider] implementation picks the newest image in the album.
   /// To load the image see the [DeviceImage] class.
-  final LocalImage coverImg;
+  final LocalImage? coverImg;
 
-  final int transferType;
+  final int? transferType;
 
   const LocalAlbum(this.id, this.coverImg, this.title, this.imageCount,
       this.videoCount, this.transferType);
 
   LocalAlbumType get albumType => LocalAlbumType.fromInt(
-      transferType != null ? transferType : albumTransferType);
+      transferType != null ? transferType! : albumTransferType);
 
   @override
   bool operator ==(Object other) {
@@ -62,8 +62,8 @@ class LocalAlbum {
   /// within a [pixelHeight]x[pixelWidth] area.
   Future<Uint8List> getCoverImage(
       LocalImageProvider localImageProvider, int pixelHeight, int pixelWidth,
-      {int compression}) async {
-    return localImageProvider.imageBytes(coverImg.id, pixelHeight, pixelWidth,
+      {int? compression}) async {
+    return localImageProvider.imageBytes(coverImg!.id!, pixelHeight, pixelWidth,
         compression: compression);
   }
 

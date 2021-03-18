@@ -26,10 +26,10 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
   List<LocalImage> _localImages = [];
   List<LocalAlbum> _localAlbums = [];
   bool _hasImage = false;
-  String _imgSource;
+  String? _imgSource;
   String _imgHeading = "most recent 100";
-  LocalImage _selectedImg;
-  LocalAlbum _selectedAlbum;
+  LocalImage? _selectedImg;
+  LocalAlbum? _selectedAlbum;
   TextEditingController heightController = TextEditingController();
   TextEditingController widthController = TextEditingController();
   int _desiredHeight = 2000;
@@ -83,14 +83,14 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
 
   void switchAlbum(LocalAlbum album) async {
     List<LocalImage> albumImages =
-        await localImageProvider.findImagesInAlbum(album.id, 100);
+        await localImageProvider.findImagesInAlbum(album.id!, 100);
     setState(() {
       _imgHeading = "from album: ${album.title}";
       _localImages.clear();
       _localImages.addAll(albumImages);
       _selectedAlbum = album;
     });
-    switchImage(album.coverImg, 'Album');
+    switchImage(album.coverImg!, 'Album');
   }
 
   void switchImage(LocalImage image, String src) {
@@ -122,14 +122,14 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
       totalAlbums += localAlbums.length;
       for (var album in localAlbums) {
         Uint8List imgBytes =
-            await localImageProvider.imageBytes(album.coverImg.id, 500, 500);
+            await localImageProvider.imageBytes(album.coverImg!.id!, 500, 500);
         totalBytesLoaded += imgBytes.length;
         ++totalImagesLoaded;
         List<LocalImage> albumImages =
-            await localImageProvider.findImagesInAlbum(album.id, 100);
+            await localImageProvider.findImagesInAlbum(album.id!, 100);
         for (var albumImage in albumImages) {
           Uint8List imgBytes =
-              await localImageProvider.imageBytes(albumImage.id, 500, 500);
+              await localImageProvider.imageBytes(albumImage.id!, 500, 500);
           totalBytesLoaded += imgBytes.length;
           ++totalImagesLoaded;
         }

@@ -24,10 +24,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/video_player/ios"
 
 SPEC CHECKSUMS:
-  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  image_picker: e3eacd46b94694dde7cf2705955cece853aa1a8f
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  image_picker: 50e7c7ff960e5f58faa4d1f4af84a771c671bc4a
   local_image_provider: 05b1af32561482c0ca5a440fbc7f489ad818c962
-  video_player: 69c5f029fac4ffe4fc8a85ea7f7b793709661549
+  video_player: 9cc823b1d9da7e8427ee591e8438bfbcde500e6e
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 

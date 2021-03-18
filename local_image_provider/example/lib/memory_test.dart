@@ -41,7 +41,7 @@ class MemoryApp extends StatelessWidget {
 
 class LIPMemoryWidget extends StatefulWidget {
   const LIPMemoryWidget({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -49,24 +49,24 @@ class LIPMemoryWidget extends StatefulWidget {
 }
 
 class _LIPMemoryWidgetState extends State<LIPMemoryWidget> {
-  LocalImageProvider localImageProvider;
-  ImageProvider _currentImg;
-  File _fileImg;
+  LocalImageProvider? localImageProvider;
+  ImageProvider? _currentImg;
+  File? _fileImg;
   List<ImageProvider> _loadedImages = [];
   int _nextImgIndex = 0;
   int _totalBytes = 0;
   int _totalImages = 0;
 
   void _doMemory() async {
-    bool available = await localImageProvider.initialize();
+    bool available = await localImageProvider!.initialize();
     if (available) {
-      List<LocalImage> images = await localImageProvider.findLatest(100);
+      List<LocalImage> images = await localImageProvider!.findLatest(100);
       print("available, got ${images.length}");
       _totalBytes = 0;
       _totalImages = 0;
       for (LocalImage image in images) {
         Uint8List bytes =
-            await localImageProvider.imageBytes(image.id, 2000, 2000);
+            await localImageProvider!.imageBytes(image.id!, 2000, 2000);
         print("Got bytes ${bytes.length}");
         setState(() {
           _totalImages++;
@@ -81,9 +81,9 @@ class _LIPMemoryWidgetState extends State<LIPMemoryWidget> {
 
   void _doImageMemory() async {
     _nextImgIndex = 0;
-    bool available = await localImageProvider.initialize();
+    bool available = await localImageProvider!.initialize();
     if (available) {
-      List<LocalImage> images = await localImageProvider.findLatest(100);
+      List<LocalImage> images = await localImageProvider!.findLatest(100);
       print("available, got ${images.length}");
       _loadedImages.clear();
       _totalImages = 0;
@@ -108,12 +108,12 @@ class _LIPMemoryWidgetState extends State<LIPMemoryWidget> {
     }
     setState(() {
       _currentImg = _loadedImages[_nextImgIndex++];
-      _totalBytes = localImageProvider.imgBytesLoaded;
+      _totalBytes = localImageProvider!.imgBytesLoaded;
     });
   }
 
   void _clearCache() {
-    imageCache.clear();
+    imageCache!.clear();
     setState(() {});
   }
 
@@ -128,10 +128,10 @@ class _LIPMemoryWidgetState extends State<LIPMemoryWidget> {
     // add the image_picker dependency and uncomment this to compare to
     // native Flutter image handling overhead.
     // var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    var image = await ImagePicker.pickVideo(source: ImageSource.gallery);
-    setState(() {
-      _fileImg = image;
-    });
+    // var image = await ImagePicker.pickVideo(source: ImageSource.gallery);
+    // setState(() {
+    //   _fileImg = image;
+    // });
   }
 
   @override
@@ -147,7 +147,7 @@ class _LIPMemoryWidgetState extends State<LIPMemoryWidget> {
       children: <Widget>[
         Container(
           child: Text(
-              'Total images: $_totalImages, bytes: $_totalBytes, cachedBytes: ${imageCache.currentSizeBytes}'),
+              'Total images: $_totalImages, bytes: $_totalBytes, cachedBytes: ${imageCache?.currentSizeBytes}'),
         ),
         Container(
           child:
@@ -171,10 +171,10 @@ class _LIPMemoryWidgetState extends State<LIPMemoryWidget> {
           child: Container(
             child: null != _currentImg
                 ? Image(
-                    image: _currentImg,
+                    image: _currentImg!,
                   )
                 : null != _fileImg
-                    ? Image.file(_fileImg)
+                    ? Image.file(_fileImg!)
                     : Text('N/A'),
           ),
         ),

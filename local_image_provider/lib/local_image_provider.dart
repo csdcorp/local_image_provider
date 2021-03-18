@@ -32,7 +32,7 @@ class LocalImageProvider {
   static const int cacheAtAnySize = 0;
   static const int cacheSuggestedCutoff = 800;
 
-  static LocalImageProvider _instance;
+  static LocalImageProvider? _instance;
   bool _initWorked = false;
   int _bytesLoaded = 0;
   int _totalLoadTime = 0;
@@ -44,7 +44,7 @@ class LocalImageProvider {
     if (null == _instance) {
       _instance = LocalImageProvider._internal();
     }
-    return _instance;
+    return _instance!;
   }
 
   LocalImageProvider._internal();
@@ -53,7 +53,7 @@ class LocalImageProvider {
   @visibleForTesting
   factory LocalImageProvider.testInstance() {
     _instance = LocalImageProvider._internal();
-    return _instance;
+    return _instance!;
   }
 
   /// True if [initialize] succeeded and the user granted
@@ -196,19 +196,22 @@ class LocalImageProvider {
   /// Instead of using this directly look at [DeviceImage] which creates an [ImageProvider] from
   /// a [LocalImage], suitable for use in a widget tree.
   Future<Uint8List> imageBytes(String id, int height, int width,
-      {int compression}) async {
+      {int? compression}) async {
     if (!_initWorked) {
       throw LocalImageProviderNotInitializedException();
     }
     _stopwatch.reset();
     _stopwatch.start();
-    final Uint8List photoBytes = await LocalImageProviderPlatform.instance
-        .imageBytes(id, height, width, compression: compression);
+    final Uint8List? photoBytes = await (LocalImageProviderPlatform.instance
+        .imageBytes(id, height, width, compression: compression));
     _stopwatch.stop();
     _totalLoadTime += _stopwatch.elapsedMilliseconds;
     _lastLoadTime = _stopwatch.elapsedMilliseconds;
-    _bytesLoaded += photoBytes.length;
-    return photoBytes;
+    if (null != photoBytes) {
+      _bytesLoaded += photoBytes.length;
+      return photoBytes;
+    }
+    return Uint8List(0);
   }
 
   /// Returns a temporary file path for the requested video.

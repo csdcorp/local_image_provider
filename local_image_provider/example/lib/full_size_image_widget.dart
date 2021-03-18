@@ -18,7 +18,7 @@ class FullSizeImageWidget extends StatefulWidget {
 }
 
 class _FullSizeImageWidgetState extends State<FullSizeImageWidget> {
-  VideoPlayerController _controller;
+  VideoPlayerController? _controller;
   bool _isVideoReady = false;
   bool _done = false;
 
@@ -32,13 +32,13 @@ class _FullSizeImageWidgetState extends State<FullSizeImageWidget> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   Future<void> setupVideo() async {
     String videoPath =
-        await LocalImageProvider().videoFile(widget.selectedImg.id);
+        await LocalImageProvider().videoFile(widget.selectedImg.id!);
     print(videoPath);
     File videoFile = File(videoPath);
     if (videoFile.existsSync()) {
@@ -54,25 +54,28 @@ class _FullSizeImageWidgetState extends State<FullSizeImageWidget> {
           _isVideoReady = true;
         });
       });
-    _controller.addListener(_onVideoChange);
+    _controller?.addListener(_onVideoChange);
   }
 
   void _onVideoChange() async {
     if (_done) {
       return;
     }
-    var currentPosition = await _controller.position;
+    var currentPosition = await _controller?.position;
+    var duration = _controller?.value.duration;
     print(
-        "Notified by video: $currentPosition, duration: ${_controller.value.duration}");
-    print("Playing ${_controller.value.isPlaying}");
-    if (currentPosition >= _controller.value.duration) {
+        "Notified by video: $currentPosition, duration: ${_controller?.value.duration}");
+    print("Playing ${_controller?.value.isPlaying}");
+    if (null != currentPosition &&
+        duration != null &&
+        currentPosition >= duration) {
       print("I think it's done");
       _done = true;
     }
   }
 
   void _startVideo() {
-    _controller.play();
+    _controller?.play();
   }
 
   @override
@@ -87,9 +90,9 @@ class _FullSizeImageWidgetState extends State<FullSizeImageWidget> {
             child: widget.selectedImg.isVideo
                 ? _isVideoReady
                     ? AspectRatio(
-                        aspectRatio: _controller.value.aspectRatio,
+                        aspectRatio: _controller!.value.aspectRatio,
                         child: Center(
-                          child: VideoPlayer(_controller),
+                          child: VideoPlayer(_controller!),
                         ),
                       )
                     : Container()
@@ -103,7 +106,7 @@ class _FullSizeImageWidgetState extends State<FullSizeImageWidget> {
               : Container(),
           _isVideoReady
               ? ElevatedButton(
-                  onPressed: () => _controller.pause(), child: Text('Play'))
+                  onPressed: () => _controller?.pause(), child: Text('Play'))
               : Container()
         ],
       ),

@@ -18,29 +18,29 @@ class LocalImage {
 
   /// Unique identifier for the image on the local device, this should
   /// be stable across invocations.
-  final String id;
+  final String? id;
 
   /// pixel height of the image
-  final int pixelHeight;
+  final int? pixelHeight;
 
   /// pixel width of the image
-  final int pixelWidth;
+  final int? pixelWidth;
 
   /// optional image compression (0-100), default is set to 70
-  final int compression;
+  final int? compression;
 
   /// date the image was created as reported by the local device
-  final String creationDate;
+  final String? creationDate;
 
   /// Local filename for the image on the device
-  final String fileName;
+  final String? fileName;
 
   /// Size in bytes of the image on disk
-  final int fileSize;
+  final int? fileSize;
 
   /// 'video' or 'img', use the isImage or isVideo properties instead
   /// of using this value directly
-  final String mediaType;
+  final String? mediaType;
 
   const LocalImage(this.id, this.creationDate, this.pixelHeight,
       this.pixelWidth, this.fileName, this.fileSize, this.mediaType,
@@ -60,8 +60,8 @@ class LocalImage {
   /// Use this with [DeviceImage] to find a scale for a particular
   /// desired screen resolution.
   double scaleToFit(int height, int width) {
-    double vScale = height / pixelHeight;
-    double hScale = width / pixelWidth;
+    double vScale = height / pixelHeight!;
+    double hScale = width / pixelWidth!;
     if (vScale >= 1 && hScale >= 1) {
       return 1.0;
     }
@@ -75,8 +75,8 @@ class LocalImage {
   @Deprecated("See [DeviceImage] for a better way to load scaled images.")
   Future<Uint8List> getScaledImageBytes(
       LocalImageProvider localImageProvider, double scale) async {
-    int scaledHeight = (pixelHeight * scale).round();
-    int scaledWidth = (pixelWidth * scale).round();
+    int scaledHeight = (pixelHeight! * scale).round();
+    int scaledWidth = (pixelWidth! * scale).round();
     return getImageBytes(localImageProvider, scaledHeight, scaledWidth);
   }
 
@@ -87,7 +87,7 @@ class LocalImage {
   @Deprecated("See [DeviceImage] for a better way to load the image contents.")
   Future<Uint8List> getImageBytes(LocalImageProvider localImageProvider,
       int desiredHeight, int desiredWidth) async {
-    return await localImageProvider.imageBytes(id, desiredHeight, desiredWidth,
+    return await localImageProvider.imageBytes(id!, desiredHeight, desiredWidth,
         compression: compression);
   }
 

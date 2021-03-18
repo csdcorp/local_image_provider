@@ -8,14 +8,14 @@ part of 'local_album.dart';
 
 LocalAlbum _$LocalAlbumFromJson(Map<String, dynamic> json) {
   return LocalAlbum(
-    json['id'] as String,
+    json['id'] as String?,
     json['coverImg'] == null
         ? null
         : LocalImage.fromJson(json['coverImg'] as Map<String, dynamic>),
-    json['title'] as String,
-    json['imageCount'] as int,
-    json['videoCount'] as int,
-    json['transferType'] as int,
+    json['title'] as String?,
+    json['imageCount'] as int?,
+    json['videoCount'] as int?,
+    json['transferType'] as int?,
   );
 }
 

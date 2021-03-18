@@ -56,10 +56,10 @@ class DeviceImage extends ImageProvider<DeviceImage> {
   final int minPixels;
 
   /// Optional image compression (0-100), default is set to 70.
-  final int compression;
+  final int? compression;
 
   @override
-  Future<DeviceImage> obtainKey(ImageConfiguration configuration) {
+  Future<DeviceImage> obtainKey(ImageConfiguration? configuration) {
     return SynchronousFuture<DeviceImage>(this);
   }
 
@@ -69,7 +69,7 @@ class DeviceImage extends ImageProvider<DeviceImage> {
       codec: _loadAsync(key, decoder),
       scale: key.scale,
       informationCollector: () sync* {
-        yield ErrorDescription('Id: ${localImage?.id}');
+        yield ErrorDescription('Id: ${localImage.id}');
       },
     );
   }
@@ -82,14 +82,12 @@ class DeviceImage extends ImageProvider<DeviceImage> {
       return;
     }
     final ImageStreamCompleter completer =
-        load(key, PaintingBinding.instance.instantiateImageCodec);
-    if (completer != null) {
-      stream.setCompleter(completer);
-    }
+        load(key, PaintingBinding.instance!.instantiateImageCodec);
+    stream.setCompleter(completer);
   }
 
-  int get height => max((localImage.pixelHeight * scale).round(), minPixels);
-  int get width => max((localImage.pixelWidth * scale).round(), minPixels);
+  int get height => max((localImage.pixelHeight! * scale).round(), minPixels);
+  int get width => max((localImage.pixelWidth! * scale).round(), minPixels);
 
   @visibleForTesting
   bool shouldCache() {
@@ -101,8 +99,8 @@ class DeviceImage extends ImageProvider<DeviceImage> {
     assert(key == this);
     try {
       final Uint8List bytes = await LocalImageProvider()
-          .imageBytes(localImage.id, height, width, compression: compression);
-      if (bytes.lengthInBytes == 0) return null;
+          .imageBytes(localImage.id!, height, width, compression: compression);
+      if (bytes.lengthInBytes == 0) return decoder(noImageBytes);
 
       return await decoder(bytes);
     } on PlatformException {

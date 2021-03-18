@@ -43,7 +43,7 @@ class WebLocalImageProviderPlugin extends LocalImageProviderPlatform {
 
   @override
   Future<Uint8List> imageBytes(String id, int height, int width,
-      {int compression}) async {
+      {int? compression}) async {
     return Uint8List(0);
   }
 
