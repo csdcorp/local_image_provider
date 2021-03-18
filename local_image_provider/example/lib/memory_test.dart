@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:local_image_provider_example/local_image_body_widget.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 import 'package:local_image_provider/local_image.dart';
@@ -100,9 +99,6 @@ class _LIPMemoryWidgetState extends State<LIPMemoryWidget> {
   }
 
   void _nextImage() {
-    if (null == _loadedImages) {
-      return;
-    }
     if (_nextImgIndex >= _loadedImages.length) {
       _nextImgIndex = 0;
     }

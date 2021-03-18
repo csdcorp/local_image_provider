@@ -41,10 +41,7 @@ class DeviceImage extends ImageProvider<DeviceImage> {
   /// a portrait aspect ratio was failing to load when scaled below 120 pixels.
   /// Setting 150 as the minimum in this case resolved the problem.
   const DeviceImage(this.localImage,
-      {this.scale = 1.0, this.minPixels = 0, this.compression})
-      : assert(localImage != null),
-        assert(scale != null),
-        assert(minPixels != null);
+      {this.scale = 1.0, this.minPixels = 0, this.compression});
 
   /// The LocalImage to decode into an image.
   final LocalImage localImage;
