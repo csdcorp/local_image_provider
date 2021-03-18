@@ -3,23 +3,23 @@ description: A common platform interface for the local_image_provider plugin.
 homepage: https://github.com/csdcorp/local_image_provider/local_image_provider_platform_interface
 # NOTE: We strongly prefer non-breaking changes, even at the expense of a
 # less-clean API. See https://flutter.dev/go/platform-interface-breaking-changes
-version: 1.0.0
+version: 2.0.0-nullsafety
 
 dependencies:
   flutter:
     sdk: flutter
   meta: ^1.0.5
-  plugin_platform_interface: ^1.0.1
-  json_annotation: ^3.1.1
+  plugin_platform_interface: ^2.0.0
+  json_annotation: ^4.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mockito: ^4.1.1
-  pedantic: ^1.8.0
-  build_runner: ^1.8.0
-  json_serializable: ^3.2.5
+  mockito: ^5.0.2
+  pedantic: ^1.11.0
+  build_runner: ^1.12.0
+  json_serializable: ^4.0.3
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
   flutter: ">=1.9.1+hotfix.4"

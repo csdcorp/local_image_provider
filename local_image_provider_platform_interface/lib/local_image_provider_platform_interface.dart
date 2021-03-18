@@ -92,8 +92,8 @@ abstract class LocalImageProviderPlatform extends PlatformInterface {
     throw UnimplementedError();
   }
 
-  Future<Uint8List> imageBytes(String id, int height, int width,
-      {int compression}) {
+  Future<Uint8List?> imageBytes(String id, int height, int width,
+      {int? compression}) {
     throw UnimplementedError();
   }
 
