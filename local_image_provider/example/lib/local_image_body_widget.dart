@@ -155,12 +155,11 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
         actions: <Widget>[
           Container(
             margin: EdgeInsets.all(5),
-            child: FlatButton(
+            child: TextButton(
               child: Text(
                 'Stress Test',
               ),
               onPressed: stressTest,
-              color: Colors.white30,
             ),
           ),
         ],

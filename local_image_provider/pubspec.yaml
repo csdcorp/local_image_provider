@@ -13,8 +13,7 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   json_annotation: ^3.1.1
-  local_image_provider_platform_interface:
-    path: ../local_image_provider_platform_interface
+  local_image_provider_platform_interface: ^1.0.0
 
 dev_dependencies:
   flutter_test:

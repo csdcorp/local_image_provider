@@ -264,9 +264,9 @@ packages:
   local_image_provider_platform_interface:
     dependency: "direct main"
     description:
-      path: "../local_image_provider_platform_interface"
-      relative: true
-    source: path
+      name: local_image_provider_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "1.0.0"
   logging:
     dependency: transitive

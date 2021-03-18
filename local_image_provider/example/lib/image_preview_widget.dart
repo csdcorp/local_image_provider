@@ -90,7 +90,7 @@ class ImagePreviewWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Expanded(
-                          child: FlatButton(
+                          child: TextButton(
                             child: Image(
                               image: DeviceImage(selectedImg, scale: 1),
                               fit: BoxFit.contain,

@@ -99,10 +99,10 @@ class _FullSizeImageWidgetState extends State<FullSizeImageWidget> {
                   ),
           ),
           _isVideoReady
-              ? RaisedButton(onPressed: _startVideo, child: Text('Play'))
+              ? ElevatedButton(onPressed: _startVideo, child: Text('Play'))
               : Container(),
           _isVideoReady
-              ? RaisedButton(
+              ? ElevatedButton(
                   onPressed: () => _controller.pause(), child: Text('Play'))
               : Container()
         ],

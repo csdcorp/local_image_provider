@@ -151,17 +151,19 @@ class _LIPMemoryWidgetState extends State<LIPMemoryWidget> {
         ),
         Container(
           child:
-              RaisedButton(child: Text('Memory Check'), onPressed: _doMemory),
+              ElevatedButton(child: Text('Memory Check'), onPressed: _doMemory),
         ),
         Container(
           child: Row(
             children: <Widget>[
-              RaisedButton(child: Text('Pick Image'), onPressed: _pickImage),
-              RaisedButton(
+              ElevatedButton(child: Text('Pick Image'), onPressed: _pickImage),
+              ElevatedButton(
                   child: Text('Image Memory Check'), onPressed: _doImageMemory),
-              RaisedButton(child: Text('Next Image'), onPressed: _nextImage),
-              RaisedButton(child: Text('Clear Cache'), onPressed: _clearCache),
-              RaisedButton(child: Text('Clear Image'), onPressed: _clearImage),
+              ElevatedButton(child: Text('Next Image'), onPressed: _nextImage),
+              ElevatedButton(
+                  child: Text('Clear Cache'), onPressed: _clearCache),
+              ElevatedButton(
+                  child: Text('Clear Image'), onPressed: _clearImage),
             ],
           ),
         ),

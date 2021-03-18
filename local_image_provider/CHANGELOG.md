@@ -4,6 +4,7 @@
 
 ### Updates
 * change to use a platform interface
+* web support
 
 ## 2.4.1
 
