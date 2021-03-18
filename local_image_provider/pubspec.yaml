@@ -31,7 +31,7 @@ flutter:
         pluginClass: LocalImageProviderPlugin
       ios:
         pluginClass: LocalImageProviderPlugin
-       web:
+      web:
         pluginClass: WebLocalImageProviderPlugin
         fileName: local_image_provider_web.dart
 

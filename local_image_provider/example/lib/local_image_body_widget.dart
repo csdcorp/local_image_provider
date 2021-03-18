@@ -70,7 +70,8 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
 
     if (!mounted) return;
 
-    _hasLimitedPermission = await localImageProvider.hasLimitedPermission;
+    _hasLimitedPermission = false;
+    await localImageProvider.hasLimitedPermission;
     setState(() {
       _localImages.addAll(localImages);
       _localAlbums.addAll(localAlbums);

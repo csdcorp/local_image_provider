@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:local_image_provider/local_album.dart';
 import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider_platform_interface/local_album_type.dart';
@@ -85,6 +86,9 @@ class LocalImageProvider {
   /// has been granted. When true other methods in the library only return
   /// specific photos that have been explicitly allowed.
   Future<bool> get hasLimitedPermission async {
+    if (kIsWeb) {
+      return false;
+    }
     if (Platform.isIOS) {
       return await LocalImageProviderPlatform.instance.hasLimitedPermission();
     }
