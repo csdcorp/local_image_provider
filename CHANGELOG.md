@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.1
+
+### Updates
+* fix compile error on latest Xcode
+
 ## 2.4.0
 
 ### Updates
