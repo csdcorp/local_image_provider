@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
   json_annotation: ^3.1.1
   local_image_provider_platform_interface:
     path: ../local_image_provider_platform_interface
@@ -29,4 +31,8 @@ flutter:
         pluginClass: LocalImageProviderPlugin
       ios:
         pluginClass: LocalImageProviderPlugin
+       web:
+        pluginClass: WebLocalImageProviderPlugin
+        fileName: local_image_provider_web.dart
+
 

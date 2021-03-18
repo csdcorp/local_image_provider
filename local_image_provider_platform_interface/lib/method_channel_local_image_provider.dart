@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_image_provider_platform_interface/local_album_type.dart';
 
