@@ -13,8 +13,11 @@ applications.
 
 ## Recent Updates
 
+2.4.1 remains the current stable version unless you're looking for web support. 
+
 The 3.0.0 version supports the web. It reports no images or albums foound when used on the web so it is
-meant to ensure that local_image_provider does not block web deployment for apps that depend on it. 
+meant to ensure that local_image_provider does not block web deployment for apps that depend on it. This 
+is a major change that also uses a new platform interface. 
 
 The 2.3.0 version provides better support for image compression and improves support for the new limited 
 access grant under iOS 14+. 
