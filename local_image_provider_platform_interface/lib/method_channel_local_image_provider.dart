@@ -55,9 +55,8 @@ class MethodChannelLocalImageProvider extends LocalImageProviderPlatform {
   }
 
   @override
-  Future<String> videoFile(String id) {
-    return _channel.invokeMethod<String>('video_file', {'id': id})
-        as Future<String>;
+  Future<String> videoFile(String id) async {
+    return await _channel.invokeMethod<String>('video_file', {'id': id}) ?? '';
   }
 
   @override
