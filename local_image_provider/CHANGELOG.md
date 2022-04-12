@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.0
+* Required dependencies now exported, no longer need explicit import 
+for `DeviceImage`, `LocalImage`, `LocalAlbum`
+
 ## 4.0.2
 * fix for filename on Android
 
