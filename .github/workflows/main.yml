@@ -27,8 +27,18 @@ jobs:
           flutter-version: '2.2.0'
           channel: 'stable'
 
-      - name: Get dependencies
+      - name: Get platform interface dependencies
         run: flutter pub get
+        working-directory: local_image_provider_platform_interface
 
-      - name: Run tests
+      - name: Run platform interface tests
         run: flutter test
+        working-directory: local_image_provider_platform_interface
+
+      - name: Get plugin dependencies
+        run: flutter pub get
+        working-directory: local_image_provider
+
+      - name: Run plugin tests
+        run: flutter test
+        working-directory: local_image_provider
