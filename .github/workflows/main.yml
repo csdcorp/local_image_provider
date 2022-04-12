@@ -24,7 +24,7 @@ jobs:
       - name: Install flutter
         uses: subosito/flutter-action@v1.5.0
         with:
-          flutter-version: '2.10.4'
+          flutter-version: '2.10.0'
           channel: 'stable'
 
       - name: Get platform interface dependencies
