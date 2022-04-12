@@ -479,7 +479,7 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
             val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.TITLE)
             val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID)
             val sizeColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.SIZE)
-            val fileName = imgUri.path!!
+            val fileName = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DISPLAY_NAME)
             val mediaType = "img"
             while (imageCursor.moveToNext()) {
                 val mediaAsset = MediaAsset(
@@ -487,7 +487,7 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
                         getIntColumn(imageCursor,heightColumn,0),
                         getIntColumn(imageCursor,widthColumn,0),
                         getStringColumn(imageCursor,idColumn,""),
-                        Date(getLongColumn(imageCursor,dateColumn, 0)), fileName,
+                        Date(getLongColumn(imageCursor,dateColumn, 0)), getStringColumn(imageCursor,fileName,""),
                         getIntColumn(imageCursor,sizeColumn, 0), mediaType)
                 media.add(mediaAsset)
             }
@@ -508,7 +508,7 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
             val titleColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.TITLE)
             val idColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns._ID)
             val sizeColumn = imageCursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.SIZE)
-            val fileName = imgUri.path!!
+            val fileName = imageCursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DISPLAY_NAME)
             val mediaType = "video"
             while (imageCursor.moveToNext()) {
                 val mediaAsset = MediaAsset(
@@ -516,7 +516,7 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
                         getIntColumn(imageCursor, heightColumn, 0),
                         getIntColumn(imageCursor, widthColumn, 0),
                         getStringColumn(imageCursor,idColumn, ""),
-                        Date(getLongColumn(imageCursor,dateColumn, 0)), fileName,
+                        Date(getLongColumn(imageCursor,dateColumn, 0)), getStringColumn(imageCursor,fileName,""),
                         getIntColumn(imageCursor,sizeColumn,0), mediaType)
                 media.add(mediaAsset)
             }
