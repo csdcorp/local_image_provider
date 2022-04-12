@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.1
+* update to interface 2.0.1 to fix missing video file handling
+
 ## 4.0.0-nullsafety
 
 ### Updates

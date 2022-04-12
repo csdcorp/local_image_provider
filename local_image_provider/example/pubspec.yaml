@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   video_player: ^2.0.2
-  image_picker: ^0.7.3
+  image_picker: ^0.8.5
 
   local_image_provider:
     # When depending on this package from a real application you should use:
