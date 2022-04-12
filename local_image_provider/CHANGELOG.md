@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.0.2
+* fix for filename on Android
+
 ## 4.0.1
 * update to interface 2.0.1 to fix missing video file handling
 
