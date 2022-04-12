@@ -4,8 +4,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:local_image_provider_example/local_image_body_widget.dart';
 import 'package:local_image_provider/local_image_provider.dart';
-import 'package:local_image_provider/local_image.dart';
-import 'package:local_image_provider/device_image.dart';
 
 void main() {
   CustomImageCache();

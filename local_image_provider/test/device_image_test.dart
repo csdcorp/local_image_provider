@@ -3,8 +3,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:local_image_provider/device_image.dart';
-import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 import 'package:local_image_provider_platform_interface/local_image_provider_platform_interface.dart';
 
@@ -147,7 +145,8 @@ void main() {
     });
     test('compression can be set', () {
       var dImg1 = DeviceImage(img1, compression: compression20Percent);
-      loadAndExpect(testProvider!, dImg1, height1, width1, compression20Percent);
+      loadAndExpect(
+          testProvider!, dImg1, height1, width1, compression20Percent);
     });
     test('platform exception returns default image', () {
       var dImg1 = DeviceImage(missingImg);

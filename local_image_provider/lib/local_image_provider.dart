@@ -9,6 +9,10 @@ import 'package:local_image_provider/local_album.dart';
 import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider_platform_interface/local_album_type.dart';
 import 'package:local_image_provider_platform_interface/local_image_provider_platform_interface.dart';
+export 'package:local_image_provider/device_image.dart';
+export 'package:local_image_provider/local_image.dart';
+export 'package:local_image_provider/local_album.dart';
+export 'package:local_image_provider_platform_interface/local_album_type.dart';
 
 /// An interface to get information from the local image storage on the device.
 ///

@@ -3,12 +3,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_image_provider/local_image_provider.dart';
-import 'package:local_image_provider/local_image.dart';
-import 'package:local_image_provider/local_album.dart';
 import 'package:local_image_provider_example/albums_list_widget.dart';
 import 'package:local_image_provider_example/image_preview_widget.dart';
 import 'package:local_image_provider_example/images_list_widget.dart';
-import 'package:local_image_provider_platform_interface/local_album_type.dart';
 
 /// Builds a simple UI that shows the functionality of the
 /// local_image_provider plugin.

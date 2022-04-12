@@ -3,10 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:local_image_provider/local_album.dart';
-import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/local_image_provider.dart';
-import 'package:local_image_provider_platform_interface/local_album_type.dart';
 import 'package:local_image_provider_platform_interface/local_image_provider_platform_interface.dart';
 
 import 'test_local_image_provider.dart';

@@ -8,7 +8,6 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
-import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 
 /// Decodes the given [LocalImage] object as an [ImageProvider], associating it with the given

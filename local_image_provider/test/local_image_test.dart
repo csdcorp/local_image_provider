@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/local_image_provider.dart';
 import 'package:local_image_provider_platform_interface/local_image_provider_platform_interface.dart';
 
@@ -93,6 +92,7 @@ void main() {
       var img = LocalImage(testId1, create1, height1, width1, fileName1,
           fileSize1, LocalImage.imageMediaType,
           compression: compression1);
+      // ignore: deprecated_member_use_from_same_package
       var bytes = await img.getImageBytes(localImageProvider, height1, width1);
       expect(testProvider!.requestedImgId, testId1);
       expect(testProvider!.requestedHeight, height1);
@@ -104,6 +104,7 @@ void main() {
       var img = LocalImage(testId1, create1, height1, width1, fileName1,
           fileSize1, LocalImage.imageMediaType);
       var bytes =
+          // ignore: deprecated_member_use_from_same_package
           await img.getScaledImageBytes(localImageProvider, scale80Percent);
       expect(testProvider!.requestedImgId, testId1);
       expect(testProvider!.requestedHeight, height80Percent);

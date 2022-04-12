@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:local_image_provider/local_image.dart';
-import 'package:local_image_provider/local_album.dart';
+import 'package:local_image_provider/local_image_provider.dart';
 
 class AlbumsListWidget extends StatelessWidget {
   const AlbumsListWidget({

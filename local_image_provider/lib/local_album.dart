@@ -1,9 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:local_image_provider/local_image.dart';
 import 'package:local_image_provider/local_image_provider.dart';
-import 'package:local_image_provider_platform_interface/local_album_type.dart';
 
 part 'local_album.g.dart';
 
