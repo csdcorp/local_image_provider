@@ -82,6 +82,7 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
     private var activeResult: Result? = null
     private var initializedSuccessfully: Boolean = false
     private var permissionGranted: Boolean = false
+    private val videoIds = hashSetOf<String>()
     private val logTag = "LocalImageProvider"
     private val imageColumns = arrayOf(MediaStore.Images.ImageColumns.DISPLAY_NAME,
             MediaStore.Images.ImageColumns.DATE_TAKEN,
@@ -517,6 +518,7 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
             val mediaType = "video"
             while (imageCursor.moveToNext()) {
                 val id = getStringColumn(imageCursor,idColumn,"")
+                videoIds.add(id)
                 val mediaAsset = MediaAsset(
                     getStringColumn(imageCursor, titleColumn, ""),
                     getIntColumn(imageCursor, heightColumn, 0),
@@ -639,25 +641,9 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
 
     private fun findBaseUri( id: String ) : Uri {
         var baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-//        var imageCount = 0
-//        val mediaColumns = arrayOf(
-//            MediaStore.Video.VideoColumns._ID
-//        )
-//        val selection = "${MediaStore.Video.VideoColumns._ID} = ?"
-//        val selectionArgs = arrayOf(id)
-//        val localActivity = currentActivity
-//        if (null != localActivity) {
-//            val mediaResolver = localActivity.contentResolver
-//            val imageCursor = mediaResolver.query(imgUri, mediaColumns, selection,
-//                selectionArgs, null)
-//            imageCursor?.use {
-//                imageCount = imageCursor.count
-//            }
-//            if ( imageCount > 0 ) {
-//                baseUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-//            }
-//        }
-
+        if ( videoIds.contains(id) ) {
+            baseUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        }
         return baseUri
     }
 

@@ -3,6 +3,7 @@
 ## 4.2.0
 * Android method signature change for Flutter 3.0.0
 * Fix for reference to non-null PaintingBinding.instance in [DeviceImage]
+* getImageBytes now works properly for videos
 
 ## 4.1.0
 * Fix for image bytes write [#42](https://github.com/csdcorp/local_image_provider/issues/42)
