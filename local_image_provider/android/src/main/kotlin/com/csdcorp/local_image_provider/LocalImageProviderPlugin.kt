@@ -29,6 +29,7 @@ import io.flutter.plugin.common.PluginRegistry
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.FileNotFoundException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -482,13 +483,17 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
             val fileName = imageCursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DISPLAY_NAME)
             val mediaType = "img"
             while (imageCursor.moveToNext()) {
+                val id = getStringColumn(imageCursor,idColumn,"")
                 val mediaAsset = MediaAsset(
-                        getStringColumn(imageCursor,titleColumn, ""),
-                        getIntColumn(imageCursor,heightColumn,0),
-                        getIntColumn(imageCursor,widthColumn,0),
-                        getStringColumn(imageCursor,idColumn,""),
-                        Date(getLongColumn(imageCursor,dateColumn, 0)), getStringColumn(imageCursor,fileName,""),
-                        getIntColumn(imageCursor,sizeColumn, 0), mediaType)
+                    getStringColumn(imageCursor, titleColumn, ""),
+                    getIntColumn(imageCursor, heightColumn, 0),
+                    getIntColumn(imageCursor, widthColumn, 0),
+                    getStringColumn(imageCursor, idColumn, ""),
+                    Date(getLongColumn(imageCursor, dateColumn, 0)),
+                    getStringColumn(imageCursor, fileName, ""),
+                    getIntColumn(imageCursor, sizeColumn, 0),
+                    mediaType
+                )
                 media.add(mediaAsset)
             }
         }
@@ -511,13 +516,17 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
             val fileName = imageCursor.getColumnIndexOrThrow(MediaStore.Video.VideoColumns.DISPLAY_NAME)
             val mediaType = "video"
             while (imageCursor.moveToNext()) {
+                val id = getStringColumn(imageCursor,idColumn,"")
                 val mediaAsset = MediaAsset(
-                        getStringColumn( imageCursor, titleColumn, ""),
-                        getIntColumn(imageCursor, heightColumn, 0),
-                        getIntColumn(imageCursor, widthColumn, 0),
-                        getStringColumn(imageCursor,idColumn, ""),
-                        Date(getLongColumn(imageCursor,dateColumn, 0)), getStringColumn(imageCursor,fileName,""),
-                        getIntColumn(imageCursor,sizeColumn,0), mediaType)
+                    getStringColumn(imageCursor, titleColumn, ""),
+                    getIntColumn(imageCursor, heightColumn, 0),
+                    getIntColumn(imageCursor, widthColumn, 0),
+                    getStringColumn(imageCursor, idColumn, ""),
+                    Date(getLongColumn(imageCursor, dateColumn, 0)),
+                    getStringColumn(imageCursor, fileName, ""),
+                    getIntColumn(imageCursor, sizeColumn, 0),
+                    mediaType
+                )
                 media.add(mediaAsset)
             }
         }
@@ -589,7 +598,8 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
             return
         }
         Thread(Runnable {
-            val imgUri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+            val baseUri = findBaseUri( id )
+            val imgUri = Uri.withAppendedPath(baseUri, id)
             try {
                 val localActivity = currentActivity
                 if (null != localActivity) {
@@ -627,6 +637,30 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
         }).start()
     }
 
+    private fun findBaseUri( id: String ) : Uri {
+        var baseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+//        var imageCount = 0
+//        val mediaColumns = arrayOf(
+//            MediaStore.Video.VideoColumns._ID
+//        )
+//        val selection = "${MediaStore.Video.VideoColumns._ID} = ?"
+//        val selectionArgs = arrayOf(id)
+//        val localActivity = currentActivity
+//        if (null != localActivity) {
+//            val mediaResolver = localActivity.contentResolver
+//            val imageCursor = mediaResolver.query(imgUri, mediaColumns, selection,
+//                selectionArgs, null)
+//            imageCursor?.use {
+//                imageCount = imageCursor.count
+//            }
+//            if ( imageCount > 0 ) {
+//                baseUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+//            }
+//        }
+
+        return baseUri
+    }
+
     private fun initializeIfPermitted(context: Context?) {
         if (null == context) {
             completeInitialize()
@@ -654,8 +688,8 @@ public class LocalImageProviderPlugin : FlutterPlugin, MethodCallHandler,
         activeResult = null
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>?,
-                                            grantResults: IntArray?): Boolean {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
+                                            grantResults: IntArray): Boolean {
         when (requestCode) {
             imagePermissionCode -> {
                 if (null != grantResults) {
@@ -685,7 +719,7 @@ private class ChannelResultWrapper(result: Result) : Result {
         }
     }
 
-    override fun error(errorCode: String?, errorMessage: String?, data: Any?) {
+    override fun error(errorCode: String, errorMessage: String?, data: Any?) {
         handler.post {
             run {
                 result.error(errorCode, errorMessage, data)

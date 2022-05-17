@@ -20,6 +20,7 @@ dependencies:
     # the parent directory to use the current plugin's version. 
     path: ../
   local_image_provider_platform_interface: ^2.0.0-nullsafety
+  path_provider: ^2.0.9
 
   cupertino_icons: ^1.0.2
 

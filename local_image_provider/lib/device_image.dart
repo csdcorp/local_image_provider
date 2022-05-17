@@ -78,7 +78,7 @@ class DeviceImage extends ImageProvider<DeviceImage> {
       return;
     }
     final ImageStreamCompleter completer =
-        load(key, PaintingBinding.instance!.instantiateImageCodec);
+        load(key, PaintingBinding.instance.instantiateImageCodec);
     stream.setCompleter(completer);
   }
 
