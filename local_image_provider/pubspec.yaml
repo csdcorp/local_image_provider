@@ -1,6 +1,6 @@
 name: local_image_provider
 description: A library for retrieving the metadata and contents of the images, videos, and albums on a mobile device.
-version: 4.3.0
+version: 4.4.0
 homepage: https://github.com/csdcorp/local_image_provider
 
 environment:
@@ -12,7 +12,7 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  json_annotation: ^4.0.0
+  json_annotation: ^4.0.1
   # local_image_provider_platform_interface: ^2.0.1
   local_image_provider_platform_interface: 
     path: ../local_image_provider_platform_interface
