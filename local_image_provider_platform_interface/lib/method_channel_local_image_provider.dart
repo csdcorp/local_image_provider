@@ -64,6 +64,12 @@ class MethodChannelLocalImageProvider extends LocalImageProviderPlatform {
     return _channel.invokeMethod<void>('cleanup');
   }
 
+  Future<String> newAlbum(String title, bool shared) async {
+    return await _channel.invokeMethod<String>(
+            'new_album', {'title': title, 'shared': shared}) ??
+        '';
+  }
+
   List<String> _toStringList(List<dynamic>? dynList) {
     if (null == dynList) return [];
     return dynList

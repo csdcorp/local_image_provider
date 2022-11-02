@@ -104,4 +104,8 @@ abstract class LocalImageProviderPlatform extends PlatformInterface {
   Future cleanup() {
     throw UnimplementedError();
   }
+
+  Future<String> newAlbum(String title, bool shared) {
+    throw UnimplementedError();
+  }
 }

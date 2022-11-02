@@ -7,6 +7,7 @@ class AlbumsListWidget extends StatelessWidget {
     required this.localImages,
     required this.localAlbums,
     required this.switchAlbum,
+    required this.localImageProvider,
     this.selectedAlbum,
     required this.limited,
   }) : super(key: key);
@@ -16,6 +17,7 @@ class AlbumsListWidget extends StatelessWidget {
   final void Function(LocalAlbum album) switchAlbum;
   final LocalAlbum? selectedAlbum;
   final bool limited;
+  final LocalImageProvider localImageProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +34,18 @@ class AlbumsListWidget extends StatelessWidget {
           ),
           Container(
             padding: EdgeInsets.all(8),
-            child: Text(
-              'Albums',
-              style: Theme.of(context).textTheme.headline6,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Albums',
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                ElevatedButton(
+                  onPressed: () => _newAlbum(context),
+                  child: Icon(Icons.add),
+                )
+              ],
             ),
           ),
           Expanded(
@@ -63,6 +74,39 @@ class AlbumsListWidget extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  _newAlbum(BuildContext context) {
+    String _title = '';
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('New Album'),
+          content: TextField(
+            decoration: InputDecoration(
+              labelText: 'Title',
+            ),
+            onChanged: (value) {
+              _title = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                localImageProvider.newAlbum(_title, false);
+              },
+              child: Text('Create'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -12,6 +12,7 @@ public enum LocalImageProviderMethods: String {
     case albums
     case has_permission
     case has_limited_permission
+    case new_album
     case unknown // just for testing
 }
 
@@ -19,6 +20,7 @@ public enum LocalImageProviderErrors: String {
     case imgLoadFailed
     case imgNotFound
     case missingOrInvalidArg
+    case albumCreateFailed
     case unimplemented
 }
 
@@ -112,6 +114,17 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
             getVideoFile( localId, result)
         case LocalImageProviderMethods.cleanup.rawValue:
             cleanup( result)
+        case LocalImageProviderMethods.new_album.rawValue:
+            guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
+                let title = argsArr["title"] as? String,
+                let isShared = argsArr["shared"] as? Bool
+                else {
+                    result(FlutterError( code: LocalImageProviderErrors.missingOrInvalidArg.rawValue,
+                                         message:"Missing args requires title and shared",
+                                         details: nil ))
+                    return
+                }
+            newAlbum( title, isShared, result)
         default:
             print("Unrecognized method: \(call.method)")
             result( FlutterMethodNotImplemented)
@@ -300,7 +313,7 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
     
     private func imageToJson( _ asset: PHAsset ) -> String {
         let creationDate = isoDf.string(from: asset.creationDate!)
-        var fileName = asset.fileName
+        let fileName = asset.fileName
         let fileSize = asset.fileSize
         var mediaType = "img"
         if ( asset.mediaType == PHAssetMediaType.video ) {
@@ -380,6 +393,23 @@ public class SwiftLocalImageProviderPlugin: NSObject, FlutterPlugin {
         }
         DispatchQueue.main.async {
             flutterResult( true )
+        }
+    }
+
+    private func newAlbum( _ title: String, _ shared: Bool, _ flutterResult: @escaping FlutterResult) {
+        let library = PHPhotoLibrary.shared() 
+        library.performChanges({
+            PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: title)
+        }) { success, error in
+            if success {
+                DispatchQueue.main.async {
+                    flutterResult( true )
+                }
+            } else {
+                DispatchQueue.main.async {
+                    flutterResult(FlutterError( code: LocalImageProviderErrors.albumCreateFailed.rawValue, message: "Failed to create album: \(title) ", details: nil ))
+                }
+            }
         }
     }
 

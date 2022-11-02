@@ -175,6 +175,7 @@ class _LocalImageBodyWidgetState extends State<LocalImageBodyWidget> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       AlbumsListWidget(
+                        localImageProvider: localImageProvider,
                         localImages: _localImages,
                         localAlbums: _localAlbums,
                         switchAlbum: switchAlbum,

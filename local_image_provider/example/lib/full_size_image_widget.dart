@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:local_image_provider/local_image_provider.dart';
@@ -25,7 +26,14 @@ class _FullSizeImageWidgetState extends State<FullSizeImageWidget> {
     super.initState();
     if (widget.selectedImg.isVideo) {
       setupVideo();
+    } else {
+      _testLoadImage();
     }
+  }
+
+  void _testLoadImage() async {
+    Uint8List fileByte = await LocalImageProvider()
+        .imageBytes(widget.selectedImg.id.toString(), 1080, 1080);
   }
 
   @override
