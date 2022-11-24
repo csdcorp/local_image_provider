@@ -41,10 +41,10 @@ class AlbumsListWidget extends StatelessWidget {
                   'Albums',
                   style: Theme.of(context).textTheme.headline6,
                 ),
-                ElevatedButton(
-                  onPressed: () => _newAlbum(context),
-                  child: Icon(Icons.add),
-                )
+                // ElevatedButton(
+                //   onPressed: () => _newAlbum(context),
+                //   child: Icon(Icons.add),
+                // )
               ],
             ),
           ),
@@ -97,13 +97,13 @@ class AlbumsListWidget extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
               child: Text('Cancel'),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                localImageProvider.newAlbum(_title, false);
-              },
-              child: Text('Create'),
-            ),
+            // // TextButton(
+            // //   onPressed: () {
+            // //     Navigator.of(context).pop();
+            // //     localImageProvider.newAlbum(_title, false);
+            // //   },
+            //   child: Text('Create'),
+            // ),
           ],
         );
       },

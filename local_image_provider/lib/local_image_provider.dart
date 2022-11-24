@@ -239,16 +239,16 @@ class LocalImageProvider {
     return filePath;
   }
 
-  /// This method creates a new album with the given title
-  Future<LocalAlbum> newAlbum(String title, bool shared) async {
-    if (!_initWorked) {
-      throw LocalImageProviderNotInitializedException();
-    }
-    final String albumJson =
-        await LocalImageProviderPlatform.instance.newAlbum(title, shared);
-    Map<String, dynamic> albumMap = jsonDecode(albumJson);
-    return LocalAlbum.fromJson(albumMap);
-  }
+  // /// This method creates a new album with the given title
+  // Future<LocalAlbum> newAlbum(String title, bool shared) async {
+  //   if (!_initWorked) {
+  //     throw LocalImageProviderNotInitializedException();
+  //   }
+  //   final String albumJson =
+  //       await LocalImageProviderPlatform.instance.newAlbum(title, shared);
+  //   Map<String, dynamic> albumMap = jsonDecode(albumJson);
+  //   return LocalAlbum.fromJson(albumMap);
+  // }
 
   /// Call this method to cleanup any temporary files that have been
   /// created by the image provider.

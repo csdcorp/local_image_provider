@@ -1,5 +1,8 @@
 # Changelog
 
+## 4.3.0
+* Gradle and Kotlin upgrades to newer versions
+
 ## 4.2.0
 * Android method signature change for Flutter 3.0.0
 * Fix for reference to non-null PaintingBinding.instance in [DeviceImage]
